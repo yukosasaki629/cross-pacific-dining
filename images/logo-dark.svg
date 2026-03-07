@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 180" width="480">
+  <path d="M160,95 Q240,55 320,95" fill="none" stroke="#C9A84C" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="140" y1="100" x2="340" y2="100" stroke="#C9A84C" stroke-width="0.5" opacity="0.5"/>
+  <text x="240" y="130" text-anchor="middle" font-family="'Cormorant Garamond', 'EB Garamond', serif" font-size="28" font-weight="300" fill="#FAFAF8" letter-spacing="6">CROSS PACIFIC</text>
+  <line x1="175" y1="140" x2="305" y2="140" stroke="#C9A84C" stroke-width="0.5"/>
+  <text x="240" y="160" text-anchor="middle" font-family="'Cormorant Garamond', 'EB Garamond', serif" font-size="13" font-weight="400" fill="#C9A84C" letter-spacing="14">DINING</text>
+</svg>

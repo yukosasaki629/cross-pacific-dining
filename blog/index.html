@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-K98D79V3G2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-K98D79V3G2');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ブログ｜Cross Pacific Dining</title>
+<meta name="description" content="アメリカでの飲食ビジネス・レストラン進出に関するリアルな情報を、LA在住の現場経験者が発信。州選び、視察、コスト、人材、ファスト・カジュアルなど。">
+<link rel="canonical" href="https://cross-pacific-dining.com/blog/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E8D48B;
+  --gold-dark: #A07C1C;
+  --navy: #0B1629;
+  --navy-light: #162040;
+  --white: #FAFAF8;
+  --cream: #F5F0E8;
+  --text: #1A1A1A;
+  --text-light: #6B6B6B;
+  --warm-gray: #E8E4DD;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; font-size:16px; }
+body {
+  font-family:'Noto Sans JP', sans-serif;
+  color:var(--text);
+  background:var(--white);
+  line-height:1.8;
+}
+
+/* ===== NAV ===== */
+.nav {
+  position:fixed;
+  top:0; left:0; right:0;
+  z-index:100;
+  background:var(--navy);
+  padding:0.8rem 2rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.nav-logo {
+  color:var(--gold);
+  font-family:'EB Garamond', serif;
+  font-size:1.1rem;
+  text-decoration:none;
+  letter-spacing:0.05em;
+}
+.nav-links { display:flex; gap:1.8rem; }
+.nav-links a {
+  color:rgba(255,255,255,0.7);
+  text-decoration:none;
+  font-size:0.75rem;
+  letter-spacing:0.1em;
+  transition:color 0.3s;
+}
+.nav-links a:hover { color:var(--gold); }
+
+/* ===== HERO ===== */
+.blog-hero {
+  background:var(--navy);
+  padding:8rem 2rem 4rem;
+  text-align:center;
+}
+.blog-hero .label {
+  font-size:0.7rem;
+  color:var(--gold);
+  letter-spacing:0.2em;
+  margin-bottom:1rem;
+}
+.blog-hero h1 {
+  font-size:2rem;
+  color:var(--white);
+  font-weight:700;
+  margin-bottom:1rem;
+}
+.blog-hero p {
+  color:rgba(255,255,255,0.5);
+  font-size:0.9rem;
+  max-width:500px;
+  margin:0 auto;
+}
+
+/* ===== BLOG LIST ===== */
+.blog-list {
+  max-width:800px;
+  margin:0 auto;
+  padding:4rem 2rem;
+}
+.blog-card {
+  display:block;
+  text-decoration:none;
+  color:var(--text);
+  padding:2.5rem 0;
+  border-bottom:1px solid var(--warm-gray);
+  transition:all 0.3s;
+}
+.blog-card:first-child { border-top:1px solid var(--warm-gray); }
+.blog-card:hover { padding-left:1rem; }
+.blog-card .bc-date {
+  font-size:0.72rem;
+  color:var(--gold-dark);
+  letter-spacing:0.15em;
+  margin-bottom:0.6rem;
+}
+.blog-card .bc-title {
+  font-size:1.25rem;
+  font-weight:700;
+  color:var(--navy);
+  line-height:1.5;
+  margin-bottom:0.8rem;
+  transition:color 0.3s;
+}
+.blog-card:hover .bc-title { color:var(--gold-dark); }
+.blog-card .bc-desc {
+  font-size:0.88rem;
+  color:var(--text-light);
+  line-height:1.8;
+}
+.blog-card .bc-tag {
+  display:inline-block;
+  margin-top:1rem;
+  font-size:0.7rem;
+  color:var(--gold-dark);
+  border:1px solid var(--gold);
+  padding:0.2rem 0.8rem;
+  letter-spacing:0.08em;
+}
+
+.coming-soon {
+  padding:2.5rem 0;
+  border-bottom:1px solid var(--warm-gray);
+}
+.coming-soon .bc-date {
+  font-size:0.72rem;
+  color:var(--text-light);
+  letter-spacing:0.15em;
+  margin-bottom:0.6rem;
+}
+.coming-soon .bc-title {
+  font-size:1.1rem;
+  font-weight:500;
+  color:var(--text-light);
+  line-height:1.5;
+  margin-bottom:0.5rem;
+}
+.coming-soon .bc-tag {
+  display:inline-block;
+  margin-top:0.5rem;
+  font-size:0.68rem;
+  color:var(--text-light);
+  border:1px solid var(--warm-gray);
+  padding:0.2rem 0.8rem;
+  letter-spacing:0.08em;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  background:var(--navy);
+  color:rgba(255,255,255,0.4);
+  text-align:center;
+  padding:3rem 2rem;
+  font-size:0.7rem;
+  letter-spacing:0.1em;
+}
+.footer a { color:var(--gold); text-decoration:none; }
+
+@media(max-width:768px) {
+  .blog-hero h1 { font-size:1.5rem; }
+  .blog-hero { padding:7rem 1.5rem 3rem; }
+  .blog-list { padding:3rem 1.5rem; }
+  .blog-card .bc-title { font-size:1.1rem; }
+  .nav-links { gap:1rem; }
+  .nav-links a { font-size:0.65rem; }
+}
+</style>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="/" class="nav-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="60 25 360 110" style="height:55px;width:auto;"><path d="M160,65 Q240,30 320,65" fill="none" stroke="#C9A84C" stroke-width="1.8" stroke-linecap="round"/><line x1="140" y1="70" x2="340" y2="70" stroke="#C9A84C" stroke-width="0.5" opacity="0.5"/><text x="240" y="97" text-anchor="middle" font-family="'EB Garamond',serif" font-size="28" font-weight="300" fill="#FAFAF8" letter-spacing="6">CROSS PACIFIC</text><line x1="175" y1="107" x2="305" y2="107" stroke="#C9A84C" stroke-width="0.5"/><text x="240" y="127" text-anchor="middle" font-family="'EB Garamond',serif" font-size="13" font-weight="400" fill="#C9A84C" letter-spacing="14">DINING</text></svg></a>
+  <div class="nav-links">
+    <a href="/">ホーム</a>
+    <a href="/blog/">ブログ</a>
+    <a href="/consultation">初回相談</a>
+    <a href="/la-tour">視察ツアー</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="blog-hero">
+  <div class="label">BLOG</div>
+  <h1>ブログ</h1>
+  <p>アメリカ飲食ビジネスの現場から、<br>進出判断に必要なリアルを発信します。</p>
+</header>
+
+<!-- BLOG LIST -->
+<div class="lang-switch" style="text-align:center;padding:1.5rem 2rem;background:var(--cream);"><a href="/blog/en/" style="color:#A07C1C;text-decoration:none;font-size:.8rem;letter-spacing:.1em;border-bottom:1px solid #C9A84C;">English Version →</a></div>
+<section class="blog-list">
+
+  <a href="/blog/kindle-book-announcement.html" class="blog-card">
+    <div class="bc-date">2026.03.07</div>
+    <div class="bc-title">📖 書籍『アメリカでレストランを出す前に、これだけは知ってほしいこと』出版のお知らせ</div>
+    <div class="bc-desc">Cross Pacific Dining初の書籍がKindleにて発売開始。現場の"中"から見てきたリアルを一冊に。</div>
+    <span class="bc-tag">お知らせ</span>
+  </a>
+
+  <a href="/blog/menu-design-america.html" class="blog-card">
+    <div class="bc-date">2025.09.01</div>
+    <div class="bc-title">アメリカ向けメニューの作り方——日本のままでは伝わらない</div>
+    <div class="bc-desc">写真、説明文、価格表示。メニューは翻訳ではなく「体験の設計図」。</div>
+    <span class="bc-tag">メニュー設計</span>
+  </a>
+
+  <a href="/blog/franchise-vs-direct.html" class="blog-card">
+    <div class="bc-date">2025.10.15</div>
+    <div class="bc-title">フランチャイズ vs 直営——アメリカ進出はどちらで始めるべきか</div>
+    <div class="bc-desc">正解は一つではない。今のあなたに合った展開方法の判断基準。</div>
+    <span class="bc-tag">展開戦略</span>
+  </a>
+
+  <a href="/blog/food-truck-first.html" class="blog-card">
+    <div class="bc-date">2025.11.01</div>
+    <div class="bc-title">フードトラックから始めるという選択肢</div>
+    <div class="bc-desc">いきなり実店舗ではなく、小さく試す方法がある。低リスクの市場テスト。</div>
+    <span class="bc-tag">スタートアップ</span>
+  </a>
+
+  <a href="/blog/american-customer-psychology.html" class="blog-card">
+    <div class="bc-date">2025.11.15</div>
+    <div class="bc-title">アメリカ人消費者の食の心理——日本人経営者が見落とすこと</div>
+    <div class="bc-desc">美味しければ来るは成り立たない。入りやすさ、カスタマイズ、体験の設計。</div>
+    <span class="bc-tag">消費者心理</span>
+  </a>
+
+  <a href="/blog/lease-negotiation.html" class="blog-card">
+    <div class="bc-date">2025.12.01</div>
+    <div class="bc-title">リース交渉で絶対に知るべきこと——契約前に読む記事</div>
+    <div class="bc-desc">NNNリース、TI交渉、リース期間。サインした瞬間に逃げ道がなくなる。</div>
+    <span class="bc-tag">契約・法務</span>
+  </a>
+
+  <a href="/blog/health-department-inspection.html" class="blog-card">
+    <div class="bc-date">2026.01.01</div>
+    <div class="bc-title">衛生局の検査で落ちないために——知っておくべき基準と対策</div>
+    <div class="bc-desc">抜き打ち検査、温度管理、手洗い。衛生スコアは店の信用に直結する。</div>
+    <span class="bc-tag">オペレーション</span>
+  </a>
+
+  <a href="/blog/social-media-restaurant.html" class="blog-card">
+    <div class="bc-date">2026.01.15</div>
+    <div class="bc-title">レストランのSNSマーケティング——やるべきことと、やらなくていいこと</div>
+    <div class="bc-desc">全部やろうとすると全部が中途半端に。Google Reviews、Instagram、TikTokの優先順位。</div>
+    <span class="bc-tag">マーケティング</span>
+  </a>
+
+  <a href="/blog/ghost-kitchen-trend.html" class="blog-card">
+    <div class="bc-date">2026.02.01</div>
+    <div class="bc-title">ゴーストキッチンは本当に使えるのか——流行の裏にあるリアル</div>
+    <div class="bc-desc">低コストで始められる。でもプラットフォーム手数料20〜30%の現実。</div>
+    <span class="bc-tag">ビジネスモデル</span>
+  </a>
+
+  <a href="/blog/exit-strategy.html" class="blog-card">
+    <div class="bc-date">2026.02.15</div>
+    <div class="bc-title">撤退戦略を最初から持つべき理由</div>
+    <div class="bc-desc">やめ方を決めていない人ほど、やめられない。撤退は失敗ではなく保険。</div>
+    <span class="bc-tag">経営戦略</span>
+  </a>
+
+  <a href="/blog/first-100days.html" class="blog-card">
+    <div class="bc-date">2026.03.01</div>
+    <div class="bc-title">オープン後100日で決まること——最初の壁を乗り越えるために</div>
+    <div class="bc-desc">開店はゴールではない。新規効果が消えた後のリピーター獲得が勝負。</div>
+    <span class="bc-tag">オペレーション</span>
+  </a>
+
+
+  <a href="/blog/soredemo-yaru-riyuu.html" class="blog-card">
+    <div class="bc-date">2026.03.01</div>
+    <div class="bc-title">それでもアメリカで挑戦する人がいる理由</div>
+    <div class="bc-desc">大変すぎる、リスクが多すぎる。それでも挑戦する人たちの共通点とアメリカンドリームの現在。</div>
+    <span class="bc-tag">マインドセット</span>
+  </a>
+
+  <a href="/blog/japantown-trap.html" class="blog-card">
+    <div class="bc-date">2026.02.15</div>
+    <div class="bc-title">ジャパンタウンの成功は「特殊解」——なぜ日本人街から出られないのか</div>
+    <div class="bc-desc">アジア人で賑わっているのに他のエリアでは全然ダメ。原因は料理ではなく入口設計。</div>
+    <span class="bc-tag">市場戦略</span>
+  </a>
+
+  <a href="/blog/partner-selection.html" class="blog-card">
+    <div class="bc-date">2026.01.15</div>
+    <div class="bc-title">アメリカ進出で「良い人」に騙されないために——現地パートナーの選び方</div>
+    <div class="bc-desc">日本語が通じる安心感が判断を鈍らせる。弁護士・会計士・パートナーの正しい選び方。</div>
+    <span class="bc-tag">パートナー</span>
+  </a>
+
+  <a href="/blog/cost-litigation-risk.html" class="blog-card">
+    <div class="bc-date">2025.12.15</div>
+    <div class="bc-title">アメリカ飲食経営のコストと訴訟リスク——知らないと必ず痛い目を見る</div>
+    <div class="bc-desc">マネージャーの盗難、ADA訴訟、突然届く請求書。想定外のコストと法的リスクの現実。</div>
+    <span class="bc-tag">コスト・リスク</span>
+  </a>
+
+  <a href="/blog/scale-business-model.html" class="blog-card">
+    <div class="bc-date">2025.12.01</div>
+    <div class="bc-title">1店舗目は「作品」、3店舗目からは「事業」——スケールできるモデルの条件</div>
+    <div class="bc-desc">属人モデルはなぜ崩壊するのか。味へのこだわりと広がるビジネスモデルの両立。</div>
+    <span class="bc-tag">ビジネスモデル</span>
+  </a>
+
+  <a href="/blog/la-restaurant-shisatsu.html" class="blog-card">
+    <div class="bc-date">2025.11.15</div>
+    <div class="bc-title">LA視察を観光で終わらせないための5つのポイント</div>
+    <div class="bc-desc">「すごかった」で終わる視察と「判断できた」で終わる視察。違いは視察前のたった一つの問い。</div>
+    <span class="bc-tag">視察</span>
+  </a>
+
+  <a href="/blog/america-restaurant-jinzai.html" class="blog-card">
+    <div class="bc-date">2025.11.01</div>
+    <div class="bc-title">アメリカのレストラン人材問題——「見て覚えて」が通じない理由</div>
+    <div class="bc-desc">人が取れない、すぐ辞める、育たない。アメリカで一番消耗する人材問題の現実と、制度で守る方法。</div>
+    <span class="bc-tag">人材・組織</span>
+  </a>
+
+  <a href="/blog/california-texas-newyork.html" class="blog-card">
+    <div class="bc-date">2025.10.15</div>
+    <div class="bc-title">カリフォルニア vs テキサス vs ニューヨーク——州選びの判断基準</div>
+    <div class="bc-desc">「どの州が正解？」ではなく「自分の業態にどの州が合うか？」。CA・TX・NYのコスト・規制・市場を現場視点で比較。</div>
+    <span class="bc-tag">州選び</span>
+  </a>
+
+  <a href="/blog/fast-casual-nihonshoku.html" class="blog-card">
+    <div class="bc-date">2025.10.01</div>
+    <div class="bc-title">なぜファスト・カジュアルが日本食の次の主戦場なのか</div>
+    <div class="bc-desc">ChipotleとCAVAの成功に続く次の波は、アジア系ファスト・カジュアル。寿司・ラーメンの次に全米でスケールする日本食とは？</div>
+    <span class="bc-tag">トレンド</span>
+  </a>
+
+  <a href="/blog/america-restaurant-shinsyutsu-guide.html" class="blog-card">
+    <div class="bc-date">2025.09.15</div>
+    <div class="bc-title">アメリカでレストランを開業する前に知るべき7つの現実</div>
+    <div class="bc-desc">LA在住10年超の現場経験から、アメリカ飲食進出前に必ず知っておくべき7つの現実を解説。州選び、コスト、人材、競争環境のリアル。</div>
+    <span class="bc-tag">アメリカ進出</span>
+  </a>
+
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <a href="/">Cross Pacific Dining</a><br><br>
+  © 2026 Cross Pacific Dining. All rights reserved.
+</footer>
+
+</body>
+</html>

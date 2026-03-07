@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 180" width="200">
+  <path d="M50,80 Q100,40 150,80" fill="none" stroke="#C9A84C" stroke-width="1.8"/>
+  <line x1="40" y1="85" x2="160" y2="85" stroke="#C9A84C" stroke-width="0.5" opacity="0.5"/>
+  <text x="100" y="120" text-anchor="middle" font-family="'Cormorant Garamond', 'EB Garamond', serif" font-size="28" font-weight="300" fill="#C9A84C" letter-spacing="3">CPD</text>
+</svg>

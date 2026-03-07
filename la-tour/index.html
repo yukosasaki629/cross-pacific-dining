@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-K98D79V3G2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-K98D79V3G2');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>LA飲食視察ツアー｜Cross Pacific Dining</title>
+<meta name="description" content="LAの飲食市場を経営者の目線で読み解く完全プライベート視察ツアー。飲食開発のプロが終日同行。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E8D48B;
+  --gold-dark: #A07C1C;
+  --navy: #0B1629;
+  --navy-light: #162040;
+  --navy-mid: #1C2D4F;
+  --white: #FAFAF8;
+  --cream: #F5F0E8;
+  --text: #1A1A1A;
+  --text-light: #6B6B6B;
+  --warm-gray: #E8E4DD;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; overflow-x: hidden; }
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  color: var(--text);
+  background: var(--white);
+  overflow-x: hidden;
+  line-height: 1.8;
+  width: 100%;
+  max-width: 100vw;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeInUp { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@keyframes shimmer { 0% { background-position:-200% center; } 100% { background-position:200% center; } }
+@keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
+@keyframes slideLeft { from { opacity:0; transform:translateX(-40px); } to { opacity:1; transform:translateX(0); } }
+@keyframes scaleIn { from { opacity:0; transform:scale(0.92); } to { opacity:1; transform:scale(1); } }
+
+.anim { opacity: 0; }
+.anim.vis { animation-fill-mode: both; }
+.anim.vis.fu { animation: fadeInUp 0.8s ease-out forwards; }
+.anim.vis.fi { animation: fadeIn 0.8s ease-out forwards; }
+.anim.vis.sl { animation: slideLeft 0.8s ease-out forwards; }
+.anim.vis.si { animation: scaleIn 0.8s ease-out forwards; }
+
+/* ===== HERO ===== */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background: 
+    linear-gradient(180deg, rgba(11,22,41,0.25) 0%, rgba(11,22,41,0.05) 40%, rgba(11,22,41,0.35) 100%),
+    url('images/hero.jpg') center/cover no-repeat;
+}
+.hero-content {
+  position: relative;
+  background: rgba(11,22,41,0.5);
+  padding: 3rem;
+  backdrop-filter: blur(2px);
+  z-index: 2;
+  text-align: center;
+  padding: 2rem 1.5rem;
+  max-width: 920px;
+  animation: fadeInUp 1.2s ease-out;
+}
+.hero-badge {
+  display: inline-block;
+  padding: 0.5rem 1.8rem;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-size: 0.72rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  font-weight: 500;
+  animation: fadeIn 1s ease-out 0.3s both;
+}
+.hero h1 {
+  
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.5rem, 4.2vw, 3.2rem);
+  color: white;
+  font-weight: 700;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+  letter-spacing: 0.03em;
+  
+}
+.hero h1 .gold-text {
+  display: block;
+  background: linear-gradient(90deg, var(--gold-light), var(--gold), var(--gold-light));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+  margin-top: 0.2em;
+  white-space: nowrap;
+}
+.hero-sub { 
+  font-size: clamp(0.82rem, 1.5vw, 1rem);
+  color: rgba(255,255,255,0.95);
+  line-height: 2.5;
+  margin-bottom: 3rem;
+  font-weight: 300;
+  animation: fadeInUp 1s ease-out 0.6s both;
+  
+}
+.hero-sub strong { color: white; font-weight: 500; }
+.cta-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeInUp 1s ease-out 0.9s both;
+}
+.btn-gold {
+  text-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2.2rem;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: all 0.4s ease;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  text-shadow: none;
+}
+.btn-gold:hover {
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(201,168,76,0.4);
+}
+.btn-outline {
+  text-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2.2rem;
+  background: transparent;
+  color: white;
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  border: 1px solid rgba(255,255,255,0.35);
+  transition: all 0.4s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-outline:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(201,168,76,0.06);
+}
+.hero-scroll {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,0.4);
+  font-size: 0.68rem;
+  letter-spacing: 0.25em;
+  animation: float 3s ease-in-out infinite;
+  text-align: center;
+}
+.hero-scroll::after {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 36px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.35), transparent);
+  margin: 0.5rem auto 0;
+}
+
+/* ===== COMMON ===== */
+section {
+  padding: 5rem 1.5rem;
+  overflow: hidden;
+}
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+}
+.label {
+  font-size: 0.68rem;
+  letter-spacing: 0.35em;
+  color: var(--gold-dark);
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+.label.light { color: var(--gold-light); }
+.stitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+  font-weight: 700;
+  line-height: 1.8;
+  margin-bottom: 2.5rem;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+.stitle.white { color: white; }
+
+/* ===== EMPATHY ===== */
+.empathy { background: var(--cream); position: relative; }
+.empathy::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+}
+.emp-list { list-style: none; margin: 2rem 0; }
+.emp-list li {
+  padding: 1.1rem 0 1.1rem 1.8rem;
+  position: relative;
+  font-size: 0.95rem;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  line-height: 2.1;
+}
+.emp-list li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--gold-dark);
+  font-weight: 700;
+}
+.emp-quote {
+  margin-top: 2.5rem;
+  padding: 2rem;
+  background: white;
+  border-left: 3px solid var(--gold);
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 2.3;
+}
+
+/* ===== PROBLEM ===== */
+.problem { background: white; }
+.prob-text {
+  font-size: 0.95rem;
+  line-height: 2.5;
+}
+.prob-q {
+  margin: 2rem 0;
+  padding: 2rem;
+  background: var(--navy);
+  color: rgba(255,255,255,0.9);
+  line-height: 2.8;
+  font-size: 0.92rem;
+}
+.prob-q p { padding: 0.3rem 0; }
+.prob-hl {
+  margin-top: 2rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--navy);
+  padding: 1.8rem;
+  background: linear-gradient(135deg, rgba(201,168,76,0.1), rgba(201,168,76,0.04));
+  border-left: 3px solid var(--gold);
+  line-height: 2.3;
+}
+
+/* ===== GALLERY ===== */
+.gallery {
+  padding: 0;
+  overflow: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+  width: 100%;
+}
+.gallery-grid img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  display: block;
+  transition: all 0.5s ease;
+  filter: brightness(0.92);
+}
+.gallery-grid img:hover {
+  filter: brightness(1.05);
+}
+
+/* ===== PROGRAM ===== */
+.program {
+  background: var(--navy);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+.program::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -15%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.day-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(201,168,76,0.12);
+  padding: 2rem 1.8rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+.day-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 3px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
+.day-card:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(201,168,76,0.25);
+}
+.day-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.day-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 0.6rem;
+  line-height: 1.6;
+}
+.day-theme {
+  font-size: 0.82rem;
+  color: var(--gold-light);
+  font-style: italic;
+  margin-bottom: 1.2rem;
+  line-height: 1.8;
+}
+.day-desc {
+  font-size: 0.9rem;
+  line-height: 2.3;
+  color: rgba(255,255,255,0.78);
+  font-weight: 300;
+}
+.day-spots {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.day-spot {
+  padding: 0.22rem 0.7rem;
+  background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.22);
+  color: var(--gold-light);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* ===== FEATURES ===== */
+.features { background: white; }
+.feat-grid {
+  display: grid;
+  gap: 2.5rem;
+  margin-top: 2.5rem;
+}
+.feat-item {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 1.2rem;
+  align-items: start;
+}
+.feat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+  opacity: 0.5;
+}
+.feat-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+  color: var(--navy);
+  line-height: 1.8;
+}
+.feat-desc {
+  font-size: 0.9rem;
+  line-height: 2.3;
+  color: var(--text-light);
+}
+
+/* ===== ABOUT ===== */
+.about { background: var(--cream); }
+.about-card {
+  background: white;
+  padding: 2.5rem 2rem;
+  border-left: 4px solid var(--gold);
+  max-width: 720px;
+}
+.about-card p {
+  font-size: 0.95rem;
+  line-height: 2.5;
+  margin-bottom: 1.2rem;
+}
+.about-card p:last-child { margin-bottom: 0; }
+
+/* ===== PRICING ===== */
+.pricing { background: white; }
+.pricing-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+  margin-top: 2.5rem;
+}
+.p-card {
+  border: 1px solid var(--warm-gray);
+  padding: 2.2rem 1.5rem;
+  text-align: center;
+  transition: all 0.4s ease;
+  position: relative;
+  background: white;
+}
+.p-card.feat {
+  border: 2px solid var(--gold);
+  box-shadow: 0 16px 50px rgba(201,168,76,0.1);
+}
+.p-card.feat::before {
+  content: 'おすすめ';
+  position: absolute;
+  top: -1px; left: -1px; right: -1px;
+  background: var(--gold);
+  color: var(--navy);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  padding: 0.45rem;
+}
+.p-card:hover:not(.feat) {
+  border-color: var(--gold);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+}
+.p-plan {
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  color: var(--text-light);
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.p-card.feat .p-plan { margin-top: 1.5rem; }
+.p-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+.p-orig {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  text-decoration: line-through;
+  margin-bottom: 0.2rem;
+}
+.p-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--gold-dark);
+  margin-bottom: 0.3rem;
+}
+.p-launch {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  background: rgba(201,168,76,0.1);
+  color: var(--gold-dark);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  margin-bottom: 1rem;
+}
+.p-features { list-style: none; text-align: left; margin: 1rem 0; }
+.p-features li {
+  padding: 0.45rem 0;
+  font-size: 0.82rem;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  line-height: 1.6;
+}
+.p-features .ck { color: var(--gold-dark); font-weight: 700; flex-shrink: 0; }
+.p-features .da { color: #ccc; flex-shrink: 0; }
+.p-note {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  line-height: 2.3;
+}
+.p-note strong { color: var(--navy); }
+.p-private {
+  display: inline-block;
+  margin-top: 0.8rem;
+  padding: 0.4rem 1.2rem;
+  background: var(--navy);
+  color: var(--gold);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+.p-review {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-top: 0.7rem;
+}
+
+/* ===== SCHEDULE ===== */
+.schedule { background: var(--cream); }
+.sch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 0.6rem;
+  margin-top: 2rem;
+}
+.sch-item {
+  padding: 0.9rem 1.2rem;
+  background: white;
+  border: 1px solid var(--warm-gray);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+.sch-item:hover:not(.sold) {
+  border-color: var(--gold);
+}
+.sch-item.sold { opacity: 0.42; background: #f5f5f3; }
+.sch-date { font-size: 0.85rem; font-weight: 500; }
+.sch-item.sold .sch-date { text-decoration: line-through; }
+.sch-st { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; white-space: nowrap; }
+.sch-st.open { color: var(--gold-dark); }
+.sch-st.closed { color: #999; }
+.sch-note {
+  margin-top: 1.2rem;
+  font-size: 0.8rem;
+  color: var(--text-light);
+  line-height: 1.9;
+}
+
+/* ===== INCLUDED ===== */
+.included { background: white; }
+.inc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  margin-top: 2rem;
+}
+.inc-col h3 {
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid var(--gold);
+  display: inline-block;
+}
+.inc-col.exp h3 { border-bottom-color: var(--warm-gray); }
+.inc-col ul { list-style: none; }
+.inc-col ul li {
+  padding: 0.6rem 0;
+  font-size: 0.85rem;
+  line-height: 2;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+/* ===== FLOW ===== */
+.flow { background: var(--navy); color: white; }
+.flow-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.2rem;
+  margin-top: 2.5rem;
+}
+.flow-step { text-align: center; position: relative; }
+.flow-step::after {
+  content: '→';
+  position: absolute;
+  right: -0.9rem; top: 2rem;
+  color: var(--gold);
+  font-size: 1rem;
+}
+.flow-step:last-child::after { display: none; }
+.flow-n {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--gold);
+  opacity: 0.4;
+  margin-bottom: 0.3rem;
+}
+.flow-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+.flow-desc {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.8;
+}
+
+/* ===== FAQ ===== */
+.faq { background: white; }
+.faq-list { margin-top: 2rem; }
+.faq-item {
+  border-bottom: 1px solid var(--warm-gray);
+  padding: 1.2rem 0;
+  cursor: pointer;
+}
+.faq-q {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--navy);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  line-height: 1.6;
+}
+.faq-q::after {
+  content: '+';
+  font-size: 1.3rem;
+  color: var(--gold);
+  transition: transform 0.3s ease;
+  font-weight: 300;
+  flex-shrink: 0;
+}
+.faq-item.open .faq-q::after { transform: rotate(45deg); }
+.faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.4s ease;
+  font-size: 0.85rem;
+  color: var(--text-light);
+  line-height: 2.2;
+}
+.faq-item.open .faq-a {
+  max-height: 200px;
+  padding-top: 0.8rem;
+}
+
+/* ===== HESITATE ===== */
+.hesitate { background: var(--cream); text-align: center; }
+.hes-box { max-width: 680px; margin: 0 auto; }
+.hes-box > p {
+  font-size: 0.92rem;
+  line-height: 2.3;
+  margin-bottom: 1.5rem;
+}
+.consult-card {
+  margin-top: 2rem;
+  padding: 0;
+  background: white;
+  border: 1px solid var(--warm-gray);
+  overflow: hidden;
+}
+.consult-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+  filter: brightness(0.85);
+}
+.consult-body {
+  padding: 2rem 1.8rem;
+}
+.consult-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--gold-dark);
+  margin: 0.4rem 0;
+}
+.consult-desc {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin-bottom: 1.5rem;
+  line-height: 2.3;
+}
+.btn-navy {
+  text-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 2.2rem;
+  background: var(--navy);
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: all 0.4s ease;
+  border: none;
+  cursor: pointer;
+}
+.btn-navy:hover {
+  background: var(--navy-light);
+  box-shadow: 0 8px 30px rgba(11,22,41,0.3);
+}
+
+/* ===== FINAL CTA ===== */
+.final-cta {
+  background: 
+    linear-gradient(135deg, rgba(11,22,41,0.82) 0%, rgba(11,22,41,0.55) 50%, rgba(201,168,76,0.12) 100%),
+    url('images/palm-beach.jpg') center/cover no-repeat;
+  color: white;
+  text-align: center;
+  padding: 7rem 1.5rem;
+  overflow: hidden;
+}
+.final-cta .stitle {
+  color: white;
+  margin-bottom: 0.5rem;
+}
+.final-cta .gold-text {
+  display: block;
+  background: linear-gradient(90deg, var(--gold-light), var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.final-sub {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 3rem;
+  font-weight: 300;
+  line-height: 2.3;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  background: var(--navy);
+  color: rgba(255,255,255,0.35);
+  text-align: center;
+  padding: 2rem 1.5rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+}
+footer .company {
+  color: var(--gold);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  font-size: 0.78rem;
+  margin-bottom: 0.4rem;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  section { padding: 3.5rem 1.2rem; }
+  
+  .pricing-cards {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .p-card.feat {
+    order: -1;
+  }
+  
+  .flow-steps {
+    grid-template-columns: 1fr 1fr;
+  }
+  .flow-step::after { display: none; }
+  
+  .inc-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .gallery-grid img { height: 170px; }
+  
+  .sch-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .feat-item {
+    grid-template-columns: 50px 1fr;
+    gap: 1rem;
+  }
+  .feat-num { font-size: 2rem; }
+  
+  .consult-img { height: 180px; }
+}
+
+@media (max-width: 480px) {
+  section { padding: 3rem 1rem; }
+  
+  .hero h1 { font-size: 1.35rem; line-height: 1.8; }
+  .hero h1 .gold-text { white-space: normal; }
+  .hero-sub {  font-size: 0.8rem; line-height: 2.2; }
+  
+  .cta-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .btn-gold, .btn-outline, .btn-navy {
+  text-shadow: none;
+    width: 100%;
+    justify-content: center;
+    padding: 0.9rem 1.5rem;
+    font-size: 0.85rem;
+  }
+  
+  .flow-steps { grid-template-columns: 1fr; gap: 2rem; }
+  
+  .gallery-grid { grid-template-columns: 1fr 1fr; }
+  .gallery-grid img { height: 140px; }
+  
+  .stitle { font-size: 1.3rem; }
+  
+  .day-card { padding: 1.5rem 1.2rem; }
+  .day-title { font-size: 1.15rem; }
+  
+  .p-card { padding: 1.8rem 1.2rem; }
+  .p-price { font-size: 2rem; }
+  
+  .emp-quote { padding: 1.3rem; }
+  .prob-q { padding: 1.3rem; }
+  .prob-hl { padding: 1.2rem; font-size: 0.95rem; }
+  
+  .about-card { padding: 1.8rem 1.3rem; }
+  
+  .consult-body { padding: 1.5rem 1.2rem; }
+  .consult-img { height: 150px; }
+}
+
+/* Prevent any horizontal overflow */
+img, video, iframe, table {
+  max-width: 100%;
+}
+</style>
+<meta property="og:title" content="LA飲食視察ツアー｜Cross Pacific Dining">
+<meta property="og:description" content="LAの飲食市場を「経営者の目線」で読み解く3日間。現地在住10年超のプロが、あなたの事業判断に直結する視察をアレンジします。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cross-pacific-dining.com/la-tour">
+<meta property="og:image" content="https://cross-pacific-dining.com/la-tour/images/hero.jpg">
+<meta property="og:site_name" content="Cross Pacific Dining">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="LA飲食視察ツアー｜Cross Pacific Dining">
+<meta name="twitter:description" content="LAの飲食市場を「経営者の目線」で読み解く3日間。現地在住10年超のプロが、あなたの事業判断に直結する視察をアレンジします。">
+<meta name="twitter:image" content="https://cross-pacific-dining.com/la-tour/images/hero.jpg">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="top">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Complete Private Tour</div>
+    <h1>
+      LAの飲食市場を、<br>
+      「経営者の目線」で読み解く<br>
+      <span class="gold-text">3日間。</span>
+    </h1>
+    <p class="hero-sub">
+      米国の大手レストランチェーンで<br class="sp-br">
+      開発・運営に<strong>約10年</strong>携わったプロが同行。<br>
+      立地・原価・オペレーション・競合——<br class="sp-br">
+      すべてを<strong>その場で解説</strong>します。<br>
+      他の参加者のいない完全プライベート視察で、<br>
+      「市場のリアル」を判断材料に変える3日間。
+    </p>
+    <div class="cta-group">
+      <a href="https://forms.gle/mZMDZyzozxQuZqxH7" target="_blank" class="btn-gold">LA視察ツアーに申し込む →</a>
+      <a href="https://buy.stripe.com/fZueV728P3B48bR8NUd3i03" target="_blank" class="btn-outline">まずは1時間相談する</a>
+    </div>
+  </div>
+  <div class="hero-scroll">SCROLL</div>
+</section>
+
+<!-- ===== EMPATHY ===== -->
+<section class="empathy">
+  <div class="container">
+    <div class="label anim fu">Your Concerns</div>
+    <h2 class="stitle anim fu">
+      視察に行きたい。<br>
+      でも、こんな不安はありませんか？
+    </h2>
+    <ul class="emp-list anim fu">
+      <li>一人で行っても、<br class="sp-br">何を見ればいいか分からない</li>
+      <li>繁盛店を見ても、<br class="sp-br">「すごい」で終わってしまいそう</li>
+      <li>立地や賃料の相場感が<br class="sp-br">まったくない</li>
+      <li>原価構造やオペレーションの<br class="sp-br">違いが分からない</li>
+      <li>現地の飲食市場を理解している人が<br class="sp-br">周りにいない</li>
+    </ul>
+    <div class="emp-quote anim fu">
+      その不安は、知識がないことではなく、<br>
+      <strong>"現地を読み解く視点"が<br class="sp-br">ないことから来ています。</strong>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROBLEM ===== -->
+<section class="problem">
+  <div class="container">
+    <div class="label anim fu">The Real Issue</div>
+    <h2 class="stitle anim fu">
+      同じ店を見ても、<br>
+      「感想」と「判断材料」は<br class="sp-br">まったく違う。
+    </h2>
+    <p class="prob-text anim fu">
+      LAには魅力的なレストランが<br class="sp-br">
+      無数にあります。<br>
+      でも、ただ訪れるだけでは<br class="sp-br">
+      「美味しかった」「混んでいた」で<br class="sp-br">
+      終わります。
+    </p>
+    <div class="prob-q anim fu">
+      <p>「なぜこの店は<br class="sp-br">この立地を選んだのか」</p>
+      <p>「このメニュー構成で<br class="sp-br">原価率はどのくらいか」</p>
+      <p>「このオペレーションは<br class="sp-br">日本の業態に応用できるか」</p>
+    </div>
+    <p class="prob-text anim fu" style="margin-top:1.5rem;">
+      ——同じ店にいても、<br class="sp-br">
+      こうした視点があるかないかで、<br>
+      持ち帰れるものはまったく変わります。
+    </p>
+    <div class="prob-hl anim fu">
+      この視察では、約10年の飲食開発・<br class="sp-br">
+      本社運営の経験をもとに、<br>
+      目の前の景色を<br class="sp-br">
+      <strong>"経営判断の言語"に翻訳</strong>します。
+    </div>
+  </div>
+</section>
+
+<!-- ===== GALLERY 1 ===== -->
+<div class="gallery">
+  <div class="gallery-grid">
+    <img src="images/sashimi.jpg" alt="高級刺身料理" loading="lazy">
+    <img src="images/terrace.jpg" alt="テラス席のセッティング" loading="lazy">
+    <img src="images/restaurant-exterior.jpg" alt="LAレストラン外観" loading="lazy">
+    <img src="images/cava.jpg" alt="CAVA内観" loading="lazy">
+  </div>
+</div>
+
+<!-- ===== PROGRAM ===== -->
+<section class="program" id="program">
+  <div class="container">
+    <div class="label light anim fu">The Strategic Program</div>
+    <h2 class="stitle white anim fu">
+      現場で解説する、<br>
+      3日間の戦略プログラム。
+    </h2>
+
+    <div class="day-card anim fu">
+      <div class="day-num">Day 1</div>
+      <div class="day-title">ブランド構築と<br class="sp-br">高生産性の解剖</div>
+      <div class="day-theme">テーマ：なぜ彼らは勝てるのか？</div>
+      <p class="day-desc">
+        米国トップブランドを訪問し、<br class="sp-br">
+        ファン化戦略、メニュー絞り込みの意味、<br class="sp-br">
+        オペレーション効率の仕組みを、<br class="sp-br">
+        その場で解説します。<br>
+        あなたの業態に置き換えたらどうなるかを、<br class="sp-br">
+        移動中に一緒に議論します。
+      </p>
+      <div class="day-spots">
+        <span class="day-spot">Trader Joe's</span>
+        <span class="day-spot">In-N-Out</span>
+        <span class="day-spot">Chipotle</span>
+        <span class="day-spot">CAVA</span>
+      </div>
+    </div>
+
+    <div class="day-card anim fu" style="animation-delay:0.15s;">
+      <div class="day-num">Day 2</div>
+      <div class="day-title">原価検証と<br class="sp-br">日本発モデルの適応</div>
+      <div class="day-theme">テーマ：日本の強みを、<br class="sp-br">米国のコスト構造の中でどう活かすか</div>
+      <p class="day-desc">
+        日系スーパーで実際の食材価格を調査し、<br class="sp-br">
+        あなたのメニューに近い<br class="sp-br">
+        原価シミュレーションを現地で行います。<br>
+        日本発ブランドがどう現地化しているかを検証。<br>
+        「No Tipping」モデルなど、<br class="sp-br">
+        利益構造の違いも解説します。
+      </p>
+      <div class="day-spots">
+        <span class="day-spot">日系スーパー</span>
+        <span class="day-spot">丸亀うどん</span>
+        <span class="day-spot">Sugarfish</span>
+        <span class="day-spot">エリア比較</span>
+      </div>
+    </div>
+
+    <div class="day-card anim fu" style="animation-delay:0.3s;">
+      <div class="day-num">Day 3</div>
+      <div class="day-title">高所得層分析と<br class="sp-br">最終投資判断</div>
+      <div class="day-theme">テーマ：市場の上限を知り、<br class="sp-br">自社の勝算を確定させる</div>
+      <p class="day-desc">
+        富裕層マーケットを体感し、<br class="sp-br">
+        候補エリアの通行人属性、<br class="sp-br">
+        デリバリー密度、賃料相場を<br class="sp-br">
+        実地で比較。<br>
+        最終日は総括ミーティングで、<br class="sp-br">
+        Go / No-Go判断を一緒に出します。
+      </p>
+      <div class="day-spots">
+        <span class="day-spot">Erewhon</span>
+        <span class="day-spot">Whole Foods</span>
+        <span class="day-spot">ストリート分析</span>
+        <span class="day-spot">Go/No-Go MTG</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== GALLERY 2 ===== -->
+<div class="gallery">
+  <div class="gallery-grid">
+    <img src="images/innout1.jpg" alt="In-N-Out Burger" loading="lazy">
+    <img src="images/ramen-interior1.jpg" alt="ラーメン店入口" loading="lazy">
+    <img src="images/traderjoes.jpg" alt="Trader Joe's 店内" loading="lazy">
+    <img src="images/brick-restaurant.jpg" alt="人気レストラン内観" loading="lazy">
+  </div>
+</div>
+
+<!-- ===== FEATURES ===== -->
+<section class="features">
+  <div class="container">
+    <div class="label anim fu">Why This Program</div>
+    <h2 class="stitle anim fu">この視察が選ばれる理由</h2>
+    <div class="feat-grid">
+      <div class="feat-item anim sl">
+        <div class="feat-num">01</div>
+        <div>
+          <div class="feat-title">ただのガイドではありません</div>
+          <p class="feat-desc">
+            同行するのは、米国の大手レストランチェーンで<br class="sp-br">
+            経営陣とともにレストラン開発・本社運営に<br class="sp-br">
+            約10年携わってきたプロフェッショナルです。<br>
+            立地選定、原価管理、P&L構造、<br class="sp-br">
+            オペレーション効率化——<br>
+            現場の景色を「経営の言葉」で<br class="sp-br">
+            リアルタイムに解説します。
+          </p>
+        </div>
+      </div>
+      <div class="feat-item anim sl" style="animation-delay:0.15s;">
+        <div class="feat-num">02</div>
+        <div>
+          <div class="feat-title">完全プライベート。<br class="sp-br">移動時間もコンサルティングの時間。</div>
+          <p class="feat-desc">
+            他の参加者は一切いません。<br>
+            専用車で全行程を送迎し、<br class="sp-br">
+            後部座席で代表と直接議論しながら回ります。<br>
+            あなたの業態・コンセプトに集中した、<br class="sp-br">
+            完全オーダーメイドの視察です。
+          </p>
+        </div>
+      </div>
+      <div class="feat-item anim sl" style="animation-delay:0.3s;">
+        <div class="feat-num">03</div>
+        <div>
+          <div class="feat-title">感想で終わらない。<br class="sp-br">判断で終わる。</div>
+          <p class="feat-desc">
+            最終日のGo / No-Go判断ミーティングで、<br class="sp-br">
+            「出す」「出さない」「エリアを変える」など、<br>
+            明確な次のアクションを一緒に決めます。<br>
+            2日以上のプランでは<br class="sp-br">
+            視察レポートもお渡しします。
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section class="about">
+  <div class="container">
+    <div class="label anim fu">About the Consultant</div>
+    <h2 class="stitle anim fu">代表について</h2>
+    <div class="about-card anim fu">
+      <p>
+        ロサンゼルス在住。<br>
+        米国の大手レストランチェーンで、<br class="sp-br">
+        経営陣とともにレストラン開発・<br class="sp-br">
+        本社運営に約10年従事。
+      </p>
+      <p>
+        新店舗の立地選定から原価管理、<br class="sp-br">
+        オペレーション設計、メニュー戦略まで、<br>
+        飲食ビジネスの全工程を<br class="sp-br">
+        現場で経験してきました。
+      </p>
+      <p>
+        日本で生まれ育ち、<br class="sp-br">
+        渡米後にアメリカの飲食業界で<br class="sp-br">
+        キャリアを築いた経歴から、<br>
+        日米両方の視点で<br class="sp-br">
+        市場を読み解くことができます。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PRICING ===== -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="label anim fu">Plans & Pricing</div>
+    <h2 class="stitle anim fu">目的に応じた3つのプラン</h2>
+
+    <div class="pricing-cards">
+      <div class="p-card anim fu">
+        <div class="p-plan">1日プラン</div>
+        <div class="p-name">Express</div>
+        <div class="p-orig">$1,200</div>
+        <div class="p-price">$800</div>
+        <div class="p-launch">サービス開始記念価格</div>
+        <ul class="p-features">
+          <li><span class="ck">✓</span> ブランド＋効率化＋繁盛店</li>
+          <li><span class="ck">✓</span> 完全プライベート</li>
+          <li><span class="ck">✓</span> 専用車送迎</li>
+          <li><span class="ck">✓</span> 現場解説・コンサル</li>
+          <li><span class="da">—</span> 視察レポート</li>
+          <li><span class="da">—</span> Go/No-Go MTG</li>
+        </ul>
+      </div>
+
+      <div class="p-card anim fu" style="animation-delay:0.15s;">
+        <div class="p-plan">2日プラン</div>
+        <div class="p-name">Standard</div>
+        <div class="p-orig">$2,000</div>
+        <div class="p-price">$1,200</div>
+        <div class="p-launch">サービス開始記念価格</div>
+        <ul class="p-features">
+          <li><span class="ck">✓</span> Day1＋原価検証＋日本モデル</li>
+          <li><span class="ck">✓</span> 完全プライベート</li>
+          <li><span class="ck">✓</span> 専用車送迎</li>
+          <li><span class="ck">✓</span> 現場解説・コンサル</li>
+          <li><span class="ck">✓</span> 視察レポート</li>
+          <li><span class="da">—</span> Go/No-Go MTG</li>
+        </ul>
+      </div>
+
+      <div class="p-card feat anim fu" style="animation-delay:0.3s;">
+        <div class="p-plan">3日プラン</div>
+        <div class="p-name">Full Program</div>
+        <div class="p-orig">$2,500</div>
+        <div class="p-price">$1,500</div>
+        <div class="p-launch">サービス開始記念価格</div>
+        <ul class="p-features">
+          <li><span class="ck">✓</span> 全工程＋高所得層＋最終MTG</li>
+          <li><span class="ck">✓</span> 完全プライベート</li>
+          <li><span class="ck">✓</span> 専用車送迎</li>
+          <li><span class="ck">✓</span> 現場解説・コンサル</li>
+          <li><span class="ck">✓</span> 視察レポート</li>
+          <li><span class="ck">✓</span> Go/No-Go MTG</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="p-note anim fu">
+      <strong>すべてのプランが完全プライベート。</strong><br>
+      1グループ最大3名まで<br class="sp-br">
+      （1名でも3名でも同額）。
+    </p>
+    <div style="text-align:center;" class="anim fu">
+      <div class="p-private">※サービス開始記念価格は<br class="sp-br">2026年8月末まで</div>
+    </div>
+    <p class="p-review anim fu" style="text-align:center;">
+      ※視察後にレビュー・ご感想の<br class="sp-br">
+      ご協力をお願いしております。
+    </p>
+  </div>
+</section>
+
+<!-- ===== SCHEDULE ===== -->
+<section class="schedule">
+  <div class="container">
+    <div class="label anim fu">Available Dates</div>
+    <h2 class="stitle anim fu">2026年 受付可能日程</h2>
+    <div class="sch-grid">
+      <div class="sch-item sold"><span class="sch-date">3/27（金）〜 3/29（日）</span><span class="sch-st closed">満席</span></div>
+      <div class="sch-item"><span class="sch-date">4/3（金）〜 4/5（日）</span><span class="sch-st open">✓ 受付中</span></div>
+      <div class="sch-item sold"><span class="sch-date">5/1（金）〜 5/3（日）</span><span class="sch-st closed">満席</span></div>
+      <div class="sch-item"><span class="sch-date">5/8（金）〜 5/10（日）</span><span class="sch-st open">✓ 受付中</span></div>
+      <div class="sch-item"><span class="sch-date">5/29（金）〜 5/31（日）</span><span class="sch-st open">✓ 受付中</span></div>
+      <div class="sch-item"><span class="sch-date">6/5（金）〜 6/7（日）</span><span class="sch-st open">✓ 受付中</span></div>
+      <div class="sch-item"><span class="sch-date">7/3（金）〜 7/5（日）</span><span class="sch-st open">✓ 受付中</span></div>
+      <div class="sch-item sold"><span class="sch-date">7/10（金）〜 7/12（日）</span><span class="sch-st closed">満席</span></div>
+      <div class="sch-item"><span class="sch-date">7/24（金）〜 7/26（日）</span><span class="sch-st open">✓ 受付中</span></div>
+      <div class="sch-item"><span class="sch-date">7/31（金）〜 8/2（日）</span><span class="sch-st open">✓ 受付中</span></div>
+      <div class="sch-item"><span class="sch-date">8/7（金）〜 8/9（日）</span><span class="sch-st open">✓ 受付中</span></div>
+      <div class="sch-item"><span class="sch-date">8/14（金）〜 8/16（日）</span><span class="sch-st open">✓ 受付中</span></div>
+      <div class="sch-item"><span class="sch-date">8/21（金）〜 8/23（日）</span><span class="sch-st open">✓ 受付中</span></div>
+      <div class="sch-item"><span class="sch-date">8/28（金）〜 8/30（日）</span><span class="sch-st open">✓ 受付中</span></div>
+    </div>
+    <p class="sch-note">
+      ※1日・2日プランの方は<br class="sp-br">
+      上記日程の一部でも可能です。<br>
+      ※上記以外の日程もご相談いただけます。
+    </p>
+  </div>
+</section>
+
+<!-- ===== INCLUDED ===== -->
+<section class="included">
+  <div class="container">
+    <div class="label anim fu">What's Included</div>
+    <h2 class="stitle anim fu">サービスに含まれるもの</h2>
+    <div class="inc-grid anim fu">
+      <div class="inc-col">
+        <h3>含まれるもの</h3>
+        <ul>
+          <li>✓ 完全プライベートの視察プログラム</li>
+          <li>✓ 専用車による全行程送迎<br>（空港〜ホテル〜視察先）</li>
+          <li>✓ 飲食開発プロによる<br>現場解説・質疑応答・戦略アドバイス</li>
+          <li>✓ 日英バイリンガル対応</li>
+          <li>✓ 視察レポート（2日以上のプラン）</li>
+        </ul>
+      </div>
+      <div class="inc-col exp">
+        <h3>お客様ご負担</h3>
+        <ul>
+          <li>渡航費・宿泊費</li>
+          <li>視察先での飲食代<br>（※同行する代表分もお客様負担となります）</li>
+          <li>個人的な買い物・娯楽費</li>
+          <li>海外旅行保険</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FLOW ===== -->
+<section class="flow">
+  <div class="container">
+    <div class="label light anim fu">How It Works</div>
+    <h2 class="stitle white anim fu">ご利用の流れ</h2>
+    <div class="flow-steps">
+      <div class="flow-step anim fu">
+        <div class="flow-n">1</div>
+        <div class="flow-name">お申し込み</div>
+        <div class="flow-desc">フォームより<br>お申し込み</div>
+      </div>
+      <div class="flow-step anim fu" style="animation-delay:0.1s;">
+        <div class="flow-n">2</div>
+        <div class="flow-name">事前コンサル</div>
+        <div class="flow-desc">60分・$100<br>業態・ゴールを共有し<br>視察プランをカスタマイズ</div>
+      </div>
+      <div class="flow-step anim fu" style="animation-delay:0.2s;">
+        <div class="flow-n">3</div>
+        <div class="flow-name">LA現地視察</div>
+        <div class="flow-desc">1〜3日間<br>現場で解説しながら回る</div>
+      </div>
+      <div class="flow-step anim fu" style="animation-delay:0.3s;">
+        <div class="flow-n">4</div>
+        <div class="flow-name">意思決定</div>
+        <div class="flow-desc">Go / No-Go / 場所変更<br>次のアクションを明確に</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== GALLERY 3 ===== -->
+<div class="gallery">
+  <div class="gallery-grid">
+    <img src="images/innout2.jpg" alt="In-N-Out キッチン" loading="lazy">
+    <img src="images/udon-queue.jpg" alt="うどん店の行列" loading="lazy">
+    <img src="images/ramen-interior2.jpg" alt="ラーメン店の賑わい" loading="lazy">
+    <img src="images/udon-dining.jpg" alt="うどんランチ" loading="lazy">
+  </div>
+</div>
+
+<!-- ===== FAQ ===== -->
+<section class="faq">
+  <div class="container">
+    <div class="label anim fu">FAQ</div>
+    <h2 class="stitle anim fu">よくあるご質問</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">英語が話せなくても大丈夫ですか？</div>
+        <div class="faq-a">はい。視察中は日英バイリンガルの代表が終日同行し、すべて日本語で解説します。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">1名でも申し込めますか？</div>
+        <div class="faq-a">もちろんです。完全プライベートですので、1名でも3名でも料金は同じです。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">他の参加者と一緒になることはありますか？</div>
+        <div class="faq-a">ありません。すべての日程が完全プライベートです。あなた（またはあなたのチーム）だけの視察です。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">視察先は自分の業態に合わせてカスタマイズできますか？</div>
+        <div class="faq-a">事前コンサルであなたの業態とゴールをお聞きした上で、視察先を調整します。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">空港からの送迎はありますか？</div>
+        <div class="faq-a">はい。LAX到着からホテルまで、専用車でお迎えします。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">1日や2日だけでも申し込めますか？</div>
+        <div class="faq-a">はい。Express（1日）とStandard（2日）のプランをご用意しています。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">ドジャースの試合や観光も組み込めますか？</div>
+        <div class="faq-a">視察日程の前後であれば、ご希望に応じてアレンジのご相談が可能です。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HESITATE ===== -->
+<section class="hesitate" id="consult">
+  <div class="container">
+    <div class="hes-box">
+      <div class="label anim fu">Not Ready Yet?</div>
+      <h2 class="stitle anim fu">
+        この視察は、<br>
+        誰にでも向いている<br class="sp-br">わけではありません。
+      </h2>
+      <p class="anim fu">
+        目的が「とりあえずアメリカを見たい」<br class="sp-br">
+        だけの場合、<br class="pc-br">
+        この視察はおすすめしません。
+      </p>
+      <p class="anim fu">
+        もし今、「自分は本当に行く段階か？」<br class="sp-br">
+        と迷っているなら、<br>
+        視察前に判断を整理する<br class="sp-br">
+        選択肢もあります。
+      </p>
+      <div class="consult-card anim si">
+        <img src="images/about-silhouette.jpg" alt="オンラインコンサルイメージ" class="consult-img" loading="lazy">
+        <div class="consult-body">
+          <div class="label" style="margin-bottom:0.4rem;">Online Consultation</div>
+          <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.2rem; margin-bottom:0.3rem;">視察前 1時間相談</h3>
+          <div class="consult-price">$100<span style="font-size:0.82rem; font-weight:400; color:var(--text-light);"> / 60分</span></div>
+          <p class="consult-desc">
+            オンラインで、あなたの現状とゴールを<br class="sp-br">
+            聞いた上で、視察が今のタイミングで<br class="sp-br">
+            必要かどうかを一緒に考えます。
+          </p>
+          <a href="https://buy.stripe.com/fZueV728P3B48bR8NUd3i03" target="_blank" class="btn-navy">視察前相談に申し込む →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FINAL CTA ===== -->
+<section class="final-cta" id="apply">
+  <div class="container">
+    <div class="label light anim fu">Take the First Step</div>
+    <h2 class="stitle anim fu">
+      同じ景色を見ても、<br>
+      持ち帰れるものは<br class="sp-br">まったく違う。<br>
+      <span class="gold-text">あなたの挑戦に、<br class="sp-br">プロの視点を。</span>
+    </h2>
+    <p class="final-sub anim fu">
+      完全プライベート。<br class="sp-br">
+      飲食経営のプロが終日同行する、<br class="sp-br">
+      あなただけのLA視察。
+    </p>
+    <div class="cta-group anim fu">
+      <a href="https://forms.gle/mZMDZyzozxQuZqxH7" target="_blank" class="btn-gold">LA視察ツアーに申し込む →</a>
+      <a href="https://buy.stripe.com/fZueV728P3B48bR8NUd3i03" target="_blank" class="btn-outline">まずは1時間相談する（$100）</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="company">CROSS PACIFIC DINING</div>
+  <p>&copy; 2026 Cross Pacific Dining. All rights reserved.</p>
+</footer>
+
+<!-- ===== JS ===== -->
+<script>
+const ob = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('vis'); ob.unobserve(e.target); }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+document.querySelectorAll('.anim').forEach(el => ob.observe(el));
+
+document.querySelectorAll('.faq-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const open = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!open) item.classList.add('open');
+  });
+});
+
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', function(e) {
+    e.preventDefault();
+    const t = document.querySelector(this.getAttribute('href'));
+    if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+
+<!-- SP only line breaks -->
+<style>
+.sp-br { display: none; }
+.pc-br { display: inline; }
+@media (max-width: 768px) {
+  .sp-br { display: inline; }
+  .pc-br { display: none; }
+}
+</style>
+
+</body>
+</html>
