@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/db";
 import { AppHeader } from "@/components/AppHeader";
 import { Pill } from "@/components/Badges";
-import { endOfWeek, fmtDate, fmtMd, isOverdue, startOfWeek } from "@/lib/utils";
+import { ItemActions } from "@/components/ItemActions";
+import { endOfWeek, fmtDate, fmtMd, isOverdue, startOfWeek, toInputDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -103,6 +104,18 @@ function FollowCard({ f }: { f: any }) {
               {fmtMd(f.dueDate)}
             </span>
           ) : null}
+          <ItemActions
+            type="followup"
+            id={f.id}
+            current={{
+              title: f.title,
+              who: f.who,
+              status: f.status,
+              dueDate: toInputDate(f.dueDate),
+              memo: f.memo,
+              visibility: f.visibility,
+            }}
+          />
         </div>
       </div>
     </div>

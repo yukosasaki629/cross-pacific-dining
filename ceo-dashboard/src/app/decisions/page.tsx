@@ -2,7 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { AppHeader } from "@/components/AppHeader";
 import { Pill } from "@/components/Badges";
-import { fmtDate, fmtMd, isOverdue } from "@/lib/utils";
+import { ItemActions } from "@/components/ItemActions";
+import { fmtDate, fmtMd, isOverdue, toInputDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +39,19 @@ export default async function DecisionsPage() {
                       {isOverdue(d.deadline) ? "期限超過" : `期限 ${fmtMd(d.deadline)}`}
                     </span>
                   ) : null}
+                  <ItemActions
+                    type="decision"
+                    id={d.id}
+                    current={{
+                      topic: d.topic,
+                      status: d.status,
+                      importance: d.importance,
+                      dueDate: toInputDate(d.deadline),
+                      recommendation: d.recommendation,
+                      sensitivity: d.sensitivity,
+                      visibility: d.visibility,
+                    }}
+                  />
                 </div>
               </div>
               {d.recommendation ? (

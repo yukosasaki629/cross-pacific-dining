@@ -3,7 +3,8 @@ import { prisma } from "@/lib/db";
 import { AppHeader } from "@/components/AppHeader";
 import { ProjectCard } from "@/components/ProjectCard";
 import { Dot, Pill } from "@/components/Badges";
-import { fmtMd, isOverdue } from "@/lib/utils";
+import { ItemActions } from "@/components/ItemActions";
+import { fmtMd, isOverdue, toInputDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -80,31 +81,42 @@ export default async function Home() {
             <EmptyCard msg="判断待ちはありません。" />
           ) : (
             decisions.map((d) => (
-              <Link key={d.id} href={`/decisions`} className="block">
-                <div className="card card-pad active:bg-ink-50">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="text-[15px] font-semibold text-ink-900">{d.topic}</div>
-                      {d.project ? (
-                        <div className="mt-0.5 text-[12px] text-ink-500">{d.project.name}</div>
-                      ) : null}
-                    </div>
-                    <div className="flex shrink-0 flex-col items-end gap-1">
-                      <Pill value={`重要度 ${d.importance}`} />
-                      {d.deadline ? (
-                        <span className={`pill ${isOverdue(d.deadline) ? "bg-bad-50 text-bad-700" : "bg-ink-100 text-ink-600"}`}>
-                          {isOverdue(d.deadline) ? "期限超過" : `期限 ${fmtMd(d.deadline)}`}
-                        </span>
-                      ) : null}
-                    </div>
+              <div key={d.id} className="card card-pad">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="text-[15px] font-semibold text-ink-900">{d.topic}</div>
+                    {d.project ? (
+                      <div className="mt-0.5 text-[12px] text-ink-500">{d.project.name}</div>
+                    ) : null}
                   </div>
-                  {d.recommendation ? (
-                    <div className="mt-2 text-[12px] text-ink-700">
-                      <span className="font-medium">推奨案:</span> {d.recommendation}
-                    </div>
-                  ) : null}
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <Pill value={`重要度 ${d.importance}`} />
+                    {d.deadline ? (
+                      <span className={`pill ${isOverdue(d.deadline) ? "bg-bad-50 text-bad-700" : "bg-ink-100 text-ink-600"}`}>
+                        {isOverdue(d.deadline) ? "期限超過" : `期限 ${fmtMd(d.deadline)}`}
+                      </span>
+                    ) : null}
+                    <ItemActions
+                      type="decision"
+                      id={d.id}
+                      current={{
+                        topic: d.topic,
+                        status: d.status,
+                        importance: d.importance,
+                        dueDate: toInputDate(d.deadline),
+                        recommendation: d.recommendation,
+                        sensitivity: d.sensitivity,
+                        visibility: d.visibility,
+                      }}
+                    />
+                  </div>
                 </div>
-              </Link>
+                {d.recommendation ? (
+                  <div className="mt-2 text-[12px] text-ink-700">
+                    <span className="font-medium">推奨案:</span> {d.recommendation}
+                  </div>
+                ) : null}
+              </div>
             ))
           )}
         </div>
@@ -116,22 +128,34 @@ export default async function Home() {
             <EmptyCard msg="高・中リスクはありません。" />
           ) : (
             risks.map((r) => (
-              <Link key={r.id} href={r.project ? `/projects/${r.project.id}` : "/risks"} className="block">
-                <div className="card card-pad active:bg-ink-50">
-                  <div className="flex items-start gap-2.5">
-                    <div className="mt-1.5"><Dot value={r.severity} /></div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[14px] font-medium text-ink-900">{r.description}</div>
-                      <div className="mt-0.5 flex items-center gap-2 text-[12px] text-ink-500">
-                        <span>{r.project?.name ?? "—"}</span>
-                        <span>·</span>
-                        <span>{r.owner ?? "—"}</span>
-                      </div>
+              <div key={r.id} className="card card-pad">
+                <div className="flex items-start gap-2.5">
+                  <div className="mt-1.5"><Dot value={r.severity} /></div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[14px] font-medium text-ink-900">{r.description}</div>
+                    <div className="mt-0.5 flex items-center gap-2 text-[12px] text-ink-500">
+                      <span>{r.project?.name ?? "—"}</span>
+                      <span>·</span>
+                      <span>{r.owner ?? "—"}</span>
                     </div>
+                  </div>
+                  <div className="flex shrink-0 flex-col items-end gap-1">
                     <Pill value={r.severity} />
+                    <ItemActions
+                      type="risk"
+                      id={r.id}
+                      current={{
+                        description: r.description,
+                        severity: r.severity,
+                        status: r.status,
+                        owner: r.owner,
+                        mitigation: r.mitigation,
+                        visibility: r.visibility,
+                      }}
+                    />
                   </div>
                 </div>
-              </Link>
+              </div>
             ))
           )}
         </div>
@@ -151,9 +175,23 @@ export default async function Home() {
                       対象: {f.who ?? "—"}
                     </div>
                   </div>
-                  <Pill
-                    value={f.dueDate ? (isOverdue(f.dueDate) ? "期限超過" : fmtMd(f.dueDate)) : "期限なし"}
-                  />
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <Pill
+                      value={f.dueDate ? (isOverdue(f.dueDate) ? "期限超過" : fmtMd(f.dueDate)) : "期限なし"}
+                    />
+                    <ItemActions
+                      type="followup"
+                      id={f.id}
+                      current={{
+                        title: f.title,
+                        who: f.who,
+                        status: f.status,
+                        dueDate: toInputDate(f.dueDate),
+                        memo: f.memo,
+                        visibility: f.visibility,
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             ))
@@ -167,19 +205,32 @@ export default async function Home() {
             <EmptyCard msg="期限超過のタスクはありません。" />
           ) : (
             overdueTasks.map((t) => (
-              <Link key={t.id} href={t.projectId ? `/projects/${t.projectId}` : "/projects"} className="block">
-                <div className="card card-pad active:bg-ink-50">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="text-[14px] font-medium text-ink-900">{t.title}</div>
-                      <div className="mt-0.5 text-[12px] text-ink-500">
-                        {t.project?.name} ・ {t.owner ?? "—"}
-                      </div>
+              <div key={t.id} className="card card-pad">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="text-[14px] font-medium text-ink-900">{t.title}</div>
+                    <div className="mt-0.5 text-[12px] text-ink-500">
+                      {t.project?.name} ・ {t.owner ?? "—"}
                     </div>
+                  </div>
+                  <div className="flex shrink-0 flex-col items-end gap-1">
                     <span className="pill bg-bad-50 text-bad-700">期限 {fmtMd(t.dueDate)}</span>
+                    <ItemActions
+                      type="task"
+                      id={t.id}
+                      current={{
+                        title: t.title,
+                        owner: t.owner,
+                        status: t.status,
+                        dueDate: toInputDate(t.dueDate),
+                        priority: t.priority,
+                        memo: t.memo,
+                        visibility: t.visibility,
+                      }}
+                    />
                   </div>
                 </div>
-              </Link>
+              </div>
             ))
           )}
         </div>
