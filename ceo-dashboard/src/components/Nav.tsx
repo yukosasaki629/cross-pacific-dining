@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 
 const ITEMS = [
   { href: "/", label: "ホーム", icon: HomeIcon },
-  { href: "/projects", label: "プロジェクト", icon: GridIcon },
+  { href: "/oneonones", label: "1on1", icon: MicIcon },
+  { href: "/projects", label: "Pj", icon: GridIcon },
   { href: "/decisions", label: "判断", icon: BellIcon },
-  { href: "/risks", label: "リスク", icon: AlertIcon },
   { href: "/report", label: "レポート", icon: DocIcon },
 ];
 
@@ -75,6 +75,16 @@ export function TopNav() {
 }
 
 // --- inline icons ---
+
+function MicIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <rect x="9" y="3" width="6" height="11" rx="3" />
+      <path d="M5 11a7 7 0 0 0 14 0" />
+      <path d="M12 18v3" />
+    </svg>
+  );
+}
 
 function HomeIcon(props: React.SVGProps<SVGSVGElement>) {
   return (

@@ -11,6 +11,44 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// --- 1on1 相手 ---
+model Person {
+  id        String   @id @default(cuid())
+  name      String
+  role      String?   // CEO / CFO / COO / CMO / IT部長 など
+  email     String?
+  active    Boolean  @default(true)
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  meetings  MeetingNote[]
+}
+
+// --- 1on1 ノート ---
+model MeetingNote {
+  id              String   @id @default(cuid())
+  personId        String
+  person          Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+  date            DateTime @default(now())
+  rawNotes        String                                // 貼り付けた生メモ(常に保存)
+  summary         String?                               // 抽出されたサマリー
+  processedAt     DateTime?                             // 抽出を「適用」した日時
+  // --- 共有制御 ---
+  // メモ本文は常に internal。派生する Task/Decision/Risk は ceo_shared をデフォルトに、
+  // 機密キーワードを含む場合は自動的に sensitivity を立てる。
+  rawVisibility   String   @default("internal")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // 派生レコード(処理時に自動作成される)
+  tasks      Task[]
+  decisions  Decision[]
+  risks      Risk[]
+  followUps  FollowUp[]
+  updates    Update[]
+}
+
 model Project {
   id              String   @id @default(cuid())
   name            String
@@ -36,23 +74,28 @@ model Project {
 }
 
 model Task {
-  id        String   @id @default(cuid())
-  projectId String
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  title     String
-  owner     String?
-  status    String   @default("未着手") // 未着手 | 進行中 | 待機中 | 完了 | ブロック
-  dueDate   DateTime?
-  priority  String   @default("中")     // 低 | 中 | 高
-  memo      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(cuid())
+  projectId     String?
+  project       Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  meetingNoteId String?
+  meetingNote   MeetingNote? @relation(fields: [meetingNoteId], references: [id], onDelete: SetNull)
+  title         String
+  owner         String?
+  status        String   @default("未着手") // 未着手 | 進行中 | 待機中 | 完了 | ブロック
+  dueDate       DateTime?
+  priority      String   @default("中")     // 低 | 中 | 高
+  memo          String?
+  visibility    String   @default("internal") // 派生時は ceo_shared がデフォルト
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Decision {
   id              String   @id @default(cuid())
   projectId       String?
   project         Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  meetingNoteId   String?
+  meetingNote     MeetingNote? @relation(fields: [meetingNoteId], references: [id], onDelete: SetNull)
   topic           String
   background      String?
   options         String?
@@ -61,6 +104,7 @@ model Decision {
   impactIfDelayed String?
   importance      String   @default("中") // 低 | 中 | 高
   status          String   @default("未対応") // 未対応 | 検討中 | 判断済 | 中止
+  decisionType    String   @default("needed") // needed(判断待ち) | made(決定済)
   // --- 共有ビュー制御 ---
   visibility      String   @default("internal")  // internal(優子のみ) | ceo_shared(社長と共有)
   sensitivity     String   @default("general")   // general | board | compensation | executive_only
@@ -70,43 +114,46 @@ model Decision {
 }
 
 model Risk {
-  id          String   @id @default(cuid())
-  projectId   String?
-  project     Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  description String
-  severity    String   @default("中")    // 低 | 中 | 高
-  mitigation  String?
-  owner       String?
-  status      String   @default("対応中") // 未対応 | 対応中 | 解消
-  // --- 共有ビュー制御 ---
-  visibility  String   @default("internal")  // internal | ceo_shared
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(cuid())
+  projectId     String?
+  project       Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  meetingNoteId String?
+  meetingNote   MeetingNote? @relation(fields: [meetingNoteId], references: [id], onDelete: SetNull)
+  description   String
+  severity      String   @default("中")    // 低 | 中 | 高
+  mitigation    String?
+  owner         String?
+  status        String   @default("対応中") // 未対応 | 対応中 | 解消
+  visibility    String   @default("internal")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Update {
-  id         String   @id @default(cuid())
-  projectId  String
-  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  date       DateTime @default(now())
-  content    String
-  nextAction String?
-  // --- 共有ビュー制御 ---
-  visibility String   @default("internal")  // internal | ceo_shared
-  createdAt  DateTime @default(now())
+  id            String   @id @default(cuid())
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  meetingNoteId String?
+  meetingNote   MeetingNote? @relation(fields: [meetingNoteId], references: [id], onDelete: SetNull)
+  date          DateTime @default(now())
+  content       String
+  nextAction    String?
+  visibility    String   @default("internal")
+  createdAt     DateTime @default(now())
 }
 
 // 優子が個人的にフォローすべき項目。プロジェクトに紐づけてもよいし、独立でもよい。
 model FollowUp {
-  id        String   @id @default(cuid())
-  projectId String?
-  title     String
-  who       String?    // フォロー対象者(例:CFO、IT部長)
-  dueDate   DateTime?
-  status    String   @default("未対応") // 未対応 | 進行中 | 完了
-  memo      String?
-  // --- 共有ビュー制御 ---
-  visibility String  @default("internal")  // internal | ceo_shared
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(cuid())
+  projectId     String?
+  meetingNoteId String?
+  meetingNote   MeetingNote? @relation(fields: [meetingNoteId], references: [id], onDelete: SetNull)
+  title         String
+  who           String?    // フォロー対象者(例:CFO、IT部長)
+  dueDate       DateTime?
+  status        String   @default("未対応") // 未対応 | 進行中 | 完了
+  memo          String?
+  visibility    String   @default("internal")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

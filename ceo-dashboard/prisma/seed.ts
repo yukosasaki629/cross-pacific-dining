@@ -22,7 +22,23 @@ async function main() {
   await prisma.risk.deleteMany();
   await prisma.decision.deleteMany();
   await prisma.task.deleteMany();
+  await prisma.meetingNote.deleteMany();
+  await prisma.person.deleteMany();
   await prisma.project.deleteMany();
+
+  // --- 1on1 相手(Executive Team 8名) ---
+  const people = await Promise.all([
+    prisma.person.create({ data: { name: "サンプルCEO", role: "CEO" } }),
+    prisma.person.create({ data: { name: "サンプルCFO", role: "CFO" } }),
+    prisma.person.create({ data: { name: "サンプルCOO", role: "COO" } }),
+    prisma.person.create({ data: { name: "サンプルCMO", role: "CMO" } }),
+    prisma.person.create({ data: { name: "サンプルCTO", role: "CTO" } }),
+    prisma.person.create({ data: { name: "IT部長", role: "IT 部長" } }),
+    prisma.person.create({ data: { name: "人事部長", role: "HR 部長" } }),
+    prisma.person.create({ data: { name: "オペレーション部長", role: "Operations 部長" } }),
+  ]);
+  const ceo = people[0];
+  const cfo = people[1];
 
   // --- プロジェクト ---
   const p1 = await prisma.project.create({
@@ -285,7 +301,42 @@ async function main() {
     ],
   });
 
+  // --- 1on1 サンプル(未処理 — UIで「処理する」を試せるように) ---
+  await prisma.meetingNote.create({
+    data: {
+      personId: ceo.id,
+      date: day(-1),
+      rawNotes: `CEO 1on1 サンプルメモ
+
+主なトピック:
+- 需要予測AIパイロットの遅延について議論。IT部のSOC2レビューが3週間止まっている。
+- リスク:このまま遅れるとAIロードマップ全体が1四半期スリップする懸念。
+- 決定:今週金曜までにIT部とSOC2レビューの期限を合意する。
+- 判断待ち:代替ベンダーに切り替えるか? CEO判断が必要。
+- 2026年米国出店計画は最優先で進める。テキサスの建設許可遅延に注意。
+- 報酬フレームワーク刷新の話題。役員報酬の調整について確認したい。
+
+Action: IT部長と SOC2 期限について今週金曜までに合意する。担当: 優子
+Action: 代替ベンダーの社内承認状況を月曜までに確認。担当: コンプライアンス部
+TODO: 来週のCEO 1on1で報酬委員会の進捗を報告する`,
+    },
+  });
+  await prisma.meetingNote.create({
+    data: {
+      personId: cfo.id,
+      date: day(-3),
+      rawNotes: `CFO 1on1 サンプルメモ
+
+- 人件費比率が想定より1.2pp上振れ。リスク:Q3決算への影響。
+- ニューヨーク市場の家賃が予算超過20%。立地を変更するか検討中。
+- 決定:シフト管理パイロットを来月から2店舗で開始。
+- Action: 地域別人件費レポートを今週金曜までに送付。担当: CFO
+- 判断待ち:NY立地の最終承認。`,
+    },
+  });
+
   console.log("シード完了。");
+  console.log("登録された 1on1 相手: " + people.map((p) => p.name).join(", "));
   console.log("漏洩検知マーカー:[漏洩検知] — /share と /report に出てきたらバグ。");
 }
 
