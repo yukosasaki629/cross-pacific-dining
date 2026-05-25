@@ -23,6 +23,7 @@ model Person {
   updatedAt DateTime @updatedAt
 
   meetings  MeetingNote[]
+  topics    Topic[]
 }
 
 // --- 1on1 ノート ---
@@ -47,6 +48,45 @@ model MeetingNote {
   risks      Risk[]
   followUps  FollowUp[]
   updates    Update[]
+  topics     Topic[]
+}
+
+// =============================================================================
+// Topic — 1on1で出た「話題」の単位。
+// 自動分類ではなく、ユーザーが⭐重要 / 📌フォロー要 を自分でトグルで割り振る。
+// =============================================================================
+model Topic {
+  id            String       @id @default(cuid())
+  meetingNoteId String?
+  meetingNote   MeetingNote? @relation(fields: [meetingNoteId], references: [id], onDelete: Cascade)
+  personId      String?
+  person        Person?      @relation(fields: [personId], references: [id], onDelete: SetNull)
+  projectId     String?
+  project       Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  title         String                                // 短いトピック名
+  content       String?                              // 詳細・背景
+
+  // ⭐ 主要フラグ(ユーザーが手動で立てる)
+  isImportant   Boolean      @default(false)         // ⭐ 重要
+  needsFollowUp Boolean      @default(false)         // 📌 フォロー要
+
+  // 任意のカテゴリ
+  category      String       @default("info")        // action | decision | risk | info | other
+
+  // ステータス
+  status        String       @default("open")        // open | in_progress | done | cancelled
+
+  // 関連
+  owner         String?
+  dueDate       DateTime?
+
+  // 共有制御
+  visibility    String       @default("internal")    // internal | ceo_shared
+  sensitivity   String       @default("general")     // general | board | compensation | executive_only
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 }
 
 model Project {
@@ -71,6 +111,7 @@ model Project {
   decisions Decision[]
   risks     Risk[]
   updates   Update[]
+  topics    Topic[]
 }
 
 model Task {

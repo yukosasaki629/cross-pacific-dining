@@ -4,12 +4,35 @@ import { AppHeader } from "@/components/AppHeader";
 import { ProjectCard } from "@/components/ProjectCard";
 import { Dot, Pill } from "@/components/Badges";
 import { ItemActions } from "@/components/ItemActions";
+import { TopicCard } from "@/components/TopicCard";
 import { fmtMd, isOverdue, toInputDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [keyProjects, decisions, risks, followups, overdueTasks, projectIdsNeedingDecision] = await Promise.all([
+  const [importantTopics, followUpTopics, keyProjects, decisions, risks, followups, overdueTasks, projectIdsNeedingDecision] = await Promise.all([
+    // ⭐ 重要トピック(未完了)
+    prisma.topic.findMany({
+      where: { isImportant: true, status: { not: "done" } },
+      orderBy: [{ dueDate: "asc" }, { updatedAt: "desc" }],
+      take: 10,
+      include: {
+        person: { select: { id: true, name: true, role: true } },
+        meetingNote: { select: { id: true, date: true } },
+        project: { select: { id: true, name: true } },
+      },
+    }),
+    // 📌 フォロー要トピック(未完了)
+    prisma.topic.findMany({
+      where: { needsFollowUp: true, status: { not: "done" } },
+      orderBy: [{ dueDate: "asc" }, { updatedAt: "desc" }],
+      take: 10,
+      include: {
+        person: { select: { id: true, name: true, role: true } },
+        meetingNote: { select: { id: true, date: true } },
+        project: { select: { id: true, name: true } },
+      },
+    }),
     prisma.project.findMany({
       where: { status: { not: "完了" }, priority: { in: ["高", "中"] } },
       orderBy: [{ priority: "desc" }, { riskLevel: "desc" }, { updatedAt: "desc" }],
@@ -57,6 +80,26 @@ export default async function Home() {
       <AppHeader title="CEOダッシュボード" subtitle="今、見るべきこと" />
 
       <div className="px-3 py-4 space-y-1">
+        {/* ⭐ 重要トピック */}
+        <SectionHeader title="⭐ 重要トピック" count={importantTopics.length} />
+        <div className="space-y-2">
+          {importantTopics.length === 0 ? (
+            <EmptyCard msg="重要マークが付いたトピックはありません。1on1を処理して「⭐」で割り振ってください。" />
+          ) : (
+            importantTopics.map((t) => <TopicCard key={t.id} topic={t} />)
+          )}
+        </div>
+
+        {/* 📌 フォロー要トピック */}
+        <SectionHeader title="📌 フォロー要トピック" count={followUpTopics.length} />
+        <div className="space-y-2">
+          {followUpTopics.length === 0 ? (
+            <EmptyCard msg="フォロー要マークが付いたトピックはありません。" />
+          ) : (
+            followUpTopics.map((t) => <TopicCard key={t.id} topic={t} />)
+          )}
+        </div>
+
         {/* 重要プロジェクト */}
         <SectionHeader title="重要プロジェクト" hrefAll="/projects" count={keyProjects.length} />
         <div className="space-y-2">

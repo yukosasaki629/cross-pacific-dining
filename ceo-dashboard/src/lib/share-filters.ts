@@ -107,6 +107,28 @@ export function shareFollowUpWhere(extra: Prisma.FollowUpWhereInput = {}): Prism
   };
 }
 
+// ----- トピック ---------------------------------------------------------------
+//
+// 共有ビューに出す条件:
+//  - visibility = "ceo_shared"
+//  - sensitivity = "general"  (board/compensation/executive_only は除外)
+//  - 紐づくプロジェクトがあれば、そのプロジェクトも共有対象
+export function shareTopicWhere(extra: Prisma.TopicWhereInput = {}): Prisma.TopicWhereInput {
+  return {
+    AND: [
+      { visibility: "ceo_shared" },
+      { sensitivity: "general" },
+      {
+        OR: [
+          { projectId: null },
+          { project: { isSharedWithCEO: true } },
+        ],
+      },
+      extra,
+    ],
+  };
+}
+
 // ----- アクセス可否判定(プロジェクト詳細用) ---------------------------------
 //
 // /share/projects/[id] で「このIDは公開していいか?」を判断するときに使う。

@@ -3,8 +3,10 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { AppHeader } from "@/components/AppHeader";
 import { Pill } from "@/components/Badges";
+import { TopicCard } from "@/components/TopicCard";
 import { fmtDate, fmtMd, startOfWeek } from "@/lib/utils";
 import { ProcessPanel } from "./ProcessPanel";
+import { TopicSplitPanel } from "./TopicSplitPanel";
 import { DeleteButton } from "./DeleteButton";
 
 export const dynamic = "force-dynamic";
@@ -37,6 +39,13 @@ export default async function OneOnOneDetail({
       risks: { include: { project: { select: { name: true } } } },
       followUps: true,
       updates: { include: { project: { select: { name: true } } } },
+      topics: {
+        orderBy: [{ status: "asc" }, { isImportant: "desc" }, { needsFollowUp: "desc" }, { createdAt: "asc" }],
+        include: {
+          person: { select: { id: true, name: true, role: true } },
+          project: { select: { id: true, name: true } },
+        },
+      },
     },
   });
   if (!m) notFound();
@@ -70,8 +79,37 @@ export default async function OneOnOneDetail({
           </p>
         </div>
 
-        {/* 処理パネル */}
-        <ProcessPanel meetingId={m.id} alreadyProcessed={!!m.processedAt} />
+        {/* トピック分割パネル(新方式) */}
+        <TopicSplitPanel meetingId={m.id} hasTopics={m.topics.length > 0} />
+
+        {/* トピック一覧 */}
+        {m.topics.length > 0 ? (
+          <>
+            <h2 className="h-section">
+              <span>トピック ({m.topics.length})</span>
+              <span className="text-[11px] font-normal text-ink-500">
+                ⭐重要・📌フォロー要 を割り振ってください
+              </span>
+            </h2>
+            <ul className="space-y-2">
+              {m.topics.map((t) => (
+                <li key={t.id}>
+                  <TopicCard topic={t} showMeetingMeta={false} />
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
+
+        {/* 古い抽出方式(レガシー、必要なときだけ表示) */}
+        <details className="card card-pad text-[12px]">
+          <summary className="cursor-pointer font-medium text-ink-700">
+            旧式の自動抽出を使う(タスク・判断・リスクに自動分類)
+          </summary>
+          <div className="mt-3">
+            <ProcessPanel meetingId={m.id} alreadyProcessed={!!m.processedAt} />
+          </div>
+        </details>
 
         {/* 既に派生したレコード */}
         {m.processedAt ? (
