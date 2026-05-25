@@ -9,8 +9,35 @@ export const dynamic = "force-dynamic";
 export default async function PeoplePage() {
   const people = await prisma.person.findMany({
     orderBy: { name: "asc" },
-    include: { _count: { select: { meetings: true } } },
+    include: {
+      _count: { select: { meetings: true } },
+      meetings: { orderBy: { date: "desc" }, take: 1, select: { date: true } },
+    },
   });
+
+  // 各人の未完了項目数を集計
+  const personIds = people.map((p) => p.id);
+  const meetingsByPerson = await prisma.meetingNote.findMany({
+    where: { personId: { in: personIds } },
+    select: { id: true, personId: true },
+  });
+  const meetingIdsByPerson = new Map<string, string[]>();
+  for (const m of meetingsByPerson) {
+    if (!meetingIdsByPerson.has(m.personId)) meetingIdsByPerson.set(m.personId, []);
+    meetingIdsByPerson.get(m.personId)!.push(m.id);
+  }
+
+  const openCounts = new Map<string, number>();
+  for (const [personId, mIds] of meetingIdsByPerson) {
+    if (mIds.length === 0) continue;
+    const [t, f, d, r] = await Promise.all([
+      prisma.task.count({ where: { meetingNoteId: { in: mIds }, status: { notIn: ["完了"] } } }),
+      prisma.followUp.count({ where: { meetingNoteId: { in: mIds }, status: { notIn: ["完了"] } } }),
+      prisma.decision.count({ where: { meetingNoteId: { in: mIds }, status: { in: ["未対応", "検討中"] } } }),
+      prisma.risk.count({ where: { meetingNoteId: { in: mIds }, status: { not: "解消" } } }),
+    ]);
+    openCounts.set(personId, t + f + d + r);
+  }
 
   return (
     <div>
@@ -22,11 +49,11 @@ export default async function PeoplePage() {
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="block text-[11px] font-semibold uppercase text-ink-500 mb-1">名前</label>
-              <input name="name" required className="input" placeholder="例:山田太郎" />
+              <input name="name" required className="input" placeholder="例:Arlene" />
             </div>
             <div>
               <label className="block text-[11px] font-semibold uppercase text-ink-500 mb-1">役職</label>
-              <input name="role" className="input" placeholder="例:CFO" />
+              <input name="role" className="input" placeholder="例:CPO" />
             </div>
           </div>
           <button type="submit" className="btn-primary w-full">追加</button>
@@ -39,24 +66,37 @@ export default async function PeoplePage() {
           </div>
         ) : (
           <ul className="space-y-2">
-            {people.map((p) => (
-              <li key={p.id} className="card card-pad">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-[14px] font-medium text-ink-900">{p.name}</div>
-                    <div className="text-[12px] text-ink-500">
-                      {p.role ?? "—"} ・ 1on1 {p._count.meetings} 件 ・ 登録 {fmtDate(p.createdAt)}
+            {people.map((p) => {
+              const openCount = openCounts.get(p.id) ?? 0;
+              return (
+                <li key={p.id}>
+                  <Link href={`/oneonones/people/${p.id}`} className="block">
+                    <div className="card card-pad active:bg-ink-50">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="text-[14px] font-medium text-ink-900">{p.name}</div>
+                          <div className="mt-0.5 text-[12px] text-ink-500">
+                            {p.role ?? "—"} ・ 1on1 {p._count.meetings} 回
+                            {p.meetings[0] ? ` ・ 直近 ${fmtDate(p.meetings[0].date)}` : ""}
+                          </div>
+                        </div>
+                        {openCount > 0 ? (
+                          <div className="shrink-0 rounded-full bg-warn-50 px-3 py-1 text-[12px] font-medium text-warn-700">
+                            未完了 {openCount}
+                          </div>
+                        ) : p._count.meetings > 0 ? (
+                          <div className="shrink-0 rounded-full bg-ok-50 px-3 py-1 text-[12px] font-medium text-ok-700">
+                            すべて完了
+                          </div>
+                        ) : (
+                          <div className="shrink-0 text-[11px] text-ink-400">未実施</div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <Link
-                    href={`/oneonones?p=${p.id}`}
-                    className="btn text-[12px]"
-                  >
-                    履歴を見る
                   </Link>
-                </div>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>

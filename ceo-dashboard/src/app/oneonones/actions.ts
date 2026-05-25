@@ -196,6 +196,31 @@ export async function deleteMeetingNote(id: string) {
   redirect("/oneonones");
 }
 
+// 派生項目のステータスをクイック更新するためのサーバーアクション
+// 人別ダッシュボードで「完了にチェック」を押したときに呼ばれる
+export type ItemType = "task" | "followup" | "decision" | "risk";
+
+export async function markItemStatus(type: ItemType, id: string, newStatus: string) {
+  switch (type) {
+    case "task":
+      await prisma.task.update({ where: { id }, data: { status: newStatus } });
+      break;
+    case "followup":
+      await prisma.followUp.update({ where: { id }, data: { status: newStatus } });
+      break;
+    case "decision":
+      await prisma.decision.update({ where: { id }, data: { status: newStatus } });
+      break;
+    case "risk":
+      await prisma.risk.update({ where: { id }, data: { status: newStatus } });
+      break;
+  }
+  revalidatePath("/oneonones");
+  revalidatePath(`/oneonones/people`);
+  revalidatePath("/");
+  revalidatePath("/share");
+}
+
 export async function upsertPerson(formData: FormData) {
   const name = s(formData.get("name")).trim();
   if (!name) throw new Error("名前は必須");

@@ -111,6 +111,22 @@ export default async function OneOnOnesPage({
       </div>
 
       <div className="px-3 py-4">
+        {personFilter ? (
+          (() => {
+            const selectedPerson = people.find((p) => p.id === personFilter);
+            if (!selectedPerson) return null;
+            return (
+              <div className="mb-3 rounded-lg border border-accent-200 bg-accent-50/40 px-3 py-2.5 text-[13px]">
+                <Link
+                  href={`/oneonones/people/${personFilter}`}
+                  className="font-medium text-accent-700"
+                >
+                  → {selectedPerson.name} のダッシュボードを開く(未完了・進捗を確認)
+                </Link>
+              </div>
+            );
+          })()
+        ) : null}
         {meetings.length === 0 ? (
           <div className="card card-pad text-center text-[13px] text-ink-400">
             まだ1on1がありません。<br />

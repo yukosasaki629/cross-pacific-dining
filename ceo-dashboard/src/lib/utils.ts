@@ -46,3 +46,10 @@ export function endOfWeek(d = new Date()): Date {
   end.setDate(end.getDate() + 7);
   return end;
 }
+
+export function daysAgo(n: number): Date {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
