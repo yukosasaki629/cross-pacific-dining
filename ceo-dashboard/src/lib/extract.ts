@@ -63,81 +63,135 @@ export type Extraction = {
 // ----- キーワード辞書 ----------------------------------------------------
 
 // 機密判定。これらが含まれていたら sensitivity を立てる(/share 除外側)
+// 日本語・英語の両方に対応
 const SENSITIVITY_KEYWORDS: { keywords: string[]; sensitivity: Sensitivity }[] = [
   {
-    keywords: ["報酬", "給与", "ボーナス", "コンペンセーション", "compensation", "ストックオプション", "SO付与"],
+    keywords: [
+      "報酬", "給与", "ボーナス", "コンペンセーション", "ストックオプション", "SO付与",
+      "compensation", "salary", "bonus", "stock option", "equity grant", "pay raise",
+    ],
     sensitivity: "compensation",
   },
   {
-    keywords: ["取締役会", "ボード", "board meeting", "監査委員会"],
+    keywords: [
+      "取締役会", "ボード", "監査委員会", "報酬委員会", "指名委員会",
+      "board meeting", "board of directors", "audit committee", "comp committee", "nominating committee",
+    ],
     sensitivity: "board",
   },
   {
-    keywords: ["役員人事", "幹部人事", "解任", "更迭", "後任", "executive only", "極秘"],
+    keywords: [
+      "役員人事", "幹部人事", "解任", "更迭", "後任", "極秘",
+      "executive only", "exec only", "confidential", "personnel matter", "termination", "successor", "C-suite hiring",
+    ],
     sensitivity: "executive_only",
   },
 ];
 
-// アクションを示すキーワード(本文行に含まれていればアクション候補)
+// アクションを示すキーワード(日本語・英語両対応)
 const ACTION_KEYWORDS = [
-  "アクション:", "Action:", "ACTION:",
-  "TODO:", "todo:", "やる:",
+  // 日本語
+  "アクション:", "TODO:", "todo:", "やる:",
   "次のステップ", "次のアクション", "次は",
   "対応する", "対応してもらう", "対応依頼",
   "確認する", "確認してもらう", "確認依頼",
   "送る", "送付", "提出する",
   "用意する", "準備する", "ドラフトする",
   "依頼する", "依頼を出す",
-  "〜まで", "までに",
+  "までに",
+  // 英語
+  "Action:", "ACTION:", "action item:",
+  "To do:", "To-do:", "Next step:", "Next steps:", "Follow up:", "Follow-up:",
+  "will follow up", "will send", "will draft", "will prepare", "will check",
+  "needs to", "need to", "should ", "must ",
+  "going to send", "going to draft", "going to confirm",
+  "by EOD", "by EOW", "by EOM", "by next week", "by Friday", "by end of",
 ];
 
-// 決定済を示すキーワード
+// 決定済(Decision Made)
 const DECISION_MADE_KEYWORDS = [
+  // 日本語
   "決定:", "決まった", "決めた", "決定済",
   "合意した", "承認した", "承認済",
-  "GO", "ゴー判断", "進めることに",
+  "GO判断", "ゴー判断", "進めることに",
   "ストップ", "中止する",
+  // 英語
+  "Decision:", "Decided:", "Agreed:", "Approved:",
+  "we decided", "we agreed", "we approved", "we will go with",
+  "approved by", "decided to", "agreed to",
+  "go ahead", "moving forward with",
 ];
 
-// 判断待ちを示すキーワード
+// 判断待ち(Decision Needed)
 const DECISION_NEEDED_KEYWORDS = [
+  // 日本語
   "判断が必要", "判断待ち", "決めて欲しい", "決めて頂きたい",
   "確認したい", "確認お願い",
   "CEO判断", "上長判断", "経営判断",
-  "保留", "TBD", "未定", "ペンディング", "pending",
+  "保留", "未定", "ペンディング",
+  // 英語
+  "TBD", "tbd", "Pending", "PENDING", "pending",
+  "Open question:", "Question:",
+  "need to decide", "need a decision", "needs your call",
+  "awaiting decision", "awaiting CEO", "for your approval", "for CEO approval",
+  "on hold",
 ];
 
-// リスク・障害を示すキーワード
+// リスク・障害(日英)
 const RISK_KEYWORDS = [
+  // 日本語
   "リスク", "懸念", "心配",
-  "問題", "課題", "issue",
-  "ブロッカー", "ブロック", "blocker",
-  "遅延", "遅れ", "delay",
+  "問題", "課題",
+  "ブロッカー", "ブロック",
+  "遅延", "遅れ",
   "障害", "止まっている",
   "失敗", "うまくいかない",
+  // 英語
+  "Risk:", "RISK:", "risk that",
+  "Concern:", "concerned about",
+  "Issue:", "issue with",
+  "Blocker:", "blocker", "blocked by", "blocking",
+  "Delay", "delayed", "behind schedule", "slipping",
+  "at risk",
 ];
 
-// 優先度上昇キーワード
-const PRIORITY_UP_KEYWORDS = ["最優先", "最重要", "緊急", "急ぐ", "今すぐ", "最も大事"];
+// 優先度上昇(日英)
+const PRIORITY_UP_KEYWORDS = [
+  "最優先", "最重要", "緊急", "急ぐ", "今すぐ", "最も大事",
+  "top priority", "highest priority", "urgent", "ASAP", "asap", "critical",
+];
 
-// 優先度低下キーワード
-const PRIORITY_DOWN_KEYWORDS = ["後回し", "急がない", "保留にする", "優先度下げ", "ペンディング"];
+// 優先度低下(日英)
+const PRIORITY_DOWN_KEYWORDS = [
+  "後回し", "急がない", "保留にする", "優先度下げ", "ペンディング",
+  "deprioritize", "low priority", "deferred", "on hold", "back burner",
+];
 
-// 完了キーワード
-const STATUS_DONE_KEYWORDS = ["完了した", "終わった", "クローズ", "完結"];
+// 完了キーワード(日英)
+const STATUS_DONE_KEYWORDS = [
+  "完了した", "終わった", "クローズ", "完結",
+  "completed", "done", "closed", "wrapped up", "shipped",
+];
 
-// 担当者ヒント
+// 担当者ヒント(日英)
 const OWNER_PATTERNS = [
   /担当[:：]\s*([^\s、。,]+)/,
-  /Owner[:：]\s*([^\s、。,]+)/i,
-  /(?:を|に)\s*([A-Z]{2,5}|[一-龥ぁ-んァ-ヶー]+(?:部長|室長|本部長|マネージャー|さん|社長|CEO|CFO|COO|CMO))(?:に)?(?:依頼|お願い|送付|送る|確認|対応)/,
+  /Owner[:：]\s*([A-Za-z一-龥ぁ-んァ-ヶー]+(?:\s[A-Z][a-z]+)?)/i,
+  /Assigned to[:：]\s*([A-Za-z一-龥ぁ-んァ-ヶー]+(?:\s[A-Z][a-z]+)?)/i,
+  // 「(名前) will / to」形式 (英語)
+  /\b([A-Z][a-z]+(?:\s[A-Z][a-z]+)?)\s+(?:will|to|is going to|needs? to|should)\b/,
+  // 日本語の役職パターン
+  /(?:を|に)\s*([A-Z]{2,5}|[一-龥ぁ-んァ-ヶー]+(?:部長|室長|本部長|マネージャー|さん|社長|CEO|CFO|COO|CMO|CTO))(?:に)?(?:依頼|お願い|送付|送る|確認|対応)/,
 ];
 
-// 期限ヒント
+// 期限ヒント(日英)
 const DUE_PATTERNS = [
   /(\d{1,2}\/\d{1,2})/,
   /(\d{1,2}月\d{1,2}日)/,
-  /(今週中|来週中|今月中|来月中|今日中|明日まで|今週金曜|月末|週末|EOW|EOM|ASAP)/,
+  /(今週中|来週中|今月中|来月中|今日中|明日まで|今週金曜|月末|週末)/,
+  /(by\s+(?:EOD|EOW|EOM|end of (?:day|week|month)|next (?:week|Monday|Tuesday|Wednesday|Thursday|Friday)|(?:Monday|Tuesday|Wednesday|Thursday|Friday)|tomorrow|today))/i,
+  /(?:by|until|due)\s+((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2})/i,
+  /\b(ASAP|EOD|EOW|EOM)\b/,
 ];
 
 // ----- メイン抽出関数 --------------------------------------------------------
@@ -160,10 +214,12 @@ export function extractFromMeetingNote(
   const detectedSensitiveTopics = new Set<string>();
 
   for (const line of lines) {
-    // 機密キーワード検出
+    const lineLower = line.toLowerCase();
+
+    // 機密キーワード検出(大文字小文字を区別しない)
     for (const { keywords, sensitivity } of SENSITIVITY_KEYWORDS) {
       for (const kw of keywords) {
-        if (line.includes(kw)) {
+        if (lineLower.includes(kw.toLowerCase())) {
           detectedSensitiveTopics.add(`${kw} (${sensitivity})`);
         }
       }
@@ -177,7 +233,7 @@ export function extractFromMeetingNote(
     const importance = detectImportance(line);
 
     // 1. 決定済?
-    if (DECISION_MADE_KEYWORDS.some((kw) => line.includes(kw))) {
+    if (DECISION_MADE_KEYWORDS.some((kw) => lineLower.includes(kw.toLowerCase()))) {
       decisionsMade.push({
         topic: cleanLine(line),
         decisionType: "made",
@@ -190,7 +246,7 @@ export function extractFromMeetingNote(
     }
 
     // 2. 判断待ち?
-    if (DECISION_NEEDED_KEYWORDS.some((kw) => line.includes(kw)) || /[??]$/.test(line)) {
+    if (DECISION_NEEDED_KEYWORDS.some((kw) => lineLower.includes(kw.toLowerCase())) || /[??]$/.test(line)) {
       decisionsNeeded.push({
         topic: cleanLine(line),
         decisionType: "needed",
@@ -203,7 +259,7 @@ export function extractFromMeetingNote(
     }
 
     // 3. リスク?
-    if (RISK_KEYWORDS.some((kw) => line.includes(kw))) {
+    if (RISK_KEYWORDS.some((kw) => lineLower.includes(kw.toLowerCase()))) {
       risks.push({
         description: cleanLine(line),
         severity: importance,
@@ -213,7 +269,7 @@ export function extractFromMeetingNote(
     }
 
     // 4. アクション?
-    if (ACTION_KEYWORDS.some((kw) => line.includes(kw)) || isImperative(line)) {
+    if (ACTION_KEYWORDS.some((kw) => lineLower.includes(kw.toLowerCase())) || isImperative(line)) {
       const task: ExtractedAction = {
         title: cleanLine(line),
         owner,
@@ -232,25 +288,25 @@ export function extractFromMeetingNote(
 
     // 5. 優先度・ステータス変更のサジェスト
     if (matchedProject) {
-      if (PRIORITY_UP_KEYWORDS.some((kw) => line.includes(kw))) {
+      if (PRIORITY_UP_KEYWORDS.some((kw) => lineLower.includes(kw.toLowerCase()))) {
         prioritySuggestions.push({
           projectName: matchedProject,
           newPriority: "高",
           reason: `「${truncate(line, 60)}」より、優先度を「高」に上げることを提案`,
         });
-      } else if (PRIORITY_DOWN_KEYWORDS.some((kw) => line.includes(kw))) {
+      } else if (PRIORITY_DOWN_KEYWORDS.some((kw) => lineLower.includes(kw.toLowerCase()))) {
         prioritySuggestions.push({
           projectName: matchedProject,
           newPriority: "低",
           reason: `「${truncate(line, 60)}」より、優先度を「低」に下げることを提案`,
         });
-      } else if (STATUS_DONE_KEYWORDS.some((kw) => line.includes(kw))) {
+      } else if (STATUS_DONE_KEYWORDS.some((kw) => lineLower.includes(kw.toLowerCase()))) {
         prioritySuggestions.push({
           projectName: matchedProject,
           newStatus: "完了",
           reason: `「${truncate(line, 60)}」より、ステータスを「完了」にすることを提案`,
         });
-      } else if (line.includes("遅延") || line.includes("遅れ")) {
+      } else if (line.includes("遅延") || line.includes("遅れ") || lineLower.includes("delay") || lineLower.includes("behind schedule")) {
         prioritySuggestions.push({
           projectName: matchedProject,
           newStatus: "遅延",
@@ -304,16 +360,18 @@ function detectDueHint(line: string): string | null {
 }
 
 function detectSensitivity(line: string): Sensitivity {
+  const lower = line.toLowerCase();
   for (const { keywords, sensitivity } of SENSITIVITY_KEYWORDS) {
-    if (keywords.some((kw) => line.includes(kw))) return sensitivity;
+    if (keywords.some((kw) => lower.includes(kw.toLowerCase()))) return sensitivity;
   }
   return "general";
 }
 
 function detectImportance(line: string): "高" | "中" | "低" {
-  if (PRIORITY_UP_KEYWORDS.some((kw) => line.includes(kw))) return "高";
-  if (PRIORITY_DOWN_KEYWORDS.some((kw) => line.includes(kw))) return "低";
-  if (line.includes("ASAP") || line.includes("緊急") || line.includes("今日中")) return "高";
+  const lower = line.toLowerCase();
+  if (PRIORITY_UP_KEYWORDS.some((kw) => lower.includes(kw.toLowerCase()))) return "高";
+  if (PRIORITY_DOWN_KEYWORDS.some((kw) => lower.includes(kw.toLowerCase()))) return "低";
+  if (lower.includes("asap") || line.includes("緊急") || line.includes("今日中") || lower.includes("urgent") || lower.includes("critical")) return "高";
   return "中";
 }
 
