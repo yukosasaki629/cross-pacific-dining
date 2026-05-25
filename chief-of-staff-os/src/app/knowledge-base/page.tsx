@@ -7,15 +7,15 @@ import { Pill } from "@/components/ui/Badges";
 export const dynamic = "force-dynamic";
 
 const TYPE_LABEL: Record<string, string> = {
-  meeting: "Meeting",
-  transcript: "Transcript",
-  priority: "Priority",
-  project: "Project",
-  action: "Action",
-  decision: "Decision",
-  "decision-needed": "Decision Needed",
-  risk: "Risk",
-  theme: "Theme",
+  meeting: "会議",
+  transcript: "文字起こし",
+  priority: "優先事項",
+  project: "プロジェクト",
+  action: "アクション",
+  decision: "意思決定",
+  "decision-needed": "判断待ち",
+  risk: "リスク",
+  theme: "テーマ",
 };
 
 export default async function KnowledgeBasePage({
@@ -28,37 +28,37 @@ export default async function KnowledgeBasePage({
   return (
     <div>
       <PageHeader
-        title="Executive Knowledge Base"
-        subtitle="Search across meetings, transcripts, priorities, decisions, projects, actions, risks, and themes."
+        title="エグゼクティブ・ナレッジベース"
+        subtitle="会議メモ・文字起こし・優先事項・意思決定・プロジェクト・アクション・リスク・テーマを横断検索。"
       />
 
       <form className="card card-pad mb-5">
-        <label className="label">Query</label>
+        <label className="label">検索キーワード</label>
         <div className="flex gap-2">
           <input
             type="search"
             name="q"
             defaultValue={q}
-            placeholder='e.g. labor cost, AI delays, compensation, blocked by IT'
+            placeholder='例: 人件費、AIの遅延、報酬、ITによるブロック'
             className="input"
             autoFocus
           />
-          <button className="btn-primary">Search</button>
+          <button className="btn-primary">検索</button>
         </div>
         <div className="mt-2 text-[11px] text-ink-500">
-          Keyword search (case-sensitive in SQLite default). Future versions can plug in a local
-          embedding model for semantic search via the same interface.
+          キーワード検索(SQLiteの仕様で大文字小文字を区別)。将来的にローカル埋め込みモデルで
+          セマンティック検索を追加できる構成です。
         </div>
       </form>
 
       {q ? (
         hits.length === 0 ? (
           <div className="card card-pad text-center text-sm text-ink-400">
-            No results for <span className="font-medium text-ink-700">"{q}"</span>.
+            <span className="font-medium text-ink-700">「{q}」</span>の検索結果はありません。
           </div>
         ) : (
           <div className="space-y-3">
-            <div className="text-xs text-ink-500">{hits.length} results</div>
+            <div className="text-xs text-ink-500">{hits.length} 件</div>
             {hits.map((h) => (
               <Link
                 key={`${h.type}-${h.id}`}
@@ -77,13 +77,13 @@ export default async function KnowledgeBasePage({
         )
       ) : (
         <div className="card card-pad text-sm text-ink-500">
-          <p className="font-medium text-ink-800">Useful queries</p>
+          <p className="font-medium text-ink-800">よく使う検索例</p>
           <ul className="mt-2 list-disc space-y-1 pl-4">
-            <li>"labor cost" — what the CEO has said about labor cost</li>
-            <li>"AI" — AI/automation projects, delays, decisions</li>
-            <li>"compensation" — decisions about pay or comp committee items</li>
-            <li>"blocked by IT" — projects waiting on IT</li>
-            <li>"audit" — anything mentioning the audit committee</li>
+            <li>「人件費」 — CEOが人件費について発言した内容</li>
+            <li>「AI」 — AI/自動化プロジェクト、遅延、意思決定</li>
+            <li>「報酬」 — 報酬委員会関連の意思決定</li>
+            <li>「IT」 — ITに依存して止まっているプロジェクト</li>
+            <li>「監査」 — 監査委員会で言及された内容</li>
           </ul>
         </div>
       )}

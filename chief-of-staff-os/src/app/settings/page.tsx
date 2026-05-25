@@ -26,84 +26,84 @@ export default async function SettingsPage() {
 
   return (
     <div>
-      <PageHeader title="Settings" subtitle="Privacy, AI provider, and data management." />
+      <PageHeader title="設定" subtitle="プライバシー、AIプロバイダ、データ管理。" />
 
       <div className="grid grid-cols-12 gap-5">
         <div className="card card-pad col-span-12 lg:col-span-7 space-y-4">
-          <h2 className="h2">AI provider</h2>
+          <h2 className="h2">AIプロバイダ</h2>
           <div className={`rounded border p-3 text-sm ${info.selected === "anthropic" ? "border-risk-high/30 bg-risk-high/5 text-risk-high" : "border-risk-low/30 bg-risk-low/5 text-risk-low"}`}>
-            <div className="font-medium">{info.notice}</div>
+            <div className="font-medium">{info.selected === "anthropic" ? "外部AIが有効です。会議の内容は Anthropic に送信されます。" : "ローカルモード。会議の内容はこのパソコンの外には出ません。"}</div>
             <div className="mt-1 text-xs">
-              Provider: <code className="font-mono">{info.selected}</code> · Model:{" "}
-              <code className="font-mono">{info.model}</code> · Anthropic key configured:{" "}
-              <code className="font-mono">{String(info.available.anthropic)}</code>
+              プロバイダ: <code className="font-mono">{info.selected}</code> · モデル:{" "}
+              <code className="font-mono">{info.model}</code> · Anthropic APIキー設定:{" "}
+              <code className="font-mono">{info.available.anthropic ? "あり" : "なし"}</code>
             </div>
           </div>
           <div className="rounded border border-ink-200 bg-ink-50 p-3 text-xs text-ink-700">
-            <p className="font-medium text-ink-800">How to change the provider</p>
+            <p className="font-medium text-ink-800">プロバイダの変更方法</p>
             <p className="mt-1">
-              Edit the <code>.env</code> file in the project root and restart the dev server:
+              プロジェクトルートの <code>.env</code> を編集し、開発サーバーを再起動してください:
             </p>
-            <pre className="mt-1 whitespace-pre-wrap font-mono">{`AI_PROVIDER="mock"           # default — fully local
-# or:
+            <pre className="mt-1 whitespace-pre-wrap font-mono">{`AI_PROVIDER="mock"           # デフォルト — 完全ローカル
+# または:
 AI_PROVIDER="anthropic"
 ANTHROPIC_API_KEY="sk-ant-..."
 ANTHROPIC_MODEL="claude-opus-4-7"`}</pre>
             <p className="mt-2 text-risk-high">
-              ⚠ Enabling Anthropic will send the full content of meeting notes and transcripts you process
-              to Anthropic's API. Confirm your company policy permits this before enabling.
+              ⚠ Anthropic を有効化すると、処理する会議メモ・文字起こしの全文が Anthropic API に送信されます。
+              社内ポリシーで第三者AIへの送信が許可されているか必ず確認してから有効化してください。
             </p>
           </div>
         </div>
 
         <div className="card card-pad col-span-12 lg:col-span-5 space-y-3">
-          <h2 className="h2">Privacy &amp; storage</h2>
+          <h2 className="h2">プライバシー・保存先</h2>
           <dl className="space-y-2 text-sm">
             <div>
-              <dt className="label">Storage type</dt>
-              <dd className="text-ink-800">Local SQLite database</dd>
+              <dt className="label">保存方式</dt>
+              <dd className="text-ink-800">ローカル SQLite データベース</dd>
             </div>
             <div>
-              <dt className="label">Database file</dt>
+              <dt className="label">DBファイルの場所</dt>
               <dd className="break-all font-mono text-[12px] text-ink-800">{dbPath}</dd>
             </div>
             <div>
-              <dt className="label">Outbound traffic</dt>
+              <dt className="label">外部送信</dt>
               <dd className="text-ink-800">
-                {info.selected === "anthropic" ? "Anthropic API only (opt-in)" : "None"}
+                {info.selected === "anthropic" ? "Anthropic API のみ (オプトイン)" : "なし"}
               </dd>
             </div>
           </dl>
           <div className="rounded border border-ink-100 bg-ink-50 p-3 text-[11px] text-ink-600">
-            Back up by copying the SQLite file. Restore by replacing it. To wipe everything: stop the
-            app and run <code>npm run db:reset</code>.
+            バックアップは SQLite ファイルをコピーするだけ。復元はファイルを置き換えるだけ。
+            完全リセットはアプリ停止後に <code>npm run db:reset</code>。
           </div>
         </div>
 
         <div className="card card-pad col-span-12 lg:col-span-7 space-y-3">
-          <h2 className="h2">Data export</h2>
-          <p className="text-sm text-ink-600">Download a JSON snapshot of all records.</p>
-          <a href="/api/export" className="btn-primary inline-flex w-fit">Download JSON snapshot</a>
+          <h2 className="h2">データエクスポート</h2>
+          <p className="text-sm text-ink-600">全レコードのJSONスナップショットをダウンロードします。</p>
+          <a href="/api/export" className="btn-primary inline-flex w-fit">JSONスナップショットを保存</a>
         </div>
 
         <div className="card card-pad col-span-12 lg:col-span-5">
-          <h2 className="h2">Database snapshot</h2>
+          <h2 className="h2">データ件数</h2>
           <ul className="mt-2 space-y-1 text-sm text-ink-700">
-            <li>Meetings: <strong>{meetings}</strong></li>
-            <li>Transcripts: <strong>{transcripts}</strong></li>
-            <li>Priorities: <strong>{priorities}</strong></li>
-            <li>Action items: <strong>{actionsCount}</strong></li>
-            <li>Decisions: <strong>{decisions}</strong></li>
-            <li>Decisions needed: <strong>{dn}</strong></li>
-            <li>Projects: <strong>{projects}</strong></li>
-            <li>Agent outputs (audit log): <strong>{agentOutputs}</strong></li>
+            <li>会議: <strong>{meetings}</strong></li>
+            <li>文字起こし: <strong>{transcripts}</strong></li>
+            <li>優先事項: <strong>{priorities}</strong></li>
+            <li>アクション: <strong>{actionsCount}</strong></li>
+            <li>意思決定: <strong>{decisions}</strong></li>
+            <li>判断待ち: <strong>{dn}</strong></li>
+            <li>プロジェクト: <strong>{projects}</strong></li>
+            <li>AI抽出履歴(監査ログ): <strong>{agentOutputs}</strong></li>
           </ul>
         </div>
 
         <div className="card card-pad col-span-12">
-          <h2 className="h2 mb-2">Suggested tag vocabulary</h2>
+          <h2 className="h2 mb-2">推奨タグ</h2>
           <p className="text-xs text-ink-500">
-            Use these as a starting point when tagging meetings, priorities, projects, and decisions.
+            会議・優先事項・プロジェクト・意思決定にタグ付けする際の出発点としてご利用ください。
           </p>
           <div className="mt-3 flex flex-wrap gap-1.5">
             {SUGGESTED_TAGS.map((t) => (

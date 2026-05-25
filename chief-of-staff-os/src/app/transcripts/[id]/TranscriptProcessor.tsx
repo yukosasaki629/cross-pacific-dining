@@ -36,14 +36,13 @@ export function TranscriptProcessor({ transcriptId }: { transcriptId: string }) 
     <div className="card card-pad">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
-          <h3 className="h3">Process transcript</h3>
+          <h3 className="h3">文字起こしを処理</h3>
           <p className="mt-1 text-xs text-ink-500">
-            Run the Meeting Note Agent over the transcript. Review the JSON, then Apply to create the meeting,
-            action items, decisions, and risks.
+            Meeting Note Agent を実行し、JSONを確認 → 「レコードに反映」で会議・アクション・意思決定・リスクを登録します。
           </p>
         </div>
         <button onClick={process} disabled={pending} className="btn-primary">
-          {pending ? "Processing…" : "Process transcript"}
+          {pending ? "処理中…" : "文字起こしを処理"}
         </button>
       </div>
 
@@ -58,14 +57,14 @@ export function TranscriptProcessor({ transcriptId }: { transcriptId: string }) 
             spellCheck={false}
           />
           <div className="mt-3 flex justify-end gap-2">
-            <button onClick={process} disabled={pending} className="btn">Re-process</button>
+            <button onClick={process} disabled={pending} className="btn">再処理</button>
             <button onClick={apply} disabled={applying} className="btn-primary">
-              {applying ? "Applying…" : "Apply to records"}
+              {applying ? "反映中…" : "レコードに反映"}
             </button>
           </div>
           {done ? (
             <div className="mt-3 rounded border border-risk-low/30 bg-risk-low/5 p-3 text-xs text-risk-low">
-              Applied. A linked meeting was created (or updated) and structured records were saved.
+              反映しました。紐づく会議が作成(または更新)され、構造化レコードが保存されました。
             </div>
           ) : null}
         </>

@@ -28,25 +28,25 @@ export default async function PrioritiesPage() {
   return (
     <div>
       <PageHeader
-        title="CEO Priority Dashboard"
-        subtitle="What the CEO is focused on, what's slipping, and what needs attention."
-        actions={<Link href="/priorities/new" className="btn-primary">+ New Priority</Link>}
+        title="CEO 優先事項"
+        subtitle="CEOが今フォーカスしていること、進捗、要注意点を一覧。"
+        actions={<Link href="/priorities/new" className="btn-primary">+ 新規優先事項</Link>}
       />
 
       {priorities.length === 0 ? (
-        <EmptyState title="No priorities tracked yet" description="Start by adding the CEO's top 3–5 priorities." />
+        <EmptyState title="優先事項が未登録です" description="まずはCEOのトップ3〜5を登録しましょう。" />
       ) : (
         <div className="card overflow-hidden">
           <table className="w-full text-sm table-zebra">
             <thead className="border-b border-ink-200 text-left text-[11px] uppercase tracking-wide text-ink-500">
               <tr>
-                <th className="px-4 py-2 font-medium">Priority</th>
-                <th className="px-4 py-2 font-medium">Level</th>
-                <th className="px-4 py-2 font-medium">Status</th>
-                <th className="px-4 py-2 font-medium">Owner</th>
-                <th className="px-4 py-2 font-medium">Deadline</th>
-                <th className="px-4 py-2 font-medium">Updated</th>
-                <th className="px-4 py-2 font-medium">Open?</th>
+                <th className="px-4 py-2 font-medium">優先事項</th>
+                <th className="px-4 py-2 font-medium">レベル</th>
+                <th className="px-4 py-2 font-medium">ステータス</th>
+                <th className="px-4 py-2 font-medium">担当</th>
+                <th className="px-4 py-2 font-medium">期限</th>
+                <th className="px-4 py-2 font-medium">更新</th>
+                <th className="px-4 py-2 font-medium">未対応</th>
               </tr>
             </thead>
             <tbody>
@@ -57,7 +57,7 @@ export default async function PrioritiesPage() {
                       {p.name}
                     </Link>
                     {stale.has(p.id) ? (
-                      <span className="ml-2 text-[10px] text-risk-med">stale (2w+)</span>
+                      <span className="ml-2 text-[10px] text-risk-med">2週間以上 更新なし</span>
                     ) : null}
                   </td>
                   <td className="px-4 py-2.5"><LevelBadge value={p.level} /></td>
@@ -67,10 +67,10 @@ export default async function PrioritiesPage() {
                   <td className="px-4 py-2.5 text-ink-700">{fmtDate(p.lastUpdated)}</td>
                   <td className="px-4 py-2.5 text-ink-700">
                     {p._count.decisionsNeeded > 0 ? (
-                      <span className="badge-risk-med">{p._count.decisionsNeeded} decision needed</span>
+                      <span className="badge-risk-med">判断待ち {p._count.decisionsNeeded}件</span>
                     ) : null}
                     {(overdueMap.get(p.id) ?? 0) > 0 ? (
-                      <span className="ml-1 badge-risk-high">{overdueMap.get(p.id)} overdue</span>
+                      <span className="ml-1 badge-risk-high">期限超過 {overdueMap.get(p.id)}件</span>
                     ) : null}
                   </td>
                 </tr>

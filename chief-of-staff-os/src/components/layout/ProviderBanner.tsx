@@ -13,18 +13,22 @@ export function ProviderBanner() {
       }
     >
       <span className="font-medium">
-        {external ? "External AI enabled" : "Local mode"}
+        {external ? "外部AI 有効" : "ローカルモード"}
       </span>
       <span className="mx-2 text-ink-300">·</span>
-      <span>{info.notice}</span>
+      <span>
+        {external
+          ? "会議メモが Anthropic に送信されます。"
+          : "会議の内容はこのパソコンの外には出ません。"}
+      </span>
       <span className="mx-2 text-ink-300">·</span>
       <span>
-        Provider: <code className="font-mono">{info.selected}</code> · Model:{" "}
+        プロバイダ: <code className="font-mono">{info.selected}</code> · モデル:{" "}
         <code className="font-mono">{info.model}</code>
       </span>
       <span className="mx-2 text-ink-300">·</span>
       <Link href="/settings" className="link">
-        Change in Settings
+        設定で変更
       </Link>
     </div>
   );

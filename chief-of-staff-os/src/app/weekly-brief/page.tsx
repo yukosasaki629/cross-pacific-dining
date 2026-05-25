@@ -16,8 +16,8 @@ export default async function WeeklyBriefPage() {
   return (
     <div>
       <PageHeader
-        title="Weekly Executive Brief"
-        subtitle={`Week of ${fmtDate(weekStart)} · generated from your structured data`}
+        title="週次エグゼクティブ・ブリーフ"
+        subtitle={`${fmtDate(weekStart)} の週 · 登録済みの構造化データから生成`}
       />
 
       <BriefEditor

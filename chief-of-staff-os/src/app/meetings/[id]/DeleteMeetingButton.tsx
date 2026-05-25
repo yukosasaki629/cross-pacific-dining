@@ -9,13 +9,13 @@ export function DeleteMeetingButton({ id }: { id: string }) {
       className="btn-danger"
       disabled={pending}
       onClick={() => {
-        if (!confirm("Delete this meeting and all linked agent-output history? This cannot be undone.")) return;
+        if (!confirm("この会議と紐づくAI抽出履歴を削除します。元に戻せません。よろしいですか？")) return;
         start(async () => {
           await deleteMeeting(id);
         });
       }}
     >
-      {pending ? "Deleting…" : "Delete"}
+      {pending ? "削除中…" : "削除"}
     </button>
   );
 }

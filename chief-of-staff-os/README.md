@@ -1,61 +1,66 @@
 # Chief of Staff OS
 
-A **local-first**, private executive operating system. Built for someone working with the CEO and C-suite of a NASDAQ-listed company who wants to evolve from "taking notes and following up" to **tracking CEO priorities, surfacing risks, supporting decisions, and improving organizational execution**.
+**ローカルファースト**で動く、プライベートな経営オペレーティングシステム。
+NASDAQ上場の日系企業でCEO・経営陣を支えるエグゼクティブアシスタントが、
+「メモを取ってフォローする」から「**CEO優先事項を追い、リスクを可視化し、意思決定を支援し、組織実行力を高める**」へ
+役割を進化させるために設計されています。
 
-> This is not a generic task manager. This is an AI-enabled executive operating system designed for the Chief of Staff workflow.
+> これは汎用タスク管理ツールではありません。Chief of Staff として働く人のための、
+> AI機能を備えた経営オペレーティングシステムです。
 
-## Privacy posture
+## プライバシーの考え方
 
-- All data lives in a local SQLite file at `prisma/dev.db`.
-- The default AI provider is `mock` — a deterministic rule-based extractor that **never makes a network call**. The product is fully usable offline.
-- The optional `anthropic` provider sends meeting content to Anthropic's API. It's gated by an env var, marked with a red banner in the UI, and requires an explicit API key. Do not enable unless your company policy permits sending executive content to a third-party AI vendor.
-- Every AI extraction is **reviewed by a human** in editable JSON before any structured record is created (`AgentOutput` table is the audit log).
-- No analytics, no telemetry, no logging of note bodies.
+- データはすべてローカルの `prisma/dev.db` (SQLite) に保存
+- デフォルトのAIプロバイダは `mock` — ルールベースの抽出器で**ネットワーク通信ゼロ**。完全オフラインで動作
+- オプションの `anthropic` プロバイダは会議内容を Anthropic API に送信。環境変数で明示的に有効化する必要があり、UI上は赤いバナーで警告
+- すべてのAI抽出は**人がレビュー**してから構造化レコードに反映(`AgentOutput`テーブルが監査ログ)
+- アクセス解析・テレメトリ・メモ本文のログ出力は一切なし
 
-## Getting started
+## 起動方法
 
 ```bash
 cd chief-of-staff-os
-cp .env.example .env       # local mode is the default; no edits needed
+cp .env.example .env       # ローカルモードがデフォルト、編集不要
 npm install
-npm run db:push            # create the SQLite schema
-npm run db:seed            # add non-confidential sample data (optional)
+npm run db:push            # SQLiteスキーマ作成
+npm run db:seed            # サンプルデータ投入(任意)
 npm run dev                # http://localhost:3000
 ```
 
-One-shot setup:
+ワンショットで:
 
 ```bash
 npm run setup
 ```
 
-## Daily workflow
+## 日々のワークフロー
 
-After each CEO 1:1 or executive meeting:
+CEO 1on1や経営会議の後:
 
-1. Open **Meetings → + New Meeting**
-2. Paste raw notes, save
-3. On the meeting detail page click **Process Notes**
-4. Review the JSON output, edit anything that looks off
-5. Click **Apply to records** — this creates action items, decisions, risks, and updates themes
-6. Open the **Dashboard** to see what now requires follow-up
+1. **「会議メモ」→「+ 新規会議」**を開く
+2. 生メモを貼り付けて保存
+3. 会議詳細画面で**「メモを処理」**をクリック
+4. JSON出力をレビュー、不適切な部分を編集
+5. **「レコードに反映」**をクリック → アクション・意思決定・リスクが作成され、テーマも更新される
+6. **ダッシュボード**を開き、フォローが必要な項目を確認
 
-If you record meetings and have transcripts, use **Transcripts** instead: paste or upload `.txt` / `.md` / `.docx`. Processing creates a linked Meeting automatically.
+会議を録画していて文字起こしがある場合は、**「文字起こし」**から貼り付けまたは `.txt` / `.md` / `.docx` をアップロード。
+処理すると会議も自動作成・紐付けされます。
 
-## Friday workflow
+## 金曜の運用
 
-1. **Weekly Brief → Generate this week**
-2. Review the markdown draft (composed deterministically from your data — no LLM by default)
-3. Edit anything you want to add
-4. **Copy** or **Download .md** and send / paste into email / Slack / Notion
+1. **「週次ブリーフ」→「今週のブリーフを生成」**
+2. Markdownの下書きをレビュー(LLMには頼らず、登録済みデータから決定論的に生成)
+3. 追加したい内容を編集
+4. **「コピー」**または**「.md ダウンロード」**してメール/Slack/Notionに貼り付け
 
-## Monthly workflow
+## 月次の運用
 
-1. Open **Friction Map**
-2. Look for owners or departments stacking blocked items, stale priorities, repeated decisions, recurring themes
-3. Use those signals to prepare recommendations for the CEO
+1. **「組織課題マップ」**を開く
+2. 詰まりがちな担当者・部門、止まっている優先事項、繰り返される判断保留、再発テーマを確認
+3. これらをCEOへの改善提言の材料に
 
-## Architecture
+## アーキテクチャ
 
 ```
 Next.js 15 (App Router) ── React 19 ── Tailwind 3
@@ -64,100 +69,106 @@ Next.js 15 (App Router) ── React 19 ── Tailwind 3
                 │
             Prisma ORM
                 │
-         SQLite (local file)
+         SQLite (ローカルファイル)
                 │
-   AI service layer (provider seam)
-        ├── mock         ← default, no network
-        └── anthropic    ← opt-in
+   AIサービス層 (プロバイダ抽象化)
+        ├── mock         ← デフォルト、通信なし
+        └── anthropic    ← オプトイン
 ```
 
-### AI agents
+### AIエージェント
 
-All agent prompts and JSON schemas live in `src/lib/ai/agents/index.ts`. Each agent:
+すべてのエージェントのプロンプト・JSONスキーマは `src/lib/ai/agents/index.ts` にあります。
 
-| Agent                  | Input                          | Output                                                    |
-| ---------------------- | ------------------------------ | --------------------------------------------------------- |
-| `MeetingNoteAgent`     | raw notes / transcript         | summary, action items, decisions, risks, themes, etc.     |
-| `PriorityAgent`        | notes + existing priorities    | suggested priority updates / shifts / emerging priorities |
-| `ActionTrackingAgent`  | notes + existing actions       | new actions, status updates, overdue warnings             |
-| `DecisionAgent`        | notes                          | decisions made, decisions needed, unresolved issues       |
-| `RiskBottleneckAgent`  | projects + actions + notes     | risks, blockers, dependencies, escalation suggestions     |
-| `WeeklyBriefAgent`     | this week's data               | the weekly brief (composed deterministically — `src/lib/weekly-brief.ts`) |
-| `FrictionAnalysisAgent`| historical data                | recurring patterns (composed deterministically — `/friction-map`) |
+| エージェント            | 入力                       | 出力                                                     |
+| ---------------------- | ------------------------- | -------------------------------------------------------- |
+| `MeetingNoteAgent`     | 生メモ / 文字起こし         | サマリー、アクション、意思決定、リスク、テーマ等          |
+| `PriorityAgent`        | メモ + 既存優先事項         | 優先事項の更新案・シフト・新興優先事項                   |
+| `ActionTrackingAgent`  | メモ + 既存アクション       | 新規アクション、ステータス更新、期限超過警告              |
+| `DecisionAgent`        | メモ                      | 決定済事項、判断待ち事項、未解決論点                     |
+| `RiskBottleneckAgent`  | プロジェクト + アクション + メモ | リスク、ブロッカー、依存関係、エスカレーション提案    |
+| `WeeklyBriefAgent`     | 今週のデータ                | 週次ブリーフ(`src/lib/weekly-brief.ts`で決定論的に生成) |
+| `FrictionAnalysisAgent`| 過去データ                  | 反復パターン(`/friction-map`で決定論的に生成)        |
 
-The weekly brief and friction analysis are intentionally **deterministic** (no LLM call). They draw from the same approved, human-reviewed structured records and produce predictable output — which is what an executive context needs.
+週次ブリーフと組織課題分析は意図的に**決定論的**(LLMを呼ばない)です。人がレビュー済みの構造化データから組み立て、
+予測可能な出力を出します — エグゼクティブのコンテキストではそれが重要です。
 
-### Data model (high level)
+### データモデル(概要)
 
 ```
-Meeting ─┬─ ActionItem ─── Person (owner)
+Meeting ─┬─ ActionItem ─── Person (担当)
          ├─ Decision      └── Department
          ├─ DecisionNeeded
          ├─ Risk
          ├─ Tag
          └─ Transcript
 
-Priority ── many-to-many ── Meeting / Project / Action / Decision
-Project  ── many-to-many ── Meeting / Department / Priority
-Theme    ── frequency-tracked recurring topic
-WeeklyBrief, AgentOutput (audit log)
+Priority ── 多対多 ── Meeting / Project / Action / Decision
+Project  ── 多対多 ── Meeting / Department / Priority
+Theme    ── 頻度を追跡する再発テーマ
+WeeklyBrief, AgentOutput (監査ログ)
 ```
 
-Full schema: [`prisma/schema.prisma`](./prisma/schema.prisma).
+全スキーマ: [`prisma/schema.prisma`](./prisma/schema.prisma)
 
-## File locations
+## ファイルの場所
 
-| Thing                       | Where                                                 |
-| --------------------------- | ----------------------------------------------------- |
-| Local database              | `prisma/dev.db` (gitignored)                          |
-| Schema                      | `prisma/schema.prisma`                                |
-| Seed data                   | `prisma/seed.ts`                                      |
-| AI service layer            | `src/lib/ai/`                                         |
-| Agent prompts + schemas     | `src/lib/ai/agents/index.ts`                          |
-| Weekly brief composition    | `src/lib/weekly-brief.ts`                             |
-| Search                      | `src/lib/search.ts`                                   |
-| Pages                       | `src/app/<module>/page.tsx`                           |
-| JSON snapshot endpoint      | `src/app/api/export/route.ts`                         |
+| 内容                       | 場所                                              |
+| ------------------------- | ------------------------------------------------ |
+| ローカルDB                  | `prisma/dev.db` (gitignore済)                    |
+| スキーマ                    | `prisma/schema.prisma`                           |
+| シードデータ                | `prisma/seed.ts`                                 |
+| AIサービス層                | `src/lib/ai/`                                    |
+| エージェント定義             | `src/lib/ai/agents/index.ts`                     |
+| 週次ブリーフ生成             | `src/lib/weekly-brief.ts`                        |
+| 検索                       | `src/lib/search.ts`                              |
+| 各ページ                    | `src/app/<モジュール>/page.tsx`                   |
+| JSONエクスポート             | `src/app/api/export/route.ts`                    |
+| 日本語ラベル                 | `src/lib/labels.ts`                              |
 
-## Backup & restore
+## バックアップと復元
 
-- **Backup**: stop the app, copy `prisma/dev.db` to a safe location, or use **Settings → Download JSON snapshot**.
-- **Restore**: stop the app, replace `prisma/dev.db` with your backup, restart.
-- **Wipe everything**: `npm run db:reset` (force-resets the schema and re-runs seed).
+- **バックアップ**: アプリを停止して `prisma/dev.db` を別の場所にコピー。または **設定 → JSONスナップショットを保存**
+- **復元**: アプリを停止して `prisma/dev.db` をバックアップで置き換え、再起動
+- **全消去**: `npm run db:reset` (スキーマ再構築 + シード再投入)
 
-## Extending later
+## 拡張ポイント
 
-- **Add an AI provider** (OpenAI, local Ollama, llama.cpp, etc.): implement the `AIProvider` interface in `src/lib/ai/provider.ts` and register it in `src/lib/ai/index.ts`.
-- **Semantic / vector search**: replace `searchAll` in `src/lib/search.ts` with an embedding-backed implementation; the hit shape stays the same.
-- **Notion / Drive / Gmail / Calendar / Slack / Teams sync**: add integration modules that write rows into the existing tables. The schema already supports `source` on transcripts (`whisper-local`, `otter`, `fathom`, `assemblyai`).
-- **More agents**: add to `src/lib/ai/agents/` following the existing pattern (tagged system prompt + zod schema + `runAgent` helper).
+- **AIプロバイダ追加** (OpenAI / ローカルOllama / llama.cpp 等):
+  `src/lib/ai/provider.ts` の `AIProvider` インターフェイスを実装し、`src/lib/ai/index.ts` に登録
+- **セマンティック / ベクトル検索**: `src/lib/search.ts` の `searchAll` を埋め込みベースに差し替え。ヒット型は同じ
+- **Notion / Drive / Gmail / Calendar / Slack / Teams 連携**: 既存テーブルに行を書き込む統合モジュールを追加。
+  `Transcript` には `source` フィールド(`whisper-local`、`otter`、`fathom`、`assemblyai` 等)を予約済み
+- **AIエージェント追加**: `src/lib/ai/agents/` に既存パターン(タグ付きシステムプロンプト + Zodスキーマ + `runAgent`)で追加
 
-## What this MVP includes
+## MVPに含まれるもの
 
-- ✅ Database schema for meetings, transcripts, priorities, projects, actions, decisions, decisions-needed, risks, tags, themes, agent outputs, weekly briefs
-- ✅ Meeting Notes Inbox with paste, save, edit, AI process, apply
-- ✅ Transcript ingestion (paste + `.txt` / `.md` / `.docx` upload) with the same processing pipeline
-- ✅ CEO Priority Dashboard with stale / at-risk views
-- ✅ Action Item Tracker with views: all, overdue, by owner, by department, on CEO priorities, blocked
-- ✅ Decision Log + Decisions Needed (with "promote to decision" workflow)
-- ✅ Cross-functional Project Tracker
-- ✅ Weekly Executive Brief Generator (deterministic, markdown, edit + copy + download)
-- ✅ Knowledge Base keyword search across all entities
-- ✅ Friction Map dashboard
-- ✅ Executive Intelligence Timeline
-- ✅ Settings with provider toggle info, data location, JSON export
-- ✅ AI service layer with `MockProvider` (default) and `AnthropicProvider` (opt-in)
-- ✅ Audit log of every AI extraction
+- ✅ 会議・文字起こし・優先事項・プロジェクト・アクション・意思決定・判断待ち・リスク・タグ・テーマ・AI抽出履歴・週次ブリーフのDBスキーマ
+- ✅ 会議メモ受信箱(貼り付け・保存・編集・AI処理・反映)
+- ✅ 文字起こし取り込み(貼り付け + `.txt` / `.md` / `.docx` アップロード)
+- ✅ CEO優先事項ダッシュボード(更新停滞・要注意ビュー付き)
+- ✅ アクション追跡(6ビュー:全件 / 期限超過 / 担当者別 / 部門別 / CEO優先事項関連 / ブロック中)
+- ✅ 意思決定ログ + 判断待ち事項(「意思決定ログへ昇格」ワークフロー付き)
+- ✅ 部門横断プロジェクト追跡
+- ✅ 週次エグゼクティブブリーフ生成(決定論的、Markdown、コピー/ダウンロード可)
+- ✅ ナレッジベース横断キーワード検索
+- ✅ 組織課題マップ
+- ✅ インテリジェンス・タイムライン
+- ✅ 設定(プロバイダ表示、保存先表示、JSONエクスポート)
+- ✅ AIサービス層(`MockProvider`デフォルト + `AnthropicProvider`オプトイン)
+- ✅ AI抽出ごとの監査ログ
 
-## What's intentionally not in the MVP
+## MVPに意図的に含めていないもの
 
-- No multi-user / auth (this is a single-user local app)
-- No realtime sync to Notion / Slack / Gmail / Calendar (designed-for, not built)
-- No semantic / vector search (keyword only; interface is ready for it)
-- No PDF export (markdown export covers the same content; use any md→PDF tool)
-- No mobile UI (desktop-first; works fine on a tablet)
-- No local Whisper transcription (schema supports it; integration is yours to add)
+- マルチユーザー / 認証(これは単一ユーザーのローカルアプリ)
+- Notion / Slack / Gmail / Calendar とのリアルタイム同期(設計対応済、未実装)
+- セマンティック / ベクトル検索(キーワードのみ、インターフェイスは準備済)
+- PDFエクスポート(Markdownで同等の内容、md→PDF変換ツールで対応可)
+- モバイル専用UI(デスクトップ前提、タブレットでも動作)
+- ローカルWhisperの統合(スキーマは対応済、実装は今後)
 
-## Tone
+## トーン
 
-The UI is intentionally calm, neutral, and minimal. This product holds material non-public information about a public company. It should feel like a quiet executive workspace, not a SaaS dashboard.
+UIは意図的に静かで、ニュートラルで、ミニマルです。
+このプロダクトは上場企業の重要な未公開情報を扱います。
+SaaSダッシュボードではなく、静かなエグゼクティブのワークスペースのように感じられることを目指しています。

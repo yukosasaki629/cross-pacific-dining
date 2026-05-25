@@ -1,12 +1,11 @@
-// Seed with non-confidential fake data so the UI has something to show on first run.
+// 非機密のサンプルデータをシード。初回起動時にUIが空にならないようにします。
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("Seeding…");
+  console.log("シード投入中…");
 
-  // Wipe in dependency-safe order.
   await prisma.agentOutput.deleteMany();
   await prisma.weeklyBrief.deleteMany();
   await prisma.actionItem.deleteMany();
@@ -23,55 +22,54 @@ async function main() {
   await prisma.department.deleteMany();
 
   const dept = {
-    finance: await prisma.department.create({ data: { name: "Finance" } }),
-    hr: await prisma.department.create({ data: { name: "HR" } }),
+    finance: await prisma.department.create({ data: { name: "財務" } }),
+    hr: await prisma.department.create({ data: { name: "人事" } }),
     it: await prisma.department.create({ data: { name: "IT" } }),
-    ops: await prisma.department.create({ data: { name: "Operations" } }),
-    marketing: await prisma.department.create({ data: { name: "Marketing" } }),
-    legal: await prisma.department.create({ data: { name: "Legal" } }),
-    jpHQ: await prisma.department.create({ data: { name: "Japan HQ" } }),
-    construction: await prisma.department.create({ data: { name: "Construction" } }),
+    ops: await prisma.department.create({ data: { name: "オペレーション" } }),
+    marketing: await prisma.department.create({ data: { name: "マーケティング" } }),
+    legal: await prisma.department.create({ data: { name: "法務" } }),
+    jpHQ: await prisma.department.create({ data: { name: "日本本社" } }),
+    construction: await prisma.department.create({ data: { name: "店舗工事" } }),
   };
 
   const p = {
-    ceo: await prisma.person.create({ data: { name: "Sample CEO", title: "CEO", isExecutive: true, departmentId: dept.ops.id } }),
-    cfo: await prisma.person.create({ data: { name: "Sample CFO", title: "CFO", isExecutive: true, departmentId: dept.finance.id } }),
-    coo: await prisma.person.create({ data: { name: "Sample COO", title: "COO", isExecutive: true, departmentId: dept.ops.id } }),
-    cmo: await prisma.person.create({ data: { name: "Sample CMO", title: "CMO", isExecutive: true, departmentId: dept.marketing.id } }),
+    ceo: await prisma.person.create({ data: { name: "サンプルCEO", title: "CEO", isExecutive: true, departmentId: dept.ops.id } }),
+    cfo: await prisma.person.create({ data: { name: "サンプルCFO", title: "CFO", isExecutive: true, departmentId: dept.finance.id } }),
+    coo: await prisma.person.create({ data: { name: "サンプルCOO", title: "COO", isExecutive: true, departmentId: dept.ops.id } }),
+    cmo: await prisma.person.create({ data: { name: "サンプルCMO", title: "CMO", isExecutive: true, departmentId: dept.marketing.id } }),
     me:  await prisma.person.create({ data: { name: "Chief of Staff", title: "Chief of Staff", isExecutive: false, departmentId: dept.ops.id } }),
-    it:  await prisma.person.create({ data: { name: "IT Lead", title: "Director of IT", departmentId: dept.it.id } }),
-    hr:  await prisma.person.create({ data: { name: "HR Director", title: "HR Director", departmentId: dept.hr.id } }),
+    it:  await prisma.person.create({ data: { name: "IT 部長", title: "IT 部長", departmentId: dept.it.id } }),
+    hr:  await prisma.person.create({ data: { name: "人事部長", title: "人事部長", departmentId: dept.hr.id } }),
   };
 
   for (const name of [
-    "AI", "Labor Cost", "Compensation", "Board", "Audit Committee",
-    "Store Openings", "Construction", "IT", "HR", "Finance",
-    "Japan HQ", "Governance", "Strategy",
+    "AI", "人件費", "報酬", "取締役会", "監査委員会",
+    "新店舗", "店舗工事", "IT", "人事", "財務",
+    "日本本社", "ガバナンス", "戦略",
   ]) {
     await prisma.tag.create({ data: { name } });
   }
 
-  // Priorities
   const priCustExp = await prisma.priority.create({
     data: {
-      name: "2026 US store expansion plan",
-      description: "Open 12 new locations across CA/TX/NY, on budget, on schedule.",
+      name: "2026年 米国出店計画",
+      description: "カリフォルニア・テキサス・ニューヨークで12店舗を新規開業。予算・スケジュール厳守。",
       level: "High",
       status: "On Track",
-      keyRisks: "Construction delays; lease negotiation; labor pipeline",
-      nextAction: "Confirm final site list with Construction by month-end",
+      keyRisks: "工事の遅延、賃貸交渉、人材パイプライン",
+      nextAction: "月末までに店舗工事チームと最終立地リストを確定",
       ownerId: p.coo.id,
       deadline: new Date(Date.now() + 90 * 86400000),
     },
   });
   const priLabor = await prisma.priority.create({
     data: {
-      name: "Labor cost containment",
-      description: "Bring labor as % of revenue back to FY25 target without hurting service quality.",
+      name: "人件費コントロール",
+      description: "サービス品質を落とさず、人件費比率をFY25目標まで戻す。",
       level: "High",
       status: "At Risk",
-      keyRisks: "Minimum wage increases; staffing shortage in two markets",
-      nextAction: "Review proposed scheduling pilot with HR",
+      keyRisks: "最低賃金引き上げ、2市場での人手不足",
+      nextAction: "シフト管理パイロット案を人事とレビュー",
       ownerId: p.cfo.id,
       lastUpdated: new Date(Date.now() - 20 * 86400000),
       deadline: new Date(Date.now() + 30 * 86400000),
@@ -79,20 +77,20 @@ async function main() {
   });
   const priAI = await prisma.priority.create({
     data: {
-      name: "AI / automation roadmap",
-      description: "Identify and implement two high-ROI AI initiatives in operations and finance.",
+      name: "AI / 自動化ロードマップ",
+      description: "オペレーションと財務でROIの高いAI施策を2件実装する。",
       level: "Medium",
       status: "Delayed",
-      keyRisks: "IT bandwidth; vendor selection",
-      nextAction: "Lock vendor shortlist for forecasting tool",
+      keyRisks: "IT工数、ベンダー選定",
+      nextAction: "需要予測ツールのベンダー最終候補を確定",
       ownerId: p.cmo.id,
       lastUpdated: new Date(Date.now() - 21 * 86400000),
     },
   });
   const priBoard = await prisma.priority.create({
     data: {
-      name: "Q3 board prep & governance",
-      description: "Deliver board materials 10 days ahead; align audit & comp committee asks.",
+      name: "Q3 取締役会準備・ガバナンス",
+      description: "取締役会資料を10日前に提出。監査委員会・報酬委員会の論点を整合。",
       level: "High",
       status: "On Track",
       ownerId: p.me.id,
@@ -100,16 +98,15 @@ async function main() {
     },
   });
 
-  // Projects
   const projAI = await prisma.project.create({
     data: {
-      name: "Demand forecasting pilot",
-      description: "Pilot ML-based demand forecasting in 2 stores",
+      name: "需要予測パイロット",
+      description: "2店舗で機械学習ベースの需要予測をパイロット導入",
       status: "Blocked",
       priorityLevel: "High",
-      currentPhase: "Vendor selection",
-      blockers: "Waiting on IT security review of vendor's SOC2",
-      dependencies: "IT, Finance",
+      currentPhase: "ベンダー選定",
+      blockers: "ベンダーのSOC2レビュー(IT)待ち",
+      dependencies: "IT、財務",
       ownerId: p.cmo.id,
       sponsorId: p.ceo.id,
       departments: { connect: [{ id: dept.it.id }, { id: dept.ops.id }] },
@@ -118,12 +115,12 @@ async function main() {
   });
   await prisma.project.create({
     data: {
-      name: "Texas market opening — Austin store #1",
-      description: "First Texas location, signature flagship",
+      name: "テキサス展開 — オースティン1号店",
+      description: "テキサス州初の旗艦店オープン",
       status: "At Risk",
       priorityLevel: "High",
-      currentPhase: "Construction",
-      blockers: "Permit review delayed 3 weeks",
+      currentPhase: "工事中",
+      blockers: "建設許可の審査が3週間遅延",
       ownerId: p.coo.id,
       sponsorId: p.ceo.id,
       departments: { connect: [{ id: dept.construction.id }, { id: dept.legal.id }] },
@@ -132,58 +129,56 @@ async function main() {
   });
   await prisma.project.create({
     data: {
-      name: "Compensation framework refresh",
-      description: "Update exec & manager comp framework with Comp Committee",
+      name: "報酬フレームワーク更新",
+      description: "報酬委員会と幹部・マネジメント層の報酬フレームワークを刷新",
       status: "Active",
       priorityLevel: "Medium",
-      currentPhase: "Benchmarking",
+      currentPhase: "ベンチマーキング",
       ownerId: p.hr.id,
       sponsorId: p.ceo.id,
       departments: { connect: [{ id: dept.hr.id }] },
     },
   });
 
-  // Meetings
   const m1 = await prisma.meeting.create({
     data: {
-      title: "CEO 1:1 — sample week",
+      title: "CEO 1on1 — サンプル週",
       date: new Date(Date.now() - 2 * 86400000),
       meetingType: "CEO 1:1",
       confidentiality: "Confidential",
-      summary: "CEO emphasized labor cost; wants weekly tracking. AI pilot must move; IT is the blocker.",
-      rawNotes: `CEO 1:1 notes (sample)
-- Labor cost trending up; CEO wants a weekly view by region. Action: CFO to send by Friday.
-- AI forecasting pilot delayed. CEO frustrated. Decision: escalate to IT to unblock SOC2 review by EOW.
-- Texas store #1: permit review delay. Risk to opening date. CEO will not push back the launch.
-- Open question: how are we tracking the comp committee asks? Need a summary by next 1:1.
-- Decision: weekly executive brief will start this Friday.`,
+      summary: "CEOは人件費を強調。週次トラッキングを希望。AIパイロットは進めたいが、ITがボトルネック。",
+      rawNotes: `CEO 1on1 メモ(サンプル)
+- 人件費が上振れ。CEOは地域別の週次レポートを希望。Action: CFOが金曜までに送付。
+- AI需要予測パイロットが遅延。CEOはフラストレーション。Decision: ITにエスカレ、SOC2レビューを今週中に解除させる。
+- テキサス1号店:建設許可レビューが遅延。オープン日への影響懸念。CEOはオープン日を後ろ倒ししない方針。
+- 未解決の論点:報酬委員会の宿題はどう追えているか? 次回1on1までにサマリーが欲しい。
+- Decision: 週次エグゼクティブブリーフを今週金曜から開始。`,
       attendees: { connect: [{ id: p.ceo.id }, { id: p.me.id }] },
-      tags: { connect: [{ name: "Labor Cost" }, { name: "AI" }, { name: "Store Openings" }] },
+      tags: { connect: [{ name: "人件費" }, { name: "AI" }, { name: "新店舗" }] },
       priorities: { connect: [{ id: priLabor.id }, { id: priAI.id }, { id: priCustExp.id }] },
       projects: { connect: [{ id: projAI.id }] },
     },
   });
   await prisma.meeting.create({
     data: {
-      title: "Executive staff meeting",
+      title: "経営会議",
       date: new Date(Date.now() - 5 * 86400000),
       meetingType: "Executive Meeting",
-      summary: "Reviewed Q3 priorities; comp committee discussion deferred.",
-      rawNotes: `Exec staff (sample)
-- COO: construction permits still slow in TX. Risk: 3 week slip.
-- CFO: labor cost +1.2pp vs target. Will pilot scheduling change.
-- CMO: vendor for AI forecasting selected, awaiting IT.
-- Decision: deferred comp framework discussion to next exec.
-- Action: HR to draft scheduling pilot scope by Wednesday.`,
+      summary: "Q3の優先事項をレビュー。報酬委員会の議論は次回に持ち越し。",
+      rawNotes: `経営会議メモ(サンプル)
+- COO:テキサスの建設許可が依然として遅い。リスク:3週間スリップ。
+- CFO:人件費は目標比+1.2pp。シフト管理パイロットを実施予定。
+- CMO:AI需要予測のベンダー選定済、IT待ち。
+- Decision: 報酬フレームワーク議論は次回に持ち越し。
+- Action: 人事が水曜までにシフト管理パイロットのスコープをドラフト。`,
       attendees: { connect: [{ id: p.ceo.id }, { id: p.cfo.id }, { id: p.coo.id }, { id: p.cmo.id }] },
-      tags: { connect: [{ name: "Labor Cost" }, { name: "AI" }] },
+      tags: { connect: [{ name: "人件費" }, { name: "AI" }] },
     },
   });
 
-  // Existing action items
   await prisma.actionItem.create({
     data: {
-      description: "Send weekly labor cost view by region",
+      description: "地域別の人件費 週次レポートを送付",
       status: "In Progress",
       urgency: "High",
       ownerId: p.cfo.id,
@@ -194,7 +189,7 @@ async function main() {
   });
   await prisma.actionItem.create({
     data: {
-      description: "Escalate IT to unblock SOC2 review for AI vendor",
+      description: "AIベンダーのSOC2レビューをITにエスカレ",
       status: "Blocked",
       urgency: "High",
       ownerId: p.it.id,
@@ -206,7 +201,7 @@ async function main() {
   });
   await prisma.actionItem.create({
     data: {
-      description: "Draft scheduling pilot scope",
+      description: "シフト管理パイロットのスコープをドラフト",
       status: "Not Started",
       urgency: "Medium",
       ownerId: p.hr.id,
@@ -216,7 +211,7 @@ async function main() {
   });
   await prisma.actionItem.create({
     data: {
-      description: "Summarize comp committee outstanding asks",
+      description: "報酬委員会の未対応タスクをサマライズ",
       status: "Not Started",
       urgency: "Medium",
       ownerId: p.me.id,
@@ -225,26 +220,24 @@ async function main() {
     },
   });
 
-  // Decisions
   await prisma.decision.create({
     data: {
-      title: "Weekly executive brief starts Friday",
+      title: "週次エグゼクティブブリーフを今週金曜から開始",
       date: new Date(Date.now() - 2 * 86400000),
-      finalDecision: "Yuko will deliver a weekly brief every Friday",
-      rationale: "CEO wants tighter visibility into priorities and risks.",
+      finalDecision: "Chief of Staffが毎週金曜にブリーフを配信",
+      rationale: "CEOが優先事項とリスクをより詳しく把握したいと希望。",
       meetingId: m1.id,
       ownerId: p.me.id,
     },
   });
 
-  // Decisions needed
   await prisma.decisionNeeded.create({
     data: {
-      title: "Approve AI vendor selection for forecasting pilot",
-      background: "IT SOC2 review delayed. CEO wants to move.",
-      options: "1) Wait for IT review · 2) Move with conditional approval · 3) Pick alternate vendor",
-      recommendation: "Option 2 — conditional approval with IT sign-off due in 2 weeks",
-      impactIfDelayed: "Pilot pushed another quarter; AI roadmap slips",
+      title: "AI需要予測パイロットのベンダー承認",
+      background: "IT SOC2レビューが遅延中。CEOは進めたい意向。",
+      options: "1) ITレビュー完了を待つ · 2) 条件付き承認で先行 · 3) 代替ベンダーを選定",
+      recommendation: "オプション2 — 2週間以内のIT承認を条件に先行",
+      impactIfDelayed: "パイロットがさらに1四半期スリップ、AIロードマップに影響",
       status: "Awaiting CEO",
       deadline: new Date(Date.now() + 5 * 86400000),
       priorityId: priAI.id,
@@ -253,21 +246,20 @@ async function main() {
   });
   await prisma.decisionNeeded.create({
     data: {
-      title: "Final TX site list for 2026",
-      background: "Construction needs final list to lock contractors",
-      recommendation: "Approve top 4 sites; defer two until lease terms close",
+      title: "2026年テキサス州の最終立地リスト",
+      background: "店舗工事チームが最終リストを必要としている(契約確定のため)",
+      recommendation: "トップ4立地を承認、賃貸条件未確定の2件は保留",
       status: "Open",
       deadline: new Date(Date.now() + 10 * 86400000),
       priorityId: priCustExp.id,
     },
   });
 
-  // Themes
-  await prisma.theme.create({ data: { name: "IT bottleneck", occurrences: 4 } });
-  await prisma.theme.create({ data: { name: "Labor cost pressure", occurrences: 6 } });
-  await prisma.theme.create({ data: { name: "Comp committee follow-through", occurrences: 3 } });
+  await prisma.theme.create({ data: { name: "ITのボトルネック", occurrences: 4 } });
+  await prisma.theme.create({ data: { name: "人件費プレッシャー", occurrences: 6 } });
+  await prisma.theme.create({ data: { name: "報酬委員会のフォロー", occurrences: 3 } });
 
-  console.log("Seed complete.");
+  console.log("シード完了。");
 }
 
 main()

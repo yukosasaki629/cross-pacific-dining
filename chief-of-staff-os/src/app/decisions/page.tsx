@@ -20,17 +20,17 @@ export default async function DecisionsPage({ searchParams }: { searchParams: Pr
   });
 
   const tabs = [
-    { key: "all", label: "Recent" },
-    { key: "follow-up", label: "Needs follow-up" },
-    { key: "no-owner", label: "No clear owner" },
+    { key: "all", label: "最近の決定" },
+    { key: "follow-up", label: "フォローアップ要" },
+    { key: "no-owner", label: "担当者未設定" },
   ];
 
   return (
     <div>
       <PageHeader
-        title="Decision Log"
-        subtitle="Why we decided what we decided."
-        actions={<Link href="/decisions/new" className="btn-primary">+ New Decision</Link>}
+        title="意思決定ログ"
+        subtitle="何を、なぜ決めたか。"
+        actions={<Link href="/decisions/new" className="btn-primary">+ 新規決定</Link>}
       />
 
       <div className="mb-4 flex gap-1.5">
@@ -43,17 +43,17 @@ export default async function DecisionsPage({ searchParams }: { searchParams: Pr
       </div>
 
       {decisions.length === 0 ? (
-        <EmptyState title="No decisions logged in this view." />
+        <EmptyState title="このビューには該当する意思決定がありません。" />
       ) : (
         <div className="card overflow-hidden">
           <table className="w-full text-sm table-zebra">
             <thead className="border-b border-ink-200 text-left text-[11px] uppercase tracking-wide text-ink-500">
               <tr>
-                <th className="px-4 py-2 font-medium">Title</th>
-                <th className="px-4 py-2 font-medium">Date</th>
-                <th className="px-4 py-2 font-medium">Owner</th>
-                <th className="px-4 py-2 font-medium">From</th>
-                <th className="px-4 py-2 font-medium">Follow-up?</th>
+                <th className="px-4 py-2 font-medium">タイトル</th>
+                <th className="px-4 py-2 font-medium">日付</th>
+                <th className="px-4 py-2 font-medium">担当</th>
+                <th className="px-4 py-2 font-medium">出典</th>
+                <th className="px-4 py-2 font-medium">フォロー要?</th>
               </tr>
             </thead>
             <tbody>
@@ -67,7 +67,7 @@ export default async function DecisionsPage({ searchParams }: { searchParams: Pr
                   <td className="px-4 py-2.5 text-ink-700">
                     {d.meeting ? <Link className="link" href={`/meetings/${d.meeting.id}`}>{d.meeting.title}</Link> : "—"}
                   </td>
-                  <td className="px-4 py-2.5">{d.followUpRequired ? <span className="badge-risk-med">Yes</span> : "—"}</td>
+                  <td className="px-4 py-2.5">{d.followUpRequired ? <span className="badge-risk-med">要</span> : "—"}</td>
                 </tr>
               ))}
             </tbody>

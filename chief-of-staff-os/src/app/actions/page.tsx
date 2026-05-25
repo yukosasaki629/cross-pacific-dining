@@ -29,11 +29,10 @@ export default async function ActionsPage({ searchParams }: { searchParams: Prom
     include: { owner: true, department: true, priority: true, project: true, meeting: true },
   });
 
-  // group by owner / dept for those views
   const grouped: Record<string, typeof actions> = {};
   if (view === "by-owner") {
     for (const a of actions) {
-      const k = a.owner?.name ?? "Unassigned";
+      const k = a.owner?.name ?? "未割当";
       (grouped[k] ||= []).push(a);
     }
   } else if (view === "by-dept") {
@@ -44,23 +43,23 @@ export default async function ActionsPage({ searchParams }: { searchParams: Prom
   }
 
   const tabs: { key: View; label: string }[] = [
-    { key: "all", label: "All" },
-    { key: "overdue", label: "Overdue" },
-    { key: "by-owner", label: "By owner" },
-    { key: "by-dept", label: "By department" },
-    { key: "ceo", label: "On CEO priorities" },
-    { key: "blocked", label: "Blocked" },
+    { key: "all", label: "すべて" },
+    { key: "overdue", label: "期限超過" },
+    { key: "by-owner", label: "担当者別" },
+    { key: "by-dept", label: "部門別" },
+    { key: "ceo", label: "CEO優先事項関連" },
+    { key: "blocked", label: "ブロック中" },
   ];
 
   return (
     <div>
       <PageHeader
-        title="Action Item Tracker"
-        subtitle="Follow-ups from meetings and CEO discussions."
-        actions={<Link href="/actions/new" className="btn-primary">+ New Action</Link>}
+        title="アクションアイテム"
+        subtitle="会議やCEOとの議論から派生したフォローアップ。"
+        actions={<Link href="/actions/new" className="btn-primary">+ 新規アクション</Link>}
       />
 
-      <div className="mb-4 flex gap-1.5">
+      <div className="mb-4 flex gap-1.5 flex-wrap">
         {tabs.map((t) => (
           <Link
             key={t.key}
@@ -73,7 +72,7 @@ export default async function ActionsPage({ searchParams }: { searchParams: Prom
       </div>
 
       {actions.length === 0 ? (
-        <EmptyState title="No action items in this view" />
+        <EmptyState title="このビューには該当アクションがありません" />
       ) : view === "by-owner" || view === "by-dept" ? (
         <div className="space-y-4">
           {Object.entries(grouped).map(([k, list]) => (
@@ -99,12 +98,12 @@ function ActionRows({ actions }: { actions: any[] }) {
     <table className="w-full text-sm table-zebra">
       <thead className="border-b border-ink-200 text-left text-[11px] uppercase tracking-wide text-ink-500">
         <tr>
-          <th className="px-4 py-2 font-medium">Description</th>
-          <th className="px-4 py-2 font-medium">Owner</th>
-          <th className="px-4 py-2 font-medium">Due</th>
-          <th className="px-4 py-2 font-medium">Urgency</th>
-          <th className="px-4 py-2 font-medium">Status</th>
-          <th className="px-4 py-2 font-medium">Linked</th>
+          <th className="px-4 py-2 font-medium">内容</th>
+          <th className="px-4 py-2 font-medium">担当</th>
+          <th className="px-4 py-2 font-medium">期限</th>
+          <th className="px-4 py-2 font-medium">緊急度</th>
+          <th className="px-4 py-2 font-medium">ステータス</th>
+          <th className="px-4 py-2 font-medium">関連</th>
         </tr>
       </thead>
       <tbody>
@@ -120,9 +119,9 @@ function ActionRows({ actions }: { actions: any[] }) {
             <td className="px-4 py-2.5"><LevelBadge value={a.urgency} /></td>
             <td className="px-4 py-2.5"><StatusBadge value={a.status} /></td>
             <td className="px-4 py-2.5 text-[11px] text-ink-500">
-              {a.priority ? <>P:{a.priority.name} </> : null}
-              {a.project ? <>· Pj:{a.project.name} </> : null}
-              {a.meeting ? <>· <Link className="link" href={`/meetings/${a.meeting.id}`}>M:{a.meeting.title}</Link></> : null}
+              {a.priority ? <>優:{a.priority.name} </> : null}
+              {a.project ? <>· P:{a.project.name} </> : null}
+              {a.meeting ? <>· <Link className="link" href={`/meetings/${a.meeting.id}`}>会:{a.meeting.title}</Link></> : null}
             </td>
           </tr>
         ))}

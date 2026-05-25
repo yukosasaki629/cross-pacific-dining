@@ -1,69 +1,70 @@
 import { PageHeader } from "@/components/ui/PageHeader";
 import { CONFIDENTIALITY, MEETING_TYPES } from "@/lib/vocab";
+import { CONFIDENTIALITY_LABELS, MEETING_TYPE_LABELS, labelFor } from "@/lib/labels";
 import { createMeeting } from "../actions";
 
 export default function NewMeetingPage() {
   return (
     <div>
-      <PageHeader title="New Meeting" subtitle="Capture raw notes now; refine and process later." />
+      <PageHeader title="新規会議" subtitle="まずは生メモを保存。整形と処理は後からでOK。" />
 
       <form action={createMeeting} className="card card-pad space-y-5">
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-12 md:col-span-8">
-            <label className="label" htmlFor="title">Meeting title</label>
-            <input id="title" name="title" required className="input" placeholder="CEO 1:1 — May 24" />
+            <label className="label" htmlFor="title">会議タイトル</label>
+            <input id="title" name="title" required className="input" placeholder="CEO 1on1 — 5月24日" />
           </div>
           <div className="col-span-6 md:col-span-2">
-            <label className="label" htmlFor="date">Date</label>
+            <label className="label" htmlFor="date">日付</label>
             <input id="date" name="date" type="date" className="input" defaultValue={new Date().toISOString().slice(0, 10)} />
           </div>
           <div className="col-span-6 md:col-span-2">
-            <label className="label" htmlFor="confidentiality">Confidentiality</label>
+            <label className="label" htmlFor="confidentiality">機密度</label>
             <select id="confidentiality" name="confidentiality" className="input" defaultValue="Confidential">
               {CONFIDENTIALITY.map((c) => (
                 <option key={c} value={c}>
-                  {c}
+                  {labelFor(c, CONFIDENTIALITY_LABELS)}
                 </option>
               ))}
             </select>
           </div>
 
           <div className="col-span-12 md:col-span-4">
-            <label className="label" htmlFor="meetingType">Meeting type</label>
+            <label className="label" htmlFor="meetingType">会議種別</label>
             <select id="meetingType" name="meetingType" className="input">
               {MEETING_TYPES.map((t) => (
                 <option key={t} value={t}>
-                  {t}
+                  {labelFor(t, MEETING_TYPE_LABELS)}
                 </option>
               ))}
             </select>
           </div>
           <div className="col-span-12 md:col-span-4">
-            <label className="label" htmlFor="attendees">Attendees (comma-separated)</label>
+            <label className="label" htmlFor="attendees">出席者（カンマ区切り)</label>
             <input id="attendees" name="attendees" className="input" placeholder="CEO, CFO, COO" />
           </div>
           <div className="col-span-12 md:col-span-4">
-            <label className="label" htmlFor="tags">Tags (comma-separated)</label>
-            <input id="tags" name="tags" className="input" placeholder="Labor Cost, Store Openings" />
+            <label className="label" htmlFor="tags">タグ（カンマ区切り)</label>
+            <input id="tags" name="tags" className="input" placeholder="人件費, 新店舗" />
           </div>
 
           <div className="col-span-12">
-            <label className="label" htmlFor="rawNotes">Raw notes</label>
+            <label className="label" htmlFor="rawNotes">生メモ</label>
             <textarea
               id="rawNotes"
               name="rawNotes"
               className="textarea min-h-[260px]"
-              placeholder={`Paste raw notes here.\n\nTips:\n- Lines starting with "Action:" or with an "Owner:" hint become action items\n- Lines starting with "Decision:" become decisions\n- Lines ending with "?" become open questions\n- Lines with "risk", "blocker", or "delay" become risks`}
+              placeholder={`ここに生メモを貼り付けてください。\n\nコツ：\n- 「Action:」や担当者表記（Owner:）のある行はアクションとして抽出されます\n- 「Decision:」で始まる行は意思決定として抽出されます\n- 「?」で終わる行は未解決の論点として抽出されます\n- 「リスク」「ブロック」「遅延」を含む行はリスクとして抽出されます`}
             />
             <p className="mt-1 text-[11px] text-ink-400">
-              Notes are saved locally to <code>prisma/dev.db</code>. AI processing happens after you save.
+              メモはローカルの <code>prisma/dev.db</code> に保存されます。AI処理は保存後に実行できます。
             </p>
           </div>
         </div>
 
         <div className="flex justify-end gap-2">
-          <a href="/meetings" className="btn">Cancel</a>
-          <button type="submit" className="btn-primary">Save meeting</button>
+          <a href="/meetings" className="btn">キャンセル</a>
+          <button type="submit" className="btn-primary">会議を保存</button>
         </div>
       </form>
     </div>

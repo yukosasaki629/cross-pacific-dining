@@ -69,19 +69,19 @@ export default async function FrictionMapPage() {
   return (
     <div>
       <PageHeader
-        title="Organizational Friction Map"
-        subtitle="Repeated delays, unclear ownership, recurring topics, and stuck dependencies."
+        title="組織課題マップ"
+        subtitle="繰り返される遅延、不明瞭な担当、再発する論点、止まっている依存関係を可視化。"
       />
 
       <div className="grid grid-cols-12 gap-5">
-        <Card title="Owners with most open action items" className="col-span-12 md:col-span-6">
+        <Card title="未対応アクションが多い担当者" className="col-span-12 md:col-span-6">
           {actionsByOwner.length === 0 ? (
             <Empty />
           ) : (
             <ul className="space-y-1.5 text-sm">
               {actionsByOwner.map((g) => (
                 <li key={String(g.ownerId)} className="flex items-center justify-between">
-                  <span>{g.ownerId ? ownerMap.get(g.ownerId)?.name ?? "—" : "Unassigned"}</span>
+                  <span>{g.ownerId ? ownerMap.get(g.ownerId)?.name ?? "—" : "未割当"}</span>
                   <span className="badge">{g._count._all}</span>
                 </li>
               ))}
@@ -89,14 +89,14 @@ export default async function FrictionMapPage() {
           )}
         </Card>
 
-        <Card title="Departments with most open action items" className="col-span-12 md:col-span-6">
+        <Card title="未対応アクションが多い部門" className="col-span-12 md:col-span-6">
           {actionsByDept.length === 0 ? (
             <Empty />
           ) : (
             <ul className="space-y-1.5 text-sm">
               {actionsByDept.map((g) => (
                 <li key={String(g.departmentId)} className="flex items-center justify-between">
-                  <span>{g.departmentId ? deptMap.get(g.departmentId)?.name ?? "—" : "Unassigned"}</span>
+                  <span>{g.departmentId ? deptMap.get(g.departmentId)?.name ?? "—" : "未割当"}</span>
                   <span className="badge">{g._count._all}</span>
                 </li>
               ))}
@@ -104,14 +104,14 @@ export default async function FrictionMapPage() {
           )}
         </Card>
 
-        <Card title={`Blocked action items (${blockedActions.length})`} className="col-span-12 md:col-span-6">
+        <Card title={`ブロック中のアクション (${blockedActions.length})`} className="col-span-12 md:col-span-6">
           {blockedActions.length === 0 ? <Empty /> : (
             <ul className="space-y-2 text-sm">
               {blockedActions.map((a) => (
                 <li key={a.id}>
                   <div className="text-ink-900">{a.description}</div>
                   <div className="text-[11px] text-ink-500">
-                    {a.owner?.name ?? "Unassigned"} · {a.department?.name ?? "—"} · {a.project?.name ?? "—"}
+                    {a.owner?.name ?? "未割当"} · {a.department?.name ?? "—"} · {a.project?.name ?? "—"}
                   </div>
                 </li>
               ))}
@@ -119,7 +119,7 @@ export default async function FrictionMapPage() {
           )}
         </Card>
 
-        <Card title={`Projects blocked (${blockedProjects.length})`} className="col-span-12 md:col-span-6">
+        <Card title={`ブロック中のプロジェクト (${blockedProjects.length})`} className="col-span-12 md:col-span-6">
           {blockedProjects.length === 0 ? <Empty /> : (
             <ul className="space-y-2 text-sm">
               {blockedProjects.map((p) => (
@@ -132,13 +132,13 @@ export default async function FrictionMapPage() {
           )}
         </Card>
 
-        <Card title={`Priorities without recent updates (2 weeks+)`} className="col-span-12">
+        <Card title="2週間以上 更新のない優先事項" className="col-span-12">
           {stalePriorities.length === 0 ? <Empty /> : (
             <ul className="space-y-1.5 text-sm">
               {stalePriorities.map((p) => (
                 <li key={p.id} className="flex items-center justify-between">
                   <span>
-                    {p.name} <span className="text-[11px] text-ink-500">— last update {fmtDate(p.lastUpdated)}</span>
+                    {p.name} <span className="text-[11px] text-ink-500">— 最終更新 {fmtDate(p.lastUpdated)}</span>
                   </span>
                   <div className="flex gap-1.5"><LevelBadge value={p.level} /><StatusBadge value={p.status} /></div>
                 </li>
@@ -147,20 +147,20 @@ export default async function FrictionMapPage() {
           )}
         </Card>
 
-        <Card title="Decisions repeatedly postponed (open 2 weeks+)" className="col-span-12 md:col-span-6">
+        <Card title="保留が続く判断待ち事項(2週間以上)" className="col-span-12 md:col-span-6">
           {repeatedDecisionsNeeded.length === 0 ? <Empty /> : (
             <ul className="space-y-1.5 text-sm">
               {repeatedDecisionsNeeded.map((d) => (
                 <li key={d.id} className="flex items-center justify-between">
                   <span>{d.title}</span>
-                  <span className="badge-risk-med">open since {fmtDate(d.createdAt)}</span>
+                  <span className="badge-risk-med">起票 {fmtDate(d.createdAt)}</span>
                 </li>
               ))}
             </ul>
           )}
         </Card>
 
-        <Card title="Most frequent tags" className="col-span-12 md:col-span-6">
+        <Card title="頻出タグ" className="col-span-12 md:col-span-6">
           {sortedTags.length === 0 ? <Empty /> : (
             <div className="flex flex-wrap gap-1.5">
               {sortedTags.map((t) => (
@@ -170,13 +170,13 @@ export default async function FrictionMapPage() {
           )}
         </Card>
 
-        <Card title="Recurring themes" className="col-span-12">
+        <Card title="繰り返し現れているテーマ" className="col-span-12">
           {repeatedThemes.length === 0 ? <Empty /> : (
             <ul className="space-y-1.5 text-sm">
               {repeatedThemes.map((t) => (
                 <li key={t.id} className="flex items-center justify-between">
                   <span>{t.name}</span>
-                  <span className="badge">{t.occurrences}× · last {fmtDate(t.lastSeenAt)}</span>
+                  <span className="badge">{t.occurrences}回 · 直近 {fmtDate(t.lastSeenAt)}</span>
                 </li>
               ))}
             </ul>
@@ -197,5 +197,5 @@ function Card({ title, className, children }: { title: string; className?: strin
 }
 
 function Empty() {
-  return <p className="text-sm text-ink-400">Nothing here yet.</p>;
+  return <p className="text-sm text-ink-400">該当データなし。</p>;
 }

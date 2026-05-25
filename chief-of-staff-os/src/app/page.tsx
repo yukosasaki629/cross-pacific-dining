@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { LevelBadge, StatusBadge } from "@/components/ui/Badges";
 import { fmtDate, daysAgo, isOverdue } from "@/lib/utils/date";
+import { labelFor, MEETING_TYPE_LABELS } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
 
@@ -65,14 +66,14 @@ export default async function HomePage() {
   return (
     <div>
       <PageHeader
-        title="Executive Dashboard"
-        subtitle="A calm view of what matters this week."
+        title="エグゼクティブ・ダッシュボード"
+        subtitle="今週、注目すべきことを落ち着いて俯瞰する。"
       />
 
       <div className="grid grid-cols-12 gap-5">
-        <Section className="col-span-12 lg:col-span-7" title="Top CEO Priorities" href="/priorities">
+        <Section className="col-span-12 lg:col-span-7" title="CEO 優先事項 トップ5" href="/priorities">
           {topPriorities.length === 0 ? (
-            <Empty msg="No priorities yet. Add one from the CEO Priorities page." />
+            <Empty msg="優先事項が登録されていません。「CEO優先事項」ページから追加してください。" />
           ) : (
             <ul className="divide-y divide-ink-100">
               {topPriorities.map((p) => (
@@ -82,7 +83,7 @@ export default async function HomePage() {
                       {p.name}
                     </Link>
                     <div className="mt-0.5 text-xs text-ink-500">
-                      Owner: {p.owner?.name ?? "—"} · Updated {fmtDate(p.lastUpdated)}
+                      担当: {p.owner?.name ?? "—"} · 更新 {fmtDate(p.lastUpdated)}
                     </div>
                   </div>
                   <div className="flex shrink-0 gap-1.5">
@@ -95,16 +96,16 @@ export default async function HomePage() {
           )}
         </Section>
 
-        <Section className="col-span-12 lg:col-span-5" title="Decisions Needed" href="/decisions-needed">
+        <Section className="col-span-12 lg:col-span-5" title="判断待ち事項" href="/decisions-needed">
           {decisionsNeeded.length === 0 ? (
-            <Empty msg="Nothing waiting on a decision." />
+            <Empty msg="判断待ちはありません。" />
           ) : (
             <ul className="divide-y divide-ink-100">
               {decisionsNeeded.map((d) => (
                 <li key={d.id} className="py-3">
                   <div className="text-sm font-medium text-ink-900">{d.title}</div>
                   <div className="mt-0.5 text-xs text-ink-500">
-                    {d.deadline ? `Deadline ${fmtDate(d.deadline)}` : "No deadline"} ·{" "}
+                    {d.deadline ? `期限 ${fmtDate(d.deadline)}` : "期限なし"} ·{" "}
                     <StatusBadge value={d.status} />
                   </div>
                 </li>
@@ -113,9 +114,9 @@ export default async function HomePage() {
           )}
         </Section>
 
-        <Section className="col-span-12 lg:col-span-7" title="Overdue Action Items" href="/actions">
+        <Section className="col-span-12 lg:col-span-7" title="期限超過のアクション" href="/actions">
           {overdueActions.length === 0 ? (
-            <Empty msg="No overdue actions. Nice." />
+            <Empty msg="期限超過なし。順調です。" />
           ) : (
             <ul className="divide-y divide-ink-100">
               {overdueActions.map((a) => (
@@ -123,7 +124,7 @@ export default async function HomePage() {
                   <div>
                     <div className="text-sm text-ink-900">{a.description}</div>
                     <div className="mt-0.5 text-xs text-ink-500">
-                      {a.owner?.name ?? "Unassigned"} · Due {fmtDate(a.dueDate)}
+                      {a.owner?.name ?? "未割当"} · 期限 {fmtDate(a.dueDate)}
                     </div>
                   </div>
                   <div className="flex shrink-0 gap-1.5">
@@ -136,9 +137,9 @@ export default async function HomePage() {
           )}
         </Section>
 
-        <Section className="col-span-12 lg:col-span-5" title="Priorities at Risk" href="/priorities">
+        <Section className="col-span-12 lg:col-span-5" title="要注意の優先事項" href="/priorities">
           {atRiskPriorities.length === 0 ? (
-            <Empty msg="No priorities flagged at risk." />
+            <Empty msg="要注意フラグなし。" />
           ) : (
             <ul className="divide-y divide-ink-100">
               {atRiskPriorities.map((p) => (
@@ -156,9 +157,9 @@ export default async function HomePage() {
           )}
         </Section>
 
-        <Section className="col-span-12 lg:col-span-7" title="Recent Meetings" href="/meetings">
+        <Section className="col-span-12 lg:col-span-7" title="直近の会議" href="/meetings">
           {recentMeetings.length === 0 ? (
-            <Empty msg="No meetings captured yet." />
+            <Empty msg="まだ会議が登録されていません。" />
           ) : (
             <ul className="divide-y divide-ink-100">
               {recentMeetings.map((m) => (
@@ -168,7 +169,7 @@ export default async function HomePage() {
                       {m.title}
                     </Link>
                     <div className="shrink-0 text-xs text-ink-500">
-                      {fmtDate(m.date)} · {m.meetingType}
+                      {fmtDate(m.date)} · {labelFor(m.meetingType, MEETING_TYPE_LABELS)}
                     </div>
                   </div>
                   {m.summary ? (
@@ -180,9 +181,9 @@ export default async function HomePage() {
           )}
         </Section>
 
-        <Section className="col-span-12 lg:col-span-5" title="Projects At Risk / Blocked" href="/projects">
+        <Section className="col-span-12 lg:col-span-5" title="要注意 / ブロック中のプロジェクト" href="/projects">
           {atRiskProjects.length === 0 ? (
-            <Empty msg="No projects at risk." />
+            <Empty msg="要注意のプロジェクトなし。" />
           ) : (
             <ul className="divide-y divide-ink-100">
               {atRiskProjects.map((p) => (
@@ -191,16 +192,16 @@ export default async function HomePage() {
                     <div className="text-sm font-medium text-ink-900">{p.name}</div>
                     <StatusBadge value={p.status} />
                   </div>
-                  {p.blockers ? <div className="mt-1 text-xs text-ink-500">Blockers: {p.blockers}</div> : null}
+                  {p.blockers ? <div className="mt-1 text-xs text-ink-500">障害: {p.blockers}</div> : null}
                 </li>
               ))}
             </ul>
           )}
         </Section>
 
-        <Section className="col-span-12" title="Priorities Without Recent Updates (2 weeks+)" href="/priorities">
+        <Section className="col-span-12" title="2週間以上 更新のない優先事項" href="/priorities">
           {stalePriorities.length === 0 ? (
-            <Empty msg="All priorities have recent updates." />
+            <Empty msg="すべての優先事項が最近更新されています。" />
           ) : (
             <ul className="divide-y divide-ink-100">
               {stalePriorities.map((p) => (
@@ -210,8 +211,8 @@ export default async function HomePage() {
                       {p.name}
                     </Link>
                     <div className="mt-0.5 text-xs text-ink-500">
-                      Last update {fmtDate(p.lastUpdated)} ·{" "}
-                      {isOverdue(p.deadline) ? "deadline passed" : `deadline ${fmtDate(p.deadline)}`}
+                      最終更新 {fmtDate(p.lastUpdated)} ·{" "}
+                      {isOverdue(p.deadline) ? "期限超過" : `期限 ${fmtDate(p.deadline)}`}
                     </div>
                   </div>
                   <StatusBadge value={p.status} />
@@ -242,7 +243,7 @@ function Section({
         <h2 className="h3">{title}</h2>
         {href ? (
           <Link href={href} className="text-xs text-ink-500 hover:text-ink-800">
-            View all →
+            すべて見る →
           </Link>
         ) : null}
       </div>

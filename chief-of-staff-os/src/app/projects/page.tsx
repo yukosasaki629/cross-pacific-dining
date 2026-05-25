@@ -27,22 +27,22 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
   });
 
   const tabs = [
-    { key: "all", label: "All" },
-    { key: "at-risk", label: "At risk / blocked" },
-    { key: "blocked", label: "Blocked only" },
-    { key: "no-owner", label: "No owner" },
-    { key: "ai", label: "AI / automation" },
+    { key: "all", label: "すべて" },
+    { key: "at-risk", label: "要注意 / ブロック中" },
+    { key: "blocked", label: "ブロック中のみ" },
+    { key: "no-owner", label: "担当者未設定" },
+    { key: "ai", label: "AI / 自動化" },
   ];
 
   return (
     <div>
       <PageHeader
-        title="Cross-functional Project Tracker"
-        subtitle="Strategic and cross-functional initiatives."
-        actions={<Link href="/projects/new" className="btn-primary">+ New Project</Link>}
+        title="部門横断プロジェクト"
+        subtitle="戦略・部門横断のイニシアチブを一覧。"
+        actions={<Link href="/projects/new" className="btn-primary">+ 新規プロジェクト</Link>}
       />
 
-      <div className="mb-4 flex gap-1.5">
+      <div className="mb-4 flex gap-1.5 flex-wrap">
         {tabs.map((t) => (
           <Link key={t.key} href={`/projects?view=${t.key}`}
             className={`btn ${view === t.key ? "border-accent-600 text-accent-700" : ""}`}>
@@ -52,19 +52,19 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
       </div>
 
       {projects.length === 0 ? (
-        <EmptyState title="No projects" />
+        <EmptyState title="プロジェクト未登録" />
       ) : (
         <div className="card overflow-hidden">
           <table className="w-full text-sm table-zebra">
             <thead className="border-b border-ink-200 text-left text-[11px] uppercase tracking-wide text-ink-500">
               <tr>
-                <th className="px-4 py-2 font-medium">Project</th>
-                <th className="px-4 py-2 font-medium">Owner</th>
-                <th className="px-4 py-2 font-medium">Sponsor</th>
-                <th className="px-4 py-2 font-medium">Phase</th>
-                <th className="px-4 py-2 font-medium">Status</th>
-                <th className="px-4 py-2 font-medium">Priority</th>
-                <th className="px-4 py-2 font-medium">Target</th>
+                <th className="px-4 py-2 font-medium">プロジェクト</th>
+                <th className="px-4 py-2 font-medium">担当</th>
+                <th className="px-4 py-2 font-medium">スポンサー</th>
+                <th className="px-4 py-2 font-medium">フェーズ</th>
+                <th className="px-4 py-2 font-medium">ステータス</th>
+                <th className="px-4 py-2 font-medium">優先度</th>
+                <th className="px-4 py-2 font-medium">目標日</th>
               </tr>
             </thead>
             <tbody>
@@ -72,7 +72,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
                 <tr key={p.id} className="border-b border-ink-100">
                   <td className="px-4 py-2.5">
                     <Link href={`/projects/${p.id}`} className="font-medium text-ink-900 hover:underline">{p.name}</Link>
-                    {p.blockers ? <div className="mt-0.5 text-[11px] text-risk-high">Blocker: {p.blockers}</div> : null}
+                    {p.blockers ? <div className="mt-0.5 text-[11px] text-risk-high">障害: {p.blockers}</div> : null}
                   </td>
                   <td className="px-4 py-2.5 text-ink-700">{p.owner?.name ?? "—"}</td>
                   <td className="px-4 py-2.5 text-ink-700">{p.sponsor?.name ?? "—"}</td>

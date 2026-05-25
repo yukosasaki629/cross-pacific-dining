@@ -2,35 +2,35 @@ import Link from "next/link";
 
 const NAV: { group: string; items: { href: string; label: string }[] }[] = [
   {
-    group: "Overview",
+    group: "概要",
     items: [
-      { href: "/", label: "Dashboard" },
-      { href: "/weekly-brief", label: "Weekly Brief" },
-      { href: "/timeline", label: "Intelligence Timeline" },
-      { href: "/friction-map", label: "Friction Map" },
+      { href: "/", label: "ダッシュボード" },
+      { href: "/weekly-brief", label: "週次ブリーフ" },
+      { href: "/timeline", label: "インテリジェンス・タイムライン" },
+      { href: "/friction-map", label: "組織課題マップ" },
     ],
   },
   {
-    group: "Capture",
+    group: "記録",
     items: [
-      { href: "/meetings", label: "Meetings" },
-      { href: "/transcripts", label: "Transcripts" },
-      { href: "/knowledge-base", label: "Knowledge Base" },
+      { href: "/meetings", label: "会議メモ" },
+      { href: "/transcripts", label: "文字起こし" },
+      { href: "/knowledge-base", label: "ナレッジベース" },
     ],
   },
   {
-    group: "Tracking",
+    group: "管理",
     items: [
-      { href: "/priorities", label: "CEO Priorities" },
-      { href: "/actions", label: "Action Items" },
-      { href: "/decisions", label: "Decision Log" },
-      { href: "/decisions-needed", label: "Decisions Needed" },
-      { href: "/projects", label: "Projects" },
+      { href: "/priorities", label: "CEO 優先事項" },
+      { href: "/actions", label: "アクションアイテム" },
+      { href: "/decisions", label: "意思決定ログ" },
+      { href: "/decisions-needed", label: "判断待ち事項" },
+      { href: "/projects", label: "プロジェクト" },
     ],
   },
   {
-    group: "System",
-    items: [{ href: "/settings", label: "Settings" }],
+    group: "システム",
+    items: [{ href: "/settings", label: "設定" }],
   },
 ];
 
@@ -42,7 +42,7 @@ export function Sidebar() {
           Executive Operating System
         </div>
         <div className="mt-1 font-serif text-xl text-ink-900">Chief of Staff</div>
-        <div className="mt-1 text-[11px] text-ink-400">Local · Private · Auditable</div>
+        <div className="mt-1 text-[11px] text-ink-400">ローカル・プライベート・監査可能</div>
       </div>
       <nav className="px-3 pb-8">
         {NAV.map((g) => (

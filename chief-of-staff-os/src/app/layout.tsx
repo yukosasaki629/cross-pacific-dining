@@ -5,12 +5,12 @@ import { ProviderBanner } from "@/components/layout/ProviderBanner";
 
 export const metadata: Metadata = {
   title: "Chief of Staff OS",
-  description: "Local-first executive operating system",
+  description: "ローカル・ファースト型 経営オペレーティングシステム",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="ja">
       <body>
         <div className="flex min-h-screen">
           <Sidebar />

@@ -7,6 +7,7 @@ import { LevelBadge, Pill, StatusBadge } from "@/components/ui/Badges";
 import { ProcessNotesPanel } from "./ProcessNotesPanel";
 import { MeetingEditor } from "./MeetingEditor";
 import { DeleteMeetingButton } from "./DeleteMeetingButton";
+import { CONFIDENTIALITY_LABELS, MEETING_TYPE_LABELS, labelFor } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
 
@@ -29,10 +30,10 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
     <div>
       <PageHeader
         title={meeting.title}
-        subtitle={`${meeting.meetingType} · ${fmtDate(meeting.date)} · ${meeting.confidentiality}`}
+        subtitle={`${labelFor(meeting.meetingType, MEETING_TYPE_LABELS)} · ${fmtDate(meeting.date)} · ${labelFor(meeting.confidentiality, CONFIDENTIALITY_LABELS)}`}
         actions={
           <>
-            <Link href="/meetings" className="btn">← Back</Link>
+            <Link href="/meetings" className="btn">← 戻る</Link>
             <DeleteMeetingButton id={meeting.id} />
           </>
         }
@@ -45,15 +46,15 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
         </div>
 
         <div className="col-span-12 lg:col-span-5 space-y-5">
-          <Card title="Summary">
+          <Card title="サマリー">
             {meeting.summary ? (
               <p className="whitespace-pre-wrap text-sm text-ink-800">{meeting.summary}</p>
             ) : (
-              <p className="text-sm text-ink-400">No summary yet. Run Process Notes.</p>
+              <p className="text-sm text-ink-400">サマリー未作成。「メモを処理」を実行してください。</p>
             )}
           </Card>
 
-          <Card title={`Action Items (${meeting.actionItems.length})`}>
+          <Card title={`アクションアイテム (${meeting.actionItems.length})`}>
             {meeting.actionItems.length === 0 ? (
               <Empty />
             ) : (
@@ -65,8 +66,8 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
                       <LevelBadge value={a.urgency} />
                     </div>
                     <div className="mt-1 text-[11px] text-ink-500">
-                      {a.owner?.name ?? "Unassigned"} · {a.status}
-                      {a.dueDate ? ` · due ${fmtDate(a.dueDate)}` : ""}
+                      {a.owner?.name ?? "未割当"} · <StatusBadge value={a.status} />
+                      {a.dueDate ? ` · 期限 ${fmtDate(a.dueDate)}` : ""}
                     </div>
                   </li>
                 ))}
@@ -74,7 +75,7 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
             )}
           </Card>
 
-          <Card title={`Decisions Made (${meeting.decisions.length})`}>
+          <Card title={`意思決定 (${meeting.decisions.length})`}>
             {meeting.decisions.length === 0 ? (
               <Empty />
             ) : (
@@ -89,7 +90,7 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
             )}
           </Card>
 
-          <Card title={`Decisions Needed (${meeting.decisionsNeeded.length})`}>
+          <Card title={`判断待ち事項 (${meeting.decisionsNeeded.length})`}>
             {meeting.decisionsNeeded.length === 0 ? (
               <Empty />
             ) : (
@@ -98,7 +99,7 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
                   <li key={d.id} className="text-sm">
                     <div className="text-ink-900">{d.title}</div>
                     {d.recommendation ? (
-                      <div className="text-[11px] text-ink-500">Recommendation: {d.recommendation}</div>
+                      <div className="text-[11px] text-ink-500">推奨案: {d.recommendation}</div>
                     ) : null}
                   </li>
                 ))}
@@ -106,7 +107,7 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
             )}
           </Card>
 
-          <Card title={`Risks (${meeting.risks.length})`}>
+          <Card title={`リスク (${meeting.risks.length})`}>
             {meeting.risks.length === 0 ? (
               <Empty />
             ) : (
@@ -123,13 +124,13 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
             )}
           </Card>
 
-          <Card title="People & tags">
+          <Card title="出席者・タグ">
             <div className="mb-2 flex flex-wrap gap-1">
               {meeting.attendees.map((p) => (
                 <Pill key={p.id}>{p.name}</Pill>
               ))}
               {meeting.attendees.length === 0 ? (
-                <span className="text-xs text-ink-400">No attendees listed.</span>
+                <span className="text-xs text-ink-400">出席者未登録。</span>
               ) : null}
             </div>
             <div className="flex flex-wrap gap-1">
@@ -156,5 +157,5 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
 }
 
 function Empty() {
-  return <p className="text-sm text-ink-400">None yet.</p>;
+  return <p className="text-sm text-ink-400">まだありません。</p>;
 }

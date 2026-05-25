@@ -23,7 +23,6 @@ export function BriefEditor({
     start(async () => {
       const result = await generateBrief();
       setMarkdown(result.markdown);
-      // server action created/updated brief — refresh id by reading from history if needed (kept simple here)
     });
   }
 
@@ -62,19 +61,19 @@ export function BriefEditor({
     <div className="grid grid-cols-12 gap-5">
       <div className="card card-pad col-span-12 lg:col-span-8">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="h3">Draft (editable)</h2>
+          <h2 className="h3">下書き(編集可)</h2>
           <div className="flex gap-2">
             <button onClick={regenerate} disabled={pending} className="btn">
-              {pending ? "Generating…" : markdown ? "Regenerate" : "Generate this week"}
+              {pending ? "生成中…" : markdown ? "再生成" : "今週のブリーフを生成"}
             </button>
-            <button onClick={persist} disabled={!currentId || pending} className="btn">Save edits</button>
-            <button onClick={copy} className="btn">Copy</button>
-            <button onClick={downloadMd} className="btn">Download .md</button>
+            <button onClick={persist} disabled={!currentId || pending} className="btn">編集を保存</button>
+            <button onClick={copy} className="btn">コピー</button>
+            <button onClick={downloadMd} className="btn">.md ダウンロード</button>
           </div>
         </div>
 
-        {saved === "ok" ? <div className="mb-2 text-xs text-risk-low">Copied / saved.</div> : null}
-        {saved === "err" ? <div className="mb-2 text-xs text-risk-high">Clipboard not available.</div> : null}
+        {saved === "ok" ? <div className="mb-2 text-xs text-risk-low">コピー / 保存しました。</div> : null}
+        {saved === "err" ? <div className="mb-2 text-xs text-risk-high">クリップボードに失敗しました。</div> : null}
 
         {markdown ? (
           <textarea
@@ -85,16 +84,16 @@ export function BriefEditor({
           />
         ) : (
           <div className="rounded border border-dashed border-ink-200 p-8 text-center text-sm text-ink-400">
-            No brief generated yet. Click <span className="font-medium text-ink-600">Generate this week</span> to compose
-            from your current data.
+            まだブリーフがありません。<span className="font-medium text-ink-600">「今週のブリーフを生成」</span>を押すと、
+            現在のデータから組み立てます。
           </div>
         )}
       </div>
 
       <div className="card card-pad col-span-12 lg:col-span-4">
-        <h2 className="h3 mb-2">History</h2>
+        <h2 className="h3 mb-2">履歴</h2>
         {history.length === 0 ? (
-          <p className="text-sm text-ink-400">No saved briefs yet.</p>
+          <p className="text-sm text-ink-400">保存済みブリーフはまだありません。</p>
         ) : (
           <ul className="space-y-1.5 text-sm">
             {history.map((h) => (
@@ -110,14 +109,14 @@ export function BriefEditor({
                     }
                   }}
                 >
-                  Week of {fmtDate(h.weekOf)}
+                  {fmtDate(h.weekOf)} の週
                 </button>
               </li>
             ))}
           </ul>
         )}
         <div className="mt-6 rounded border border-ink-100 bg-ink-50/40 p-3 text-xs text-ink-600">
-          Friday workflow → Generate → Review → Edit → Copy → Paste into email / Slack / Notion.
+          毎週金曜の運用 → 生成 → レビュー → 編集 → コピー → メール / Slack / Notion へ貼り付け。
         </div>
       </div>
     </div>
