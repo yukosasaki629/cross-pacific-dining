@@ -50,6 +50,48 @@ export async function previewExtraction(
   }
 }
 
+// 特定の1on1から派生した全アイテムを削除
+export async function deleteDerivedFromMeeting(meetingId: string): Promise<{ deleted: number }> {
+  const [t, f, d, r, u] = await prisma.$transaction([
+    prisma.task.deleteMany({ where: { meetingNoteId: meetingId } }),
+    prisma.followUp.deleteMany({ where: { meetingNoteId: meetingId } }),
+    prisma.decision.deleteMany({ where: { meetingNoteId: meetingId } }),
+    prisma.risk.deleteMany({ where: { meetingNoteId: meetingId } }),
+    prisma.update.deleteMany({ where: { meetingNoteId: meetingId } }),
+  ]);
+  await prisma.meetingNote.update({
+    where: { id: meetingId },
+    data: { processedAt: null },
+  });
+  revalidatePath(`/oneonones/${meetingId}`);
+  revalidatePath("/oneonones");
+  revalidatePath("/oneonones/people");
+  revalidatePath("/");
+  revalidatePath("/share");
+  return { deleted: t.count + f.count + d.count + r.count + u.count };
+}
+
+// 全派生アイテムを削除(クリーンアップ用 — プロジェクトと1on1メモは残す)
+export async function deleteAllDerivedItems(): Promise<{ deleted: number }> {
+  const [t, f, d, r, u] = await prisma.$transaction([
+    prisma.task.deleteMany({ where: { meetingNoteId: { not: null } } }),
+    prisma.followUp.deleteMany({ where: { meetingNoteId: { not: null } } }),
+    prisma.decision.deleteMany({ where: { meetingNoteId: { not: null } } }),
+    prisma.risk.deleteMany({ where: { meetingNoteId: { not: null } } }),
+    prisma.update.deleteMany({ where: { meetingNoteId: { not: null } } }),
+  ]);
+  // すべての1on1の処理済みフラグをクリア
+  await prisma.meetingNote.updateMany({ data: { processedAt: null } });
+  revalidatePath("/");
+  revalidatePath("/oneonones");
+  revalidatePath("/oneonones/people");
+  revalidatePath("/share");
+  revalidatePath("/decisions");
+  revalidatePath("/risks");
+  revalidatePath("/followups");
+  return { deleted: t.count + f.count + d.count + r.count + u.count };
+}
+
 // レビュー済みのJSONを実テーブルに反映
 export async function applyExtraction(meetingId: string, json: string) {
   const m = await prisma.meetingNote.findUnique({ where: { id: meetingId } });

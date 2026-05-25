@@ -85,8 +85,8 @@ export default async function OneOnOneDetail({
 
             {m.summary ? (
               <div className="card card-pad">
-                <div className="text-[11px] font-semibold uppercase text-ink-500">サマリー</div>
-                <p className="mt-1 text-[14px] leading-relaxed text-ink-900">{m.summary}</p>
+                <div className="text-[11px] font-semibold uppercase text-ink-500">主な論点</div>
+                <pre className="mt-1 whitespace-pre-wrap font-sans text-[13px] leading-relaxed text-ink-900">{m.summary}</pre>
               </div>
             ) : null}
 

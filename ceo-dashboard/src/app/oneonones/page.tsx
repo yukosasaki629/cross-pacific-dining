@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { AppHeader } from "@/components/AppHeader";
 import { Pill } from "@/components/Badges";
 import { fmtDate, startOfWeek } from "@/lib/utils";
+import { CleanupAllButton } from "./CleanupAllButton";
 
 export const dynamic = "force-dynamic";
 
@@ -117,6 +118,7 @@ export default async function OneOnOnesPage({
       </div>
 
       <div className="px-3 py-4">
+        <CleanupAllButton />
         {bulkCount && bulkCount > 0 ? (
           <div className="mb-3 rounded-lg border border-ok-600/40 bg-ok-50 px-3 py-2.5 text-[13px] text-ok-700">
             ✓ {bulkCount}件の1on1メモを一括保存しました。それぞれの詳細画面で「処理する」を押すと抽出できます。

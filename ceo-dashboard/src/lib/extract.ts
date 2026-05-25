@@ -12,6 +12,7 @@
 // =============================================================================
 
 import type { Sensitivity } from "./share-filters";
+import { generateSummary } from "./summary";
 
 export type ExtractedAction = {
   title: string;
@@ -196,14 +197,58 @@ const DUE_PATTERNS = [
 
 // ----- メイン抽出関数 --------------------------------------------------------
 
+// 抽出時の上限
+const MAX_ITEM_LENGTH = 150; // この文字数を超える行はアクション/判断/リスクの候補にしない(説明文)
+const MIN_ITEM_LENGTH = 8;   // 短すぎても無視
+
+// 「明示的なマーカー」: これらが行頭にあれば、その分類は確実
+const EXPLICIT_ACTION_PREFIXES = [
+  /^Action[:：]/i, /^ACTION[:：]/, /^TODO[:：]/i, /^To[ -]?do[:：]/i,
+  /^アクション[:：]/, /^やる[:：]/, /^宿題[:：]/, /^依頼[:：]/,
+  /^次のアクション[:：]/, /^次のステップ[:：]/,
+  /^Follow[ -]?up[:：]/i, /^フォロー(?:アップ)?[:：]/,
+];
+const EXPLICIT_DECISION_MADE_PREFIXES = [
+  /^Decision[:：]/i, /^Decided[:：]/i, /^Approved[:：]/i, /^Agreed[:：]/i,
+  /^決定[:：]/, /^合意[:：]/, /^承認[:：]/,
+];
+const EXPLICIT_DECISION_NEEDED_PREFIXES = [
+  /^TBD\b/i, /^Pending\b/i, /^Open Question[:：]/i, /^Question[:：]/i,
+  /^判断待ち[:：]?/, /^未定[:：]?/, /^ペンディング[:：]?/,
+  /^要(?:確認|判断|決定|相談)[:：]?/, /^CEO判断[:：]?/, /^経営判断[:：]?/,
+];
+const EXPLICIT_RISK_PREFIXES = [
+  /^Risk[:：]/i, /^Concern[:：]/i, /^Blocker[:：]/i, /^Issue[:：]/i,
+  /^リスク[:：]/, /^懸念[:：]/, /^課題[:：]/, /^障害[:：]/, /^ブロッカー[:：]/,
+];
+
+// 行頭の箇条書き記号や番号を除いた本体を取得
+function lineBody(line: string): string {
+  return line.replace(/^[-*•・▪︎]\s+/, "").replace(/^\d+[\.\)]\s+/, "").trim();
+}
+
+// 行が長すぎる(=説明文)か?
+function isTooLong(line: string): boolean {
+  return lineBody(line).length > MAX_ITEM_LENGTH;
+}
+
+// 抽出に値する「明示的に書かれた」行か?
+//   1. 行頭マーカー(Action: / TODO: / Decision: / ...)がある
+//   2. ?? で終わる短い行(open question)
+//   3. 短い箇条書き(`- 〜する。`)で命令形末尾
+function hasExplicitMarker(line: string, prefixes: RegExp[]): boolean {
+  const body = lineBody(line);
+  return prefixes.some((p) => p.test(body));
+}
+
 export function extractFromMeetingNote(
   rawNotes: string,
   knownProjects: { id: string; name: string }[] = [],
 ): Extraction {
   const lines = rawNotes.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
 
-  // サマリー: 最初の2-3行を要約として取り出す
-  const summary = lines.slice(0, 3).join(" ").slice(0, 240);
+  // 構造化要約(サブセクション + 各リードセンテンス)
+  const summary = generateSummary(rawNotes, 600);
 
   const actions: ExtractedAction[] = [];
   const decisionsMade: ExtractedDecision[] = [];
@@ -216,7 +261,7 @@ export function extractFromMeetingNote(
   for (const line of lines) {
     const lineLower = line.toLowerCase();
 
-    // 機密キーワード検出(大文字小文字を区別しない)
+    // 機密キーワード検出は全行で(警告表示のため)
     for (const { keywords, sensitivity } of SENSITIVITY_KEYWORDS) {
       for (const kw of keywords) {
         if (lineLower.includes(kw.toLowerCase())) {
@@ -225,15 +270,25 @@ export function extractFromMeetingNote(
       }
     }
 
+    // 見出し行(#, ##, ###) はスキップ
+    if (/^#+\s+/.test(line)) continue;
+    // テーブル / 区切り線スキップ
+    if (line.startsWith("|") || line.startsWith("---")) continue;
+
     // 行ごとに分類
     const matchedProject = matchProject(line, knownProjects);
     const owner = detectOwner(line);
     const dueHint = detectDueHint(line);
     const lineSensitivity = detectSensitivity(line);
     const importance = detectImportance(line);
+    const body = lineBody(line);
+    const tooLong = isTooLong(line);
+    const tooShort = body.length < MIN_ITEM_LENGTH;
 
-    // 1. 決定済?
-    if (DECISION_MADE_KEYWORDS.some((kw) => lineLower.includes(kw.toLowerCase()))) {
+    if (tooShort) continue;
+
+    // 1. 決定済? — 明示的マーカー必須
+    if (hasExplicitMarker(line, EXPLICIT_DECISION_MADE_PREFIXES)) {
       decisionsMade.push({
         topic: cleanLine(line),
         decisionType: "made",
@@ -245,8 +300,11 @@ export function extractFromMeetingNote(
       continue;
     }
 
-    // 2. 判断待ち?
-    if (DECISION_NEEDED_KEYWORDS.some((kw) => lineLower.includes(kw.toLowerCase())) || /[??]$/.test(line)) {
+    // 2. 判断待ち? — 明示的マーカー、または短い ? で終わる行
+    if (
+      hasExplicitMarker(line, EXPLICIT_DECISION_NEEDED_PREFIXES) ||
+      (!tooLong && /[??]\s*$/.test(body))
+    ) {
       decisionsNeeded.push({
         topic: cleanLine(line),
         decisionType: "needed",
@@ -258,8 +316,9 @@ export function extractFromMeetingNote(
       continue;
     }
 
-    // 3. リスク?
-    if (RISK_KEYWORDS.some((kw) => lineLower.includes(kw.toLowerCase()))) {
+    // 3. リスク? — 明示的マーカー必須(「懸念」「リスク」が地の文に含まれるだけでは取らない)
+    if (hasExplicitMarker(line, EXPLICIT_RISK_PREFIXES)) {
+      if (tooLong) continue; // 長過ぎる場合はスキップ
       risks.push({
         description: cleanLine(line),
         severity: importance,
@@ -268,8 +327,9 @@ export function extractFromMeetingNote(
       continue;
     }
 
-    // 4. アクション?
-    if (ACTION_KEYWORDS.some((kw) => lineLower.includes(kw.toLowerCase())) || isImperative(line)) {
+    // 4. アクション? — 明示的マーカー必須
+    if (hasExplicitMarker(line, EXPLICIT_ACTION_PREFIXES)) {
+      if (tooLong) continue;
       const task: ExtractedAction = {
         title: cleanLine(line),
         owner,
@@ -277,7 +337,6 @@ export function extractFromMeetingNote(
         priority: importance,
         projectName: matchedProject,
       };
-      // CEOに関する依頼は FollowUp に振る
       if (owner && /CEO|社長/i.test(owner)) {
         followUps.push({ title: task.title, who: owner, dueHint });
       } else {
@@ -286,8 +345,8 @@ export function extractFromMeetingNote(
       continue;
     }
 
-    // 5. 優先度・ステータス変更のサジェスト
-    if (matchedProject) {
+    // 5. 優先度・ステータス変更のサジェスト(短い行のみ)
+    if (matchedProject && !tooLong) {
       if (PRIORITY_UP_KEYWORDS.some((kw) => lineLower.includes(kw.toLowerCase()))) {
         prioritySuggestions.push({
           projectName: matchedProject,
