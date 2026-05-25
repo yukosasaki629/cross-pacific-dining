@@ -1,0 +1,328 @@
+// Chief of Staff OS — local-first data model.
+// All tables live in a single SQLite file (DATABASE_URL).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// People & Departments
+// -----------------------------------------------------------------------------
+
+model Department {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+
+  people       Person[]
+  projects     Project[]      @relation("ProjectDepartments")
+  priorities   Priority[]     @relation("PriorityDepartments")
+  actionItems  ActionItem[]
+}
+
+model Person {
+  id           String   @id @default(cuid())
+  name         String
+  title        String?
+  email        String?
+  isExecutive  Boolean  @default(false)
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+
+  ownedActions     ActionItem[]      @relation("ActionOwner")
+  ownedDecisions   Decision[]        @relation("DecisionOwner")
+  ownedProjects    Project[]         @relation("ProjectOwner")
+  sponsoredProjects Project[]        @relation("ProjectSponsor")
+  ownedPriorities  Priority[]        @relation("PriorityOwner")
+  decisionsNeeded  DecisionNeeded[]  @relation("DecisionNeededOwner")
+  meetings         Meeting[]         @relation("MeetingAttendees")
+}
+
+// -----------------------------------------------------------------------------
+// Meetings, Transcripts
+// -----------------------------------------------------------------------------
+
+// SQLite does not support enums — we use String fields with a fixed vocabulary
+// enforced in the UI / zod schemas. See src/lib/vocab.ts for the allowed values.
+
+model Meeting {
+  id                 String   @id @default(cuid())
+  title              String
+  date               DateTime
+  meetingType        String   // CEO 1:1, Executive Meeting, Board Meeting Prep, etc.
+  rawNotes           String   @default("")
+  summary            String?
+  confidentiality    String   @default("Confidential") // Internal | Confidential | Restricted
+  processedAt        DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  attendees      Person[]      @relation("MeetingAttendees")
+  tags           Tag[]         @relation("MeetingTags")
+  actionItems    ActionItem[]
+  decisions      Decision[]
+  decisionsNeeded DecisionNeeded[]
+  priorities     Priority[]    @relation("MeetingPriorities")
+  projects       Project[]     @relation("MeetingProjects")
+  risks          Risk[]
+  transcripts    Transcript[]
+  agentOutputs   AgentOutput[]
+}
+
+model Transcript {
+  id                 String   @id @default(cuid())
+  meetingId          String?
+  meeting            Meeting? @relation(fields: [meetingId], references: [id], onDelete: SetNull)
+
+  source             String   @default("paste") // paste | upload-txt | upload-md | upload-docx | whisper-local | otter | fathom | assemblyai
+  filename           String?
+  uploadDate         DateTime @default(now())
+  transcriptText     String
+  processedStatus    String   @default("pending") // pending | processed | error
+  confidentiality    String   @default("Confidential")
+  notes              String?
+
+  tags         Tag[]         @relation("TranscriptTags")
+  actionItems  ActionItem[]
+  decisions    Decision[]
+  priorities   Priority[]    @relation("TranscriptPriorities")
+  projects     Project[]     @relation("TranscriptProjects")
+  agentOutputs AgentOutput[]
+}
+
+// -----------------------------------------------------------------------------
+// Strategic
+// -----------------------------------------------------------------------------
+
+model Priority {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  level         String   @default("High")    // High | Medium | Low
+  status        String   @default("On Track") // On Track | At Risk | Delayed | Paused | Completed
+  keyRisks      String?
+  nextAction    String?
+  deadline      DateTime?
+  notes         String?
+  lastUpdated   DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  ownerId       String?
+  owner         Person?  @relation("PriorityOwner", fields: [ownerId], references: [id])
+
+  departments   Department[] @relation("PriorityDepartments")
+  meetings      Meeting[]    @relation("MeetingPriorities")
+  transcripts   Transcript[] @relation("TranscriptPriorities")
+  projects      Project[]    @relation("ProjectPriorities")
+  actionItems   ActionItem[]
+  decisions     Decision[]
+  decisionsNeeded DecisionNeeded[]
+  tags          Tag[]        @relation("PriorityTags")
+}
+
+model Project {
+  id              String   @id @default(cuid())
+  name            String
+  description     String?
+  status          String   @default("Active") // Active | At Risk | Blocked | Paused | Completed
+  priorityLevel   String   @default("Medium") // High | Medium | Low
+  startDate       DateTime?
+  targetDate      DateTime?
+  currentPhase    String?
+  milestones      String?
+  dependencies    String?
+  risks           String?
+  blockers        String?
+  notes           String?
+  lastUpdated     DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  ownerId         String?
+  owner           Person?  @relation("ProjectOwner", fields: [ownerId], references: [id])
+  sponsorId       String?
+  sponsor         Person?  @relation("ProjectSponsor", fields: [sponsorId], references: [id])
+
+  departments     Department[] @relation("ProjectDepartments")
+  meetings        Meeting[]    @relation("MeetingProjects")
+  transcripts     Transcript[] @relation("TranscriptProjects")
+  priorities      Priority[]   @relation("ProjectPriorities")
+  actionItems     ActionItem[]
+  decisions       Decision[]
+  decisionsNeeded DecisionNeeded[]
+  riskRecords     Risk[]
+  tags            Tag[]        @relation("ProjectTags")
+}
+
+model ActionItem {
+  id              String   @id @default(cuid())
+  description     String
+  status          String   @default("Not Started") // Not Started | In Progress | Waiting | Completed | Blocked
+  urgency         String   @default("Medium")      // High | Medium | Low
+  dueDate         DateTime?
+  lastFollowUp    DateTime?
+  nextFollowUp    DateTime?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  ownerId         String?
+  owner           Person?  @relation("ActionOwner", fields: [ownerId], references: [id])
+  departmentId    String?
+  department      Department? @relation(fields: [departmentId], references: [id])
+
+  meetingId       String?
+  meeting         Meeting? @relation(fields: [meetingId], references: [id], onDelete: SetNull)
+  transcriptId    String?
+  transcript      Transcript? @relation(fields: [transcriptId], references: [id], onDelete: SetNull)
+  priorityId      String?
+  priority        Priority? @relation(fields: [priorityId], references: [id], onDelete: SetNull)
+  projectId       String?
+  project         Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  tags            Tag[]    @relation("ActionTags")
+}
+
+model Decision {
+  id                String   @id @default(cuid())
+  title             String
+  date              DateTime
+  context           String?
+  options           String?
+  finalDecision     String?
+  rationale         String?
+  expectedImpact    String?
+  participants      String?
+  followUpRequired  Boolean  @default(false)
+  reviewDate        DateTime?
+  notes             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  ownerId           String?
+  owner             Person?  @relation("DecisionOwner", fields: [ownerId], references: [id])
+
+  meetingId         String?
+  meeting           Meeting? @relation(fields: [meetingId], references: [id], onDelete: SetNull)
+  transcriptId      String?
+  transcript        Transcript? @relation(fields: [transcriptId], references: [id], onDelete: SetNull)
+  priorityId        String?
+  priority          Priority? @relation(fields: [priorityId], references: [id], onDelete: SetNull)
+  projectId         String?
+  project           Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  tags              Tag[]    @relation("DecisionTags")
+}
+
+model DecisionNeeded {
+  id              String   @id @default(cuid())
+  title           String
+  background      String?
+  options         String?
+  recommendation  String?
+  impactIfDelayed String?
+  status          String   @default("Open") // Open | Awaiting Info | Awaiting CEO | Decided | Cancelled
+  deadline        DateTime?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  ownerId         String?
+  owner           Person?  @relation("DecisionNeededOwner", fields: [ownerId], references: [id])
+
+  meetingId       String?
+  meeting         Meeting? @relation(fields: [meetingId], references: [id], onDelete: SetNull)
+  priorityId      String?
+  priority        Priority? @relation(fields: [priorityId], references: [id], onDelete: SetNull)
+  projectId       String?
+  project         Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  tags            Tag[]    @relation("DecisionNeededTags")
+}
+
+model Risk {
+  id           String   @id @default(cuid())
+  description  String
+  severity     String   @default("Medium") // High | Medium | Low
+  likelihood   String   @default("Medium") // High | Medium | Low
+  mitigation   String?
+  status       String   @default("Open")   // Open | Mitigating | Resolved | Accepted
+  createdAt    DateTime @default(now())
+
+  meetingId    String?
+  meeting      Meeting? @relation(fields: [meetingId], references: [id], onDelete: SetNull)
+  projectId    String?
+  project      Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+}
+
+// -----------------------------------------------------------------------------
+// Tags & Themes
+// -----------------------------------------------------------------------------
+
+model Tag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  category  String?  // e.g. Department | Topic | Risk | Governance
+  createdAt DateTime @default(now())
+
+  meetings        Meeting[]        @relation("MeetingTags")
+  transcripts     Transcript[]     @relation("TranscriptTags")
+  priorities      Priority[]       @relation("PriorityTags")
+  projects        Project[]        @relation("ProjectTags")
+  actionItems     ActionItem[]     @relation("ActionTags")
+  decisions       Decision[]       @relation("DecisionTags")
+  decisionsNeeded DecisionNeeded[] @relation("DecisionNeededTags")
+}
+
+// Themes are higher-order, AI-detected recurring topics across meetings.
+model Theme {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  description  String?
+  firstSeenAt  DateTime @default(now())
+  lastSeenAt   DateTime @default(now())
+  occurrences  Int      @default(1)
+  notes        String?
+}
+
+// -----------------------------------------------------------------------------
+// Agent outputs (audit log of AI extractions, kept for review)
+// -----------------------------------------------------------------------------
+
+model AgentOutput {
+  id           String   @id @default(cuid())
+  agent        String   // e.g. "MeetingNoteAgent", "WeeklyBriefAgent"
+  provider     String   // "mock" | "anthropic"
+  model        String?  // e.g. "claude-opus-4-7"
+  input        String   // raw input (truncated if very large)
+  outputJson   String   // raw JSON string from agent
+  approvedAt   DateTime?
+  approvedBy   String?
+  createdAt    DateTime @default(now())
+
+  meetingId    String?
+  meeting      Meeting? @relation(fields: [meetingId], references: [id], onDelete: SetNull)
+  transcriptId String?
+  transcript   Transcript? @relation(fields: [transcriptId], references: [id], onDelete: SetNull)
+}
+
+// -----------------------------------------------------------------------------
+// Weekly Briefs
+// -----------------------------------------------------------------------------
+
+model WeeklyBrief {
+  id          String   @id @default(cuid())
+  weekOf      DateTime // Monday of that week
+  markdown    String
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
