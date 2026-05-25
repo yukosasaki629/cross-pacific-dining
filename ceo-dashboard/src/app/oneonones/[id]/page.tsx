@@ -3,11 +3,24 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { AppHeader } from "@/components/AppHeader";
 import { Pill } from "@/components/Badges";
-import { fmtDate, fmtMd } from "@/lib/utils";
+import { fmtDate, fmtMd, startOfWeek } from "@/lib/utils";
 import { ProcessPanel } from "./ProcessPanel";
 import { DeleteButton } from "./DeleteButton";
 
 export const dynamic = "force-dynamic";
+
+function weekLabel(date: Date): { label: string; tone: string } {
+  const thisWeekStart = startOfWeek();
+  const lastWeekStart = new Date(thisWeekStart);
+  lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+  const d = new Date(date);
+  if (d >= thisWeekStart) return { label: "今週", tone: "bg-accent-50 text-accent-700" };
+  if (d >= lastWeekStart) return { label: "先週", tone: "bg-warn-50 text-warn-700" };
+  // それより前は「N週間前」
+  const diffMs = thisWeekStart.getTime() - d.getTime();
+  const weeks = Math.floor(diffMs / (7 * 86400000));
+  return { label: `${weeks + 1}週間前`, tone: "bg-ink-100 text-ink-600" };
+}
 
 export default async function OneOnOneDetail({
   params,
@@ -36,6 +49,11 @@ export default async function OneOnOneDetail({
         backHref="/oneonones"
         rightSlot={<DeleteButton id={m.id} />}
       />
+
+      <div className="px-3 pt-3">
+        <span className={`pill ${weekLabel(m.date).tone}`}>{weekLabel(m.date).label}</span>
+        <span className="ml-2 text-[12px] text-ink-500">{fmtDate(m.date)}</span>
+      </div>
 
       <div className="px-3 py-4 space-y-3">
         {/* 生メモ */}
