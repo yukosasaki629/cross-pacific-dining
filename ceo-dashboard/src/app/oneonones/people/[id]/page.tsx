@@ -4,7 +4,8 @@ import { prisma } from "@/lib/db";
 import { AppHeader } from "@/components/AppHeader";
 import { Pill } from "@/components/Badges";
 import { ItemCheckbox } from "@/components/ItemCheckbox";
-import { fmtDate, fmtMd, isOverdue, daysAgo } from "@/lib/utils";
+import { ItemActions } from "@/components/ItemActions";
+import { fmtDate, fmtMd, isOverdue, daysAgo, toInputDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -126,7 +127,22 @@ export default async function PersonDetail({
                       </div>
                       {t.memo ? <div className="mt-1 text-[11px] text-ink-600">{t.memo}</div> : null}
                     </div>
-                    <Pill value={t.status} />
+                    <div className="flex shrink-0 flex-col items-end gap-1">
+                      <Pill value={t.status} />
+                      <ItemActions
+                        type="task"
+                        id={t.id}
+                        current={{
+                          title: t.title,
+                          owner: t.owner,
+                          status: t.status,
+                          dueDate: toInputDate(t.dueDate),
+                          priority: t.priority,
+                          memo: t.memo,
+                          visibility: t.visibility,
+                        }}
+                      />
+                    </div>
                   </div>
                 </li>
               ))}
@@ -164,7 +180,21 @@ export default async function PersonDetail({
                       </div>
                       {f.memo ? <div className="mt-1 text-[11px] text-ink-600">{f.memo}</div> : null}
                     </div>
-                    <Pill value={f.status} />
+                    <div className="flex shrink-0 flex-col items-end gap-1">
+                      <Pill value={f.status} />
+                      <ItemActions
+                        type="followup"
+                        id={f.id}
+                        current={{
+                          title: f.title,
+                          who: f.who,
+                          status: f.status,
+                          dueDate: toInputDate(f.dueDate),
+                          memo: f.memo,
+                          visibility: f.visibility,
+                        }}
+                      />
+                    </div>
                   </div>
                 </li>
               ))}
@@ -212,7 +242,22 @@ export default async function PersonDetail({
                         <div className="mt-1 text-[12px] text-ink-700">推奨: {d.recommendation}</div>
                       ) : null}
                     </div>
-                    <Pill value={`重要度 ${d.importance}`} />
+                    <div className="flex shrink-0 flex-col items-end gap-1">
+                      <Pill value={`重要度 ${d.importance}`} />
+                      <ItemActions
+                        type="decision"
+                        id={d.id}
+                        current={{
+                          topic: d.topic,
+                          status: d.status,
+                          importance: d.importance,
+                          dueDate: toInputDate(d.deadline),
+                          recommendation: d.recommendation,
+                          sensitivity: d.sensitivity,
+                          visibility: d.visibility,
+                        }}
+                      />
+                    </div>
                   </div>
                 </li>
               ))}
@@ -246,7 +291,21 @@ export default async function PersonDetail({
                         <div className="mt-1 text-[12px] text-ink-700">対応策: {r.mitigation}</div>
                       ) : null}
                     </div>
-                    <Pill value={r.severity} />
+                    <div className="flex shrink-0 flex-col items-end gap-1">
+                      <Pill value={r.severity} />
+                      <ItemActions
+                        type="risk"
+                        id={r.id}
+                        current={{
+                          description: r.description,
+                          severity: r.severity,
+                          status: r.status,
+                          owner: r.owner,
+                          mitigation: r.mitigation,
+                          visibility: r.visibility,
+                        }}
+                      />
+                    </div>
                   </div>
                 </li>
               ))}

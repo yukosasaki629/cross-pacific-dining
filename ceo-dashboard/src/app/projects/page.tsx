@@ -28,7 +28,15 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
 
   return (
     <div>
-      <AppHeader title="プロジェクト一覧" subtitle={`${projects.length} 件`} />
+      <AppHeader
+        title="プロジェクト一覧"
+        subtitle={`${projects.length} 件`}
+        rightSlot={
+          <Link href="/projects/new" className="btn-primary text-[12px]">
+            + 新規
+          </Link>
+        }
+      />
 
       <div className="sticky top-[57px] z-10 border-b border-ink-200 bg-white/95 backdrop-blur">
         <div className="flex gap-1.5 overflow-x-auto px-3 py-2">

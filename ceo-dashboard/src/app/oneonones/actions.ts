@@ -201,6 +201,105 @@ export async function deleteMeetingNote(id: string) {
 // 人別ダッシュボードで「完了にチェック」を押したときに呼ばれる
 export type ItemType = "task" | "followup" | "decision" | "risk";
 
+// 派生レコード削除
+export async function deleteItem(type: ItemType, id: string) {
+  switch (type) {
+    case "task":     await prisma.task.delete({ where: { id } }); break;
+    case "followup": await prisma.followUp.delete({ where: { id } }); break;
+    case "decision": await prisma.decision.delete({ where: { id } }); break;
+    case "risk":     await prisma.risk.delete({ where: { id } }); break;
+  }
+  revalidatePath("/oneonones");
+  revalidatePath("/oneonones/people");
+  revalidatePath("/");
+  revalidatePath("/share");
+}
+
+// 派生レコード編集(汎用フィールド)
+export async function updateItem(
+  type: ItemType,
+  id: string,
+  data: {
+    title?: string;
+    description?: string;
+    topic?: string;
+    owner?: string | null;
+    who?: string | null;
+    status?: string;
+    dueDate?: string | null;
+    priority?: string;
+    severity?: string;
+    importance?: string;
+    memo?: string | null;
+    recommendation?: string | null;
+    mitigation?: string | null;
+    sensitivity?: string;
+    visibility?: string;
+  },
+) {
+  const due = data.dueDate ? new Date(data.dueDate) : data.dueDate === "" ? null : undefined;
+  switch (type) {
+    case "task":
+      await prisma.task.update({
+        where: { id },
+        data: {
+          title: data.title,
+          owner: data.owner,
+          status: data.status,
+          dueDate: due,
+          priority: data.priority,
+          memo: data.memo,
+          visibility: data.visibility,
+        },
+      });
+      break;
+    case "followup":
+      await prisma.followUp.update({
+        where: { id },
+        data: {
+          title: data.title,
+          who: data.who,
+          status: data.status,
+          dueDate: due,
+          memo: data.memo,
+          visibility: data.visibility,
+        },
+      });
+      break;
+    case "decision":
+      await prisma.decision.update({
+        where: { id },
+        data: {
+          topic: data.topic,
+          status: data.status,
+          importance: data.importance,
+          deadline: due,
+          recommendation: data.recommendation,
+          sensitivity: data.sensitivity,
+          visibility: data.visibility,
+        },
+      });
+      break;
+    case "risk":
+      await prisma.risk.update({
+        where: { id },
+        data: {
+          description: data.description,
+          severity: data.severity,
+          status: data.status,
+          owner: data.owner,
+          mitigation: data.mitigation,
+          visibility: data.visibility,
+        },
+      });
+      break;
+  }
+  revalidatePath("/oneonones");
+  revalidatePath("/oneonones/people");
+  revalidatePath("/");
+  revalidatePath("/share");
+}
+
 export async function markItemStatus(type: ItemType, id: string, newStatus: string) {
   switch (type) {
     case "task":

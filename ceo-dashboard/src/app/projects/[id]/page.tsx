@@ -1,9 +1,11 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { AppHeader } from "@/components/AppHeader";
 import { Pill } from "@/components/Badges";
 import { Tabs } from "@/components/Tabs";
 import { fmtDate, fmtMd, isOverdue } from "@/lib/utils";
+import { DeleteProjectButton } from "./DeleteProjectButton";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +42,13 @@ export default async function ProjectDetail({
           </div>
         }
       />
+
+      <div className="px-3 pt-3 flex gap-2">
+        <Link href={`/projects/${id}/edit`} className="btn flex-1 text-[13px]">
+          ✎ 編集
+        </Link>
+        <DeleteProjectButton id={id} name={p.name} />
+      </div>
 
       <div className="px-3">
         <Tabs

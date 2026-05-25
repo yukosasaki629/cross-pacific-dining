@@ -53,3 +53,11 @@ export function daysAgo(n: number): Date {
   d.setHours(0, 0, 0, 0);
   return d;
 }
+
+// <input type="date"> 用に YYYY-MM-DD 形式で日付を返す
+export function toInputDate(d: Date | string | null | undefined): string {
+  if (!d) return "";
+  const date = typeof d === "string" ? new Date(d) : d;
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toISOString().slice(0, 10);
+}
