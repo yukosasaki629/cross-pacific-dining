@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { AppHeader } from "@/components/AppHeader";
 import { upsertPerson } from "../actions";
 import { fmtDate } from "@/lib/utils";
+import { DeletePersonButton } from "./DeletePersonButton";
 
 export const dynamic = "force-dynamic";
 
@@ -69,31 +70,34 @@ export default async function PeoplePage() {
             {people.map((p) => {
               const openCount = openCounts.get(p.id) ?? 0;
               return (
-                <li key={p.id}>
-                  <Link href={`/oneonones/people/${p.id}`} className="block">
-                    <div className="card card-pad active:bg-ink-50">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="text-[14px] font-medium text-ink-900">{p.name}</div>
-                          <div className="mt-0.5 text-[12px] text-ink-500">
-                            {p.role ?? "—"} ・ 1on1 {p._count.meetings} 回
-                            {p.meetings[0] ? ` ・ 直近 ${fmtDate(p.meetings[0].date)}` : ""}
-                          </div>
-                        </div>
-                        {openCount > 0 ? (
-                          <div className="shrink-0 rounded-full bg-warn-50 px-3 py-1 text-[12px] font-medium text-warn-700">
-                            未完了 {openCount}
-                          </div>
-                        ) : p._count.meetings > 0 ? (
-                          <div className="shrink-0 rounded-full bg-ok-50 px-3 py-1 text-[12px] font-medium text-ok-700">
-                            すべて完了
-                          </div>
-                        ) : (
-                          <div className="shrink-0 text-[11px] text-ink-400">未実施</div>
-                        )}
+                <li key={p.id} className="card card-pad">
+                  <div className="flex items-center justify-between gap-3">
+                    <Link href={`/oneonones/people/${p.id}`} className="min-w-0 flex-1 active:opacity-70">
+                      <div className="text-[14px] font-medium text-ink-900">{p.name}</div>
+                      <div className="mt-0.5 text-[12px] text-ink-500">
+                        {p.role ?? "—"} ・ 1on1 {p._count.meetings} 回
+                        {p.meetings[0] ? ` ・ 直近 ${fmtDate(p.meetings[0].date)}` : ""}
                       </div>
+                    </Link>
+                    <div className="flex shrink-0 items-center gap-2">
+                      {openCount > 0 ? (
+                        <div className="rounded-full bg-warn-50 px-3 py-1 text-[12px] font-medium text-warn-700">
+                          未完了 {openCount}
+                        </div>
+                      ) : p._count.meetings > 0 ? (
+                        <div className="rounded-full bg-ok-50 px-3 py-1 text-[12px] font-medium text-ok-700">
+                          完了
+                        </div>
+                      ) : (
+                        <div className="text-[11px] text-ink-400">未実施</div>
+                      )}
+                      <DeletePersonButton
+                        id={p.id}
+                        name={p.name}
+                        meetingCount={p._count.meetings}
+                      />
                     </div>
-                  </Link>
+                  </div>
                 </li>
               );
             })}

@@ -289,6 +289,33 @@ export async function quickAddPerson(
   return { id: created.id, name: created.name, role: created.role };
 }
 
+// 人を削除(関連する1on1メモ・派生レコードも全部削除)
+export async function deletePerson(id: string): Promise<void> {
+  // この人と紐づくミーティングを取得
+  const meetings = await prisma.meetingNote.findMany({
+    where: { personId: id },
+    select: { id: true },
+  });
+  const meetingIds = meetings.map((m) => m.id);
+
+  await prisma.$transaction(async (tx) => {
+    if (meetingIds.length > 0) {
+      // 派生レコードを削除(meetingNoteId が SetNull のためカスケードされない)
+      await tx.task.deleteMany({ where: { meetingNoteId: { in: meetingIds } } });
+      await tx.followUp.deleteMany({ where: { meetingNoteId: { in: meetingIds } } });
+      await tx.decision.deleteMany({ where: { meetingNoteId: { in: meetingIds } } });
+      await tx.risk.deleteMany({ where: { meetingNoteId: { in: meetingIds } } });
+      await tx.update.deleteMany({ where: { meetingNoteId: { in: meetingIds } } });
+    }
+    // 1on1メモを削除(personId は Cascade)
+    await tx.person.delete({ where: { id } });
+  });
+  revalidatePath("/oneonones");
+  revalidatePath("/oneonones/people");
+  revalidatePath("/");
+  revalidatePath("/share");
+}
+
 export async function upsertPerson(formData: FormData) {
   const name = s(formData.get("name")).trim();
   if (!name) throw new Error("名前は必須");
