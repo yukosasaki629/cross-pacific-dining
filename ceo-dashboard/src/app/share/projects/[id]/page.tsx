@@ -3,25 +3,81 @@ import { prisma } from "@/lib/db";
 import { AppHeader } from "@/components/AppHeader";
 import { Dot, Pill } from "@/components/Badges";
 import { fmtDate, isOverdue } from "@/lib/utils";
+import {
+  SHARE_PROJECT_SELECT,
+  shareDecisionWhere,
+  shareRiskWhere,
+  shareUpdateWhere,
+  isProjectShareable,
+} from "@/lib/share-filters";
 
 export const dynamic = "force-dynamic";
 
-// 社長共有ビュー(プロジェクト詳細)— 非公開メモは絶対に表示しない
+// 社長共有ビュー(プロジェクト詳細)
+//
+// セキュリティ:
+//  - Project は SHARE_PROJECT_SELECT のみ SELECT (privateMemo は含めない)
+//  - isSharedWithCEO=false のプロジェクトは notFound() で 404
+//  - 子レコード(意思決定・リスク・更新)はすべて share-filters の where 経由
+//  - 各子レコードからも背景・選択肢・遅延時影響など詳細フィールドは省略
 export default async function ShareProjectDetail({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const p = await prisma.project.findUnique({
+
+  // ① プロジェクト本体(privateMemo は select に含めない)
+  const project = await prisma.project.findUnique({
     where: { id },
-    include: {
-      decisions: { where: { status: { in: ["未対応", "検討中"] } }, orderBy: { deadline: "asc" } },
-      risks: { where: { status: { not: "解消" } }, orderBy: [{ severity: "desc" }] },
-      updates: { orderBy: { date: "desc" }, take: 5 },
-    },
+    select: SHARE_PROJECT_SELECT,
   });
-  if (!p || !p.isSharedWithCEO) notFound();
+  if (!isProjectShareable(project)) notFound();
+
+  // ② 関連子レコードをすべて share-filters 経由で取得
+  const [decisions, risks, updates] = await Promise.all([
+    prisma.decision.findMany({
+      where: shareDecisionWhere({
+        projectId: id,
+        status: { in: ["未対応", "検討中"] },
+      }),
+      orderBy: { deadline: "asc" },
+      select: {
+        id: true,
+        topic: true,
+        recommendation: true,
+        deadline: true,
+        importance: true,
+      },
+    }),
+    prisma.risk.findMany({
+      where: shareRiskWhere({
+        projectId: id,
+        status: { not: "解消" },
+      }),
+      orderBy: [{ severity: "desc" }],
+      select: {
+        id: true,
+        description: true,
+        severity: true,
+        mitigation: true,
+      },
+    }),
+    prisma.update.findMany({
+      where: shareUpdateWhere({ projectId: id }),
+      orderBy: { date: "desc" },
+      take: 5,
+      select: {
+        id: true,
+        date: true,
+        content: true,
+        nextAction: true,
+      },
+    }),
+  ]);
+
+  // TypeScript narrowing: isProjectShareable で project は null でないことを保証
+  const p = project!;
 
   return (
     <div className="min-h-screen pb-10">
@@ -39,18 +95,10 @@ export default async function ShareProjectDetail({
       />
 
       <div className="px-3 py-4 space-y-3">
-        {p.objective ? (
-          <Card label="目的">{p.objective}</Card>
-        ) : null}
-        {p.currentSummary ? (
-          <Card label="現在の状況">{p.currentSummary}</Card>
-        ) : null}
-        {p.nextAction ? (
-          <Card label="次のアクション">{p.nextAction}</Card>
-        ) : null}
-        {p.successMetric ? (
-          <Card label="成功指標">{p.successMetric}</Card>
-        ) : null}
+        {p.objective ? <Card label="目的">{p.objective}</Card> : null}
+        {p.currentSummary ? <Card label="現在の状況">{p.currentSummary}</Card> : null}
+        {p.nextAction ? <Card label="次のアクション">{p.nextAction}</Card> : null}
+        {p.successMetric ? <Card label="成功指標">{p.successMetric}</Card> : null}
         {p.dueDate ? (
           <Card label="期限">
             <span className={isOverdue(p.dueDate) ? "font-medium text-bad-700" : ""}>
@@ -59,11 +107,11 @@ export default async function ShareProjectDetail({
           </Card>
         ) : null}
 
-        {p.decisions.length > 0 ? (
+        {decisions.length > 0 ? (
           <>
-            <h2 className="h-section"><span>判断が必要な事項 ({p.decisions.length})</span></h2>
+            <h2 className="h-section"><span>判断が必要な事項 ({decisions.length})</span></h2>
             <ul className="space-y-2">
-              {p.decisions.map((d) => (
+              {decisions.map((d) => (
                 <li key={d.id} className="card card-pad">
                   <div className="flex items-start justify-between gap-2">
                     <div className="text-[14px] font-medium text-ink-900">{d.topic}</div>
@@ -81,11 +129,11 @@ export default async function ShareProjectDetail({
           </>
         ) : null}
 
-        {p.risks.length > 0 ? (
+        {risks.length > 0 ? (
           <>
-            <h2 className="h-section"><span>リスク ({p.risks.length})</span></h2>
+            <h2 className="h-section"><span>リスク ({risks.length})</span></h2>
             <ul className="space-y-2">
-              {p.risks.map((r) => (
+              {risks.map((r) => (
                 <li key={r.id} className="card card-pad">
                   <div className="flex items-start gap-2.5">
                     <div className="mt-1.5"><Dot value={r.severity} /></div>
@@ -103,11 +151,11 @@ export default async function ShareProjectDetail({
           </>
         ) : null}
 
-        {p.updates.length > 0 ? (
+        {updates.length > 0 ? (
           <>
             <h2 className="h-section"><span>直近の更新</span></h2>
             <ol className="space-y-3 border-l border-ink-200 pl-4">
-              {p.updates.map((u) => (
+              {updates.map((u) => (
                 <li key={u.id} className="relative">
                   <span className="absolute -left-[19px] top-1.5 h-2.5 w-2.5 rounded-full bg-accent-600" />
                   <div className="text-[11px] text-ink-500">{fmtDate(u.date)}</div>
@@ -124,7 +172,8 @@ export default async function ShareProjectDetail({
         ) : null}
 
         <div className="pt-4 text-center text-[11px] text-ink-400">
-          ※ 社長共有ビューです。優子用の詳細・非公開メモは含まれません。
+          ※ 共有ビューには「優子のみ」のメモ、Board / Compensation / Executive Only に
+          分類された情報は含まれません。
         </div>
       </div>
     </div>

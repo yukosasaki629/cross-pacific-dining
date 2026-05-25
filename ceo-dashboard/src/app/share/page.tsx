@@ -3,44 +3,61 @@ import { prisma } from "@/lib/db";
 import { AppHeader } from "@/components/AppHeader";
 import { Dot, Pill } from "@/components/Badges";
 import { fmtMd, isOverdue } from "@/lib/utils";
+import {
+  SHARE_PROJECT_SELECT,
+  shareProjectWhere,
+  shareDecisionWhere,
+  shareRiskWhere,
+} from "@/lib/share-filters";
 
 export const dynamic = "force-dynamic";
 
-// 社長共有ビュー:
-// - isSharedWithCEO=true のプロジェクトのみ
-// - 非公開メモは表示しない
-// - 下部ナビ非表示、シンプルなトップから読む流れ
+// 社長共有ビュー(トップ)
+//
+// セキュリティ境界:
+//  - すべてのクエリは src/lib/share-filters.ts のヘルパー経由
+//  - Project は SHARE_PROJECT_SELECT で許可フィールドのみ SELECT (privateMemo は含まない)
+//  - 意思決定は visibility=ceo_shared & sensitivity=general のみ
+//  - リスクは visibility=ceo_shared のみ
+//  - board / compensation / executive_only タグは自動除外
 export default async function SharePage() {
   const [projects, decisions, risks] = await Promise.all([
     prisma.project.findMany({
-      where: { isSharedWithCEO: true, status: { not: "完了" } },
+      where: shareProjectWhere({ status: { not: "完了" } }),
       orderBy: [{ priority: "desc" }, { riskLevel: "desc" }, { updatedAt: "desc" }],
       take: 8,
+      select: SHARE_PROJECT_SELECT,
     }),
     prisma.decision.findMany({
-      where: {
-        status: { in: ["未対応", "検討中"] },
-        OR: [
-          { projectId: null },
-          { project: { isSharedWithCEO: true } },
-        ],
-      },
+      where: shareDecisionWhere({ status: { in: ["未対応", "検討中"] } }),
       orderBy: [{ importance: "desc" }, { deadline: "asc" }],
       take: 6,
-      include: { project: { select: { name: true, id: true, isSharedWithCEO: true } } },
+      select: {
+        id: true,
+        topic: true,
+        recommendation: true,
+        importance: true,
+        deadline: true,
+        status: true,
+        // ↓ 紐づくプロジェクトは name のみ。privateMemo は含めない。
+        project: { select: { id: true, name: true } },
+        // background / options / impactIfDelayed も意図的に省略 — 必要なら個別に許可
+      },
     }),
     prisma.risk.findMany({
-      where: {
+      where: shareRiskWhere({
         status: { not: "解消" },
         severity: { in: ["高", "中"] },
-        OR: [
-          { projectId: null },
-          { project: { isSharedWithCEO: true } },
-        ],
-      },
+      }),
       orderBy: [{ severity: "desc" }, { createdAt: "desc" }],
       take: 6,
-      include: { project: { select: { name: true, id: true, isSharedWithCEO: true } } },
+      select: {
+        id: true,
+        description: true,
+        severity: true,
+        status: true,
+        project: { select: { id: true, name: true } },
+      },
     }),
   ]);
 
@@ -142,7 +159,8 @@ export default async function SharePage() {
         </div>
 
         <div className="pt-6 text-center text-[11px] text-ink-400">
-          ※ これは社長共有用の要約ビューです。優子用の詳細・非公開メモは含まれません。
+          ※ 共有ビューには「優子のみ」のメモ、Board / Compensation / Executive Only に
+          分類された情報は含まれません。
         </div>
       </div>
     </div>

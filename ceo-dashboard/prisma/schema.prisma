@@ -61,6 +61,10 @@ model Decision {
   impactIfDelayed String?
   importance      String   @default("中") // 低 | 中 | 高
   status          String   @default("未対応") // 未対応 | 検討中 | 判断済 | 中止
+  // --- 共有ビュー制御 ---
+  visibility      String   @default("internal")  // internal(優子のみ) | ceo_shared(社長と共有)
+  sensitivity     String   @default("general")   // general | board | compensation | executive_only
+                                                  // general 以外は共有ビュー・共有レポートから自動除外
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -74,6 +78,8 @@ model Risk {
   mitigation  String?
   owner       String?
   status      String   @default("対応中") // 未対応 | 対応中 | 解消
+  // --- 共有ビュー制御 ---
+  visibility  String   @default("internal")  // internal | ceo_shared
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -85,6 +91,8 @@ model Update {
   date       DateTime @default(now())
   content    String
   nextAction String?
+  // --- 共有ビュー制御 ---
+  visibility String   @default("internal")  // internal | ceo_shared
   createdAt  DateTime @default(now())
 }
 
@@ -97,6 +105,8 @@ model FollowUp {
   dueDate   DateTime?
   status    String   @default("未対応") // 未対応 | 進行中 | 完了
   memo      String?
+  // --- 共有ビュー制御 ---
+  visibility String  @default("internal")  // internal | ceo_shared
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

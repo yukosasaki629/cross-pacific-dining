@@ -1,49 +1,108 @@
 import { prisma } from "@/lib/db";
 import { endOfWeek, fmtDate, isOverdue, startOfWeek } from "@/lib/utils";
+import {
+  SHARE_PROJECT_SELECT,
+  shareProjectWhere,
+  shareDecisionWhere,
+  shareRiskWhere,
+  shareFollowUpWhere,
+} from "@/lib/share-filters";
 
+// 共有レポートは社長に送るためのものなので、/share と同じセキュリティ境界を通す。
+// - privateMemo を SELECT しない (SHARE_PROJECT_SELECT)
+// - 意思決定は visibility=ceo_shared & sensitivity=general のみ
+// - リスク・フォローアップも visibility=ceo_shared のみ
+// - board/compensation/executive_only は自動除外
 export async function composeReport(): Promise<string> {
   const weekStart = startOfWeek();
   const weekEnd = endOfWeek();
 
   const [keyProjects, decisions, risks, followUps, overdueTasks, nextChecks] = await Promise.all([
     prisma.project.findMany({
-      where: { status: { not: "完了" }, isSharedWithCEO: true, priority: { in: ["高", "中"] } },
+      where: shareProjectWhere({
+        status: { not: "完了" },
+        priority: { in: ["高", "中"] },
+      }),
       orderBy: [{ priority: "desc" }, { status: "asc" }],
       take: 6,
+      select: SHARE_PROJECT_SELECT,
     }),
     prisma.decision.findMany({
-      where: { status: { in: ["未対応", "検討中"] } },
+      where: shareDecisionWhere({ status: { in: ["未対応", "検討中"] } }),
       orderBy: [{ importance: "desc" }, { deadline: "asc" }],
-      include: { project: { select: { name: true } } },
       take: 8,
+      select: {
+        id: true,
+        topic: true,
+        recommendation: true,
+        deadline: true,
+        importance: true,
+        impactIfDelayed: true,
+        project: { select: { name: true } },
+      },
     }),
     prisma.risk.findMany({
-      where: { status: { not: "解消" }, severity: { in: ["高", "中"] } },
+      where: shareRiskWhere({
+        status: { not: "解消" },
+        severity: { in: ["高", "中"] },
+      }),
       orderBy: [{ severity: "desc" }, { createdAt: "desc" }],
-      include: { project: { select: { name: true } } },
       take: 8,
+      select: {
+        id: true,
+        description: true,
+        severity: true,
+        mitigation: true,
+        project: { select: { name: true } },
+      },
     }),
     prisma.followUp.findMany({
-      where: { status: { not: "完了" }, dueDate: { gte: weekStart, lt: weekEnd } },
+      where: shareFollowUpWhere({
+        status: { not: "完了" },
+        dueDate: { gte: weekStart, lt: weekEnd },
+      }),
       orderBy: { dueDate: "asc" },
+      select: {
+        id: true,
+        title: true,
+        who: true,
+        dueDate: true,
+      },
     }),
+    // タスクは現状 visibility フィールドを持たないため、紐づくプロジェクトが
+    // 共有対象かどうかで判定する。
     prisma.task.findMany({
-      where: { status: { notIn: ["完了"] }, dueDate: { lt: new Date() } },
+      where: {
+        status: { notIn: ["完了"] },
+        dueDate: { lt: new Date() },
+        project: { isSharedWithCEO: true },
+      },
       orderBy: { dueDate: "asc" },
-      include: { project: { select: { name: true } } },
       take: 10,
+      select: {
+        id: true,
+        title: true,
+        owner: true,
+        dueDate: true,
+        project: { select: { name: true } },
+      },
     }),
     prisma.project.findMany({
-      where: {
+      where: shareProjectWhere({
         status: { not: "完了" },
-        isSharedWithCEO: true,
         OR: [
           { dueDate: { gte: new Date(), lt: new Date(Date.now() + 14 * 86400000) } },
           { updatedAt: { lt: new Date(Date.now() - 14 * 86400000) } },
         ],
-      },
+      }),
       orderBy: { dueDate: "asc" },
       take: 8,
+      select: {
+        id: true,
+        name: true,
+        dueDate: true,
+        updatedAt: true,
+      },
     }),
   ]);
 
@@ -122,6 +181,7 @@ export async function composeReport(): Promise<string> {
 
   out.push(`---`);
   out.push(`_CEOダッシュボードから生成 — 送信前にレビュー・編集してください。_`);
+  out.push(`_※ 「優子のみ」のメモ、Board / Compensation / Executive Only に分類された情報は含まれていません。_`);
 
   return out.join("\n");
 }
