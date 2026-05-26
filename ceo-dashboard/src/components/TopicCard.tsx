@@ -44,14 +44,11 @@ const CATEGORY_COLOR: Record<string, string> = {
 export function TopicCard({
   topic,
   showMeetingMeta = true,
-  defaultExpanded = false,
 }: {
   topic: Topic;
   showMeetingMeta?: boolean;
-  defaultExpanded?: boolean;
 }) {
   const [pending, start] = useTransition();
-  const [expanded, setExpanded] = useState(defaultExpanded);
   const [editing, setEditing] = useState(false);
 
   const isDone = topic.status === "done";
@@ -94,7 +91,7 @@ export function TopicCard({
 
         <div className="min-w-0 flex-1">
           {/* タイトル行 */}
-          <div className={`text-[14.5px] font-semibold ${isDone ? "line-through text-ink-500" : "text-ink-900"}`}>
+          <div className={`text-[15.5px] font-semibold leading-snug ${isDone ? "line-through text-ink-500" : "text-ink-900"}`}>
             {topic.title}
           </div>
 
@@ -121,21 +118,11 @@ export function TopicCard({
             ) : null}
           </div>
 
-          {/* 内容(折りたたみ) */}
+          {/* 内容(常時表示) */}
           {topic.content ? (
-            <>
-              <button
-                onClick={() => setExpanded(!expanded)}
-                className="mt-1 text-[11px] text-accent-700"
-              >
-                {expanded ? "▼ 閉じる" : "▶ 内容を見る"}
-              </button>
-              {expanded ? (
-                <div className="mt-1 whitespace-pre-wrap rounded-md bg-ink-50 p-2 text-[12px] leading-relaxed text-ink-700">
-                  {topic.content}
-                </div>
-              ) : null}
-            </>
+            <div className="mt-2 whitespace-pre-wrap rounded-md bg-ink-50 p-2.5 text-[12.5px] leading-relaxed text-ink-700">
+              {topic.content}
+            </div>
           ) : null}
         </div>
 
