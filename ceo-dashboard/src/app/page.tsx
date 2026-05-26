@@ -5,28 +5,62 @@ import { ProjectCard } from "@/components/ProjectCard";
 import { Dot, Pill } from "@/components/Badges";
 import { ItemActions } from "@/components/ItemActions";
 import { TopicCard } from "@/components/TopicCard";
-import { fmtMd, isOverdue, toInputDate } from "@/lib/utils";
+import { fmtMd, isOverdue, startOfWeek, toInputDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
-  const [importantTopics, followUpTopics, keyProjects, decisions, risks, followups, overdueTasks, projectIdsNeedingDecision] = await Promise.all([
+type SearchParams = Promise<{ p?: string; range?: string }>;
+
+export default async function Home({ searchParams }: { searchParams: SearchParams }) {
+  const sp = await searchParams;
+  const personFilter = sp?.p ?? "";
+  const range = sp?.range ?? "all";
+
+  // 日付範囲フィルタ
+  const now = new Date();
+  const thisWeekStart = startOfWeek();
+  const lastWeekStart = new Date(thisWeekStart);
+  lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+  const lastWeekEnd = thisWeekStart;
+  const dateFilter =
+    range === "this_week"
+      ? { meetingNote: { date: { gte: thisWeekStart } } }
+      : range === "last_week"
+        ? { meetingNote: { date: { gte: lastWeekStart, lt: lastWeekEnd } } }
+        : range === "2weeks"
+          ? { meetingNote: { date: { gte: lastWeekStart } } }
+          : {};
+
+  const baseTopicFilter: any = {
+    status: { not: "done" },
+    ...(personFilter ? { personId: personFilter } : {}),
+    ...dateFilter,
+  };
+
+  // 全担当者(フィルタチップ用)
+  const allPeople = await prisma.person.findMany({
+    where: { active: true },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true, role: true, _count: { select: { topics: true } } },
+  });
+
+  const [importantTopics, followUpTopics, keyProjects] = await Promise.all([
     // ⭐ 重要トピック(未完了)
     prisma.topic.findMany({
-      where: { isImportant: true, status: { not: "done" } },
+      where: { ...baseTopicFilter, isImportant: true },
       orderBy: [{ dueDate: "asc" }, { updatedAt: "desc" }],
-      take: 10,
+      take: 30,
       include: {
         person: { select: { id: true, name: true, role: true } },
         meetingNote: { select: { id: true, date: true } },
         project: { select: { id: true, name: true } },
       },
     }),
-    // 📌 フォロー要トピック(未完了)
+    // 📌 フォロー要トピック(⭐ に出ているものは除外)
     prisma.topic.findMany({
-      where: { needsFollowUp: true, status: { not: "done" } },
+      where: { ...baseTopicFilter, needsFollowUp: true, isImportant: false },
       orderBy: [{ dueDate: "asc" }, { updatedAt: "desc" }],
-      take: 10,
+      take: 30,
       include: {
         person: { select: { id: true, name: true, role: true } },
         meetingNote: { select: { id: true, date: true } },
@@ -38,6 +72,10 @@ export default async function Home() {
       orderBy: [{ priority: "desc" }, { riskLevel: "desc" }, { updatedAt: "desc" }],
       take: 5,
     }),
+  ]);
+
+  // レガシーデータ(旧式抽出由来。データがあれば下に表示)
+  const [decisions, risks, followups, overdueTasks, projectIdsNeedingDecision] = await Promise.all([
     prisma.decision.findMany({
       where: { status: { in: ["未対応", "検討中"] } },
       orderBy: [{ deadline: "asc" }, { importance: "desc" }],
@@ -75,11 +113,87 @@ export default async function Home() {
 
   const projectsWithDecision = new Set(projectIdsNeedingDecision.map((d) => d.projectId));
 
+  const RANGE_LABELS: { key: string; label: string }[] = [
+    { key: "this_week", label: "今週" },
+    { key: "last_week", label: "先週" },
+    { key: "2weeks", label: "2週間" },
+    { key: "all", label: "全期間" },
+  ];
+
+  function paramsWith(patch: Record<string, string | null>): string {
+    const params = new URLSearchParams();
+    if (personFilter) params.set("p", personFilter);
+    if (range && range !== "all") params.set("range", range);
+    for (const [k, v] of Object.entries(patch)) {
+      if (v === null || v === "") params.delete(k);
+      else params.set(k, v);
+    }
+    const s = params.toString();
+    return s ? `?${s}` : "";
+  }
+
+  const activeFilter = personFilter || (range !== "all");
+
   return (
     <div>
       <AppHeader title="CEOダッシュボード" subtitle="今、見るべきこと" />
 
+      {/* フィルタチップ */}
+      <div className="sticky top-[57px] z-10 border-b border-ink-200 bg-white/95 backdrop-blur">
+        <div className="flex gap-1.5 overflow-x-auto px-3 py-2">
+          <Link
+            href={`/${paramsWith({ p: null })}`}
+            className={`shrink-0 rounded-full px-3 py-1 text-[12px] font-medium ${
+              !personFilter
+                ? "bg-ink-900 text-white"
+                : "border border-ink-200 bg-white text-ink-700 active:bg-ink-100"
+            }`}
+          >
+            全員
+          </Link>
+          {allPeople.map((p) => (
+            <Link
+              key={p.id}
+              href={`/${paramsWith({ p: p.id })}`}
+              className={`shrink-0 rounded-full px-3 py-1 text-[12px] font-medium ${
+                personFilter === p.id
+                  ? "bg-ink-900 text-white"
+                  : "border border-ink-200 bg-white text-ink-700 active:bg-ink-100"
+              }`}
+            >
+              {p.name}
+              {p._count.topics > 0 ? (
+                <span className="ml-1 text-[10px] opacity-70">({p._count.topics})</span>
+              ) : null}
+            </Link>
+          ))}
+        </div>
+        <div className="flex gap-1.5 overflow-x-auto px-3 pb-2">
+          {RANGE_LABELS.map((r) => (
+            <Link
+              key={r.key}
+              href={`/${paramsWith({ range: r.key === "all" ? null : r.key })}`}
+              className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-medium ${
+                (range === r.key) || (r.key === "all" && range === "all")
+                  ? "bg-accent-600 text-white"
+                  : "border border-ink-200 bg-white text-ink-600 active:bg-ink-100"
+              }`}
+            >
+              {r.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+
       <div className="px-3 py-4 space-y-1">
+        {activeFilter ? (
+          <div className="mb-2 text-[11px] text-ink-500">
+            フィルタ適用中:
+            {personFilter ? ` 担当 = ${allPeople.find((p) => p.id === personFilter)?.name ?? "?"}` : ""}
+            {range !== "all" ? ` ・ 期間 = ${RANGE_LABELS.find((r) => r.key === range)?.label}` : ""}
+          </div>
+        ) : null}
+
         {/* ⭐ 重要トピック */}
         <SectionHeader title="⭐ 重要トピック" count={importantTopics.length} />
         <div className="space-y-2">
@@ -90,11 +204,11 @@ export default async function Home() {
           )}
         </div>
 
-        {/* 📌 フォロー要トピック */}
-        <SectionHeader title="📌 フォロー要トピック" count={followUpTopics.length} />
+        {/* 📌 フォロー要トピック(⭐ にすでに出ているものは除外) */}
+        <SectionHeader title="📌 フォロー要(重要以外)" count={followUpTopics.length} />
         <div className="space-y-2">
           {followUpTopics.length === 0 ? (
-            <EmptyCard msg="フォロー要マークが付いたトピックはありません。" />
+            <EmptyCard msg="重要以外でフォローすべきトピックはありません。" />
           ) : (
             followUpTopics.map((t) => <TopicCard key={t.id} topic={t} />)
           )}
