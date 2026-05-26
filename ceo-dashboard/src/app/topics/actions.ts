@@ -32,7 +32,8 @@ export async function generateTopicsFromMeeting(
           content: d.content,
           category: d.suggestedCategory,
           sensitivity: d.sensitivity,
-          // isImportant / needsFollowUp は false のまま → ユーザーが手で割り振る
+          isImportant: d.suggestedImportant,
+          needsFollowUp: d.suggestedFollowUp,
         },
       });
     }

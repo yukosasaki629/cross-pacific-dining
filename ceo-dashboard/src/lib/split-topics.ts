@@ -1,19 +1,23 @@
 // =============================================================================
 // ChatGPT が「## 見出し」付きの Markdown でまとめた1on1 メモを
-// トピック単位に厳密分割する。
+// トピック単位に厳密分割し、ラベルに応じて ⭐/📌 フラグも自動で付ける。
 //
 // 設計:
 //   - 必ず `##`(または `###`)の行を境界とする
 //   - 段落分割やパラグラフ抽出などのフォールバックは持たない
-//     (細かすぎる分割の暴走を防ぐため)
-//   - `##` が無い場合は空配列を返す(UI 側でエラー表示)
+//   - `##` が無い場合は空配列を返す
 //   - 各トピックには sensitivity を自動判定(機密キーワード検知)
+//   - ChatGPT 出力に含まれるラベル(Risk: / Action: / 要判断: / TBD:)を
+//     検知して、⭐重要 / 📌フォロー要 フラグも自動で立てる
 
 export type TopicDraft = {
   title: string;
   content: string;
   suggestedCategory: "action" | "decision" | "risk" | "info" | "other";
   sensitivity: "general" | "board" | "compensation" | "executive_only";
+  // ChatGPT 出力からの自動判定フラグ
+  suggestedImportant: boolean;     // ⭐ 重要(リスク・判断系)
+  suggestedFollowUp: boolean;      // 📌 フォロー要(アクション・判断系)
 };
 
 const SENSITIVITY_PATTERNS: { pat: RegExp; sensitivity: "board" | "compensation" | "executive_only" }[] = [
@@ -32,7 +36,6 @@ export function splitIntoTopics(rawNotes: string): TopicDraft[] {
     if (m) boundaries.push({ line: i, heading: m[2].trim() });
   }
 
-  // ## が一つもなければ空配列(フォールバックなし)
   if (boundaries.length === 0) return [];
 
   const topics: TopicDraft[] = [];
@@ -58,12 +61,24 @@ function cleanHeading(h: string): string {
 function buildDraft(title: string, content: string): TopicDraft {
   const fullText = `${title}\n${content}`;
 
-  // カテゴリ自動提案(明示的ラベル優先)
+  // ChatGPT 出力のラベル検知
+  const hasActionLabel = /(^|\n|\s)Action\s*[:::]/i.test(content);
+  const hasRiskLabel = /(^|\n|\s)Risk\s*[:::]/i.test(content);
+  const hasDecisionNeededLabel = /(^|\n|\s)(要判断|TBD|Pending)\s*[:::]/i.test(content);
+  const hasDecisionMadeLabel = /(^|\n|\s)(Decision|決定)\s*[:::]/i.test(content);
+  const hasFollowUpLabel = /(^|\n|\s)(Follow[ -]?up|フォロー)\s*[:::]/i.test(content);
+
+  // カテゴリ自動判定(優先順位:risk → decision → action → info)
   let suggestedCategory: TopicDraft["suggestedCategory"] = "info";
-  if (/(action[:::]|アクション[:::])/i.test(fullText)) suggestedCategory = "action";
-  else if (/(要判断|TBD|pending|判断待ち|要相談)/i.test(fullText)) suggestedCategory = "decision";
-  else if (/(risk[:::]|リスク[:::]|懸念|blocker)/i.test(fullText)) suggestedCategory = "risk";
-  else if (/(decision[:::]|決定[:::]|決定済|合意した|承認した)/i.test(fullText)) suggestedCategory = "decision";
+  if (hasRiskLabel) suggestedCategory = "risk";
+  else if (hasDecisionNeededLabel || hasDecisionMadeLabel) suggestedCategory = "decision";
+  else if (hasActionLabel || hasFollowUpLabel) suggestedCategory = "action";
+
+  // ⭐重要フラグ:リスク or 判断系
+  const suggestedImportant = hasRiskLabel || hasDecisionNeededLabel;
+
+  // 📌フォロー要フラグ:アクション or 判断待ち(誰かを追う必要がある)
+  const suggestedFollowUp = hasActionLabel || hasDecisionNeededLabel || hasFollowUpLabel;
 
   // 機密判定
   let sensitivity: TopicDraft["sensitivity"] = "general";
@@ -74,5 +89,12 @@ function buildDraft(title: string, content: string): TopicDraft {
     }
   }
 
-  return { title, content, suggestedCategory, sensitivity };
+  return {
+    title,
+    content,
+    suggestedCategory,
+    sensitivity,
+    suggestedImportant,
+    suggestedFollowUp,
+  };
 }
