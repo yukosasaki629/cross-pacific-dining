@@ -34,6 +34,8 @@ export async function generateTopicsFromMeeting(
           sensitivity: d.sensitivity,
           isImportant: d.suggestedImportant,
           needsFollowUp: d.suggestedFollowUp,
+          pnlImpact: d.pnlImpact,
+          strategicCategory: d.strategicCategory,
         },
       });
     }
@@ -64,6 +66,8 @@ export async function updateTopic(
     projectId?: string | null;
     visibility?: string;
     sensitivity?: string;
+    pnlImpact?: string | null;
+    strategicCategory?: string | null;
   },
 ) {
   const due =
@@ -161,6 +165,8 @@ export async function createTopicFromObject(data: {
   needsFollowUp?: boolean;
   owner?: string | null;
   dueDate?: string | null;
+  pnlImpact?: string | null;
+  strategicCategory?: string | null;
 }) {
   if (!data.title.trim()) throw new Error("タイトルは必須です");
   await prisma.topic.create({
@@ -174,6 +180,8 @@ export async function createTopicFromObject(data: {
       needsFollowUp: data.needsFollowUp === true,
       owner: data.owner || null,
       dueDate: data.dueDate ? new Date(data.dueDate) : null,
+      pnlImpact: data.pnlImpact || null,
+      strategicCategory: data.strategicCategory || null,
     },
   });
   revalidatePath("/");

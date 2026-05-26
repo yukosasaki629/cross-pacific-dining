@@ -85,6 +85,10 @@ model Topic {
   visibility    String       @default("internal")    // internal | ceo_shared
   sensitivity   String       @default("general")     // general | board | compensation | executive_only
 
+  // P&L 影響(学習・分析用)
+  pnlImpact         String?  // sales | food_cost | labor_cost | ga | null
+  strategicCategory String?  // aop | strategy | board | null
+
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 }

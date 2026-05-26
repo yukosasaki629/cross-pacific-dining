@@ -10,6 +10,8 @@
 //   - ChatGPT 出力に含まれるラベル(Risk: / Action: / 要判断: / TBD:)を
 //     検知して、⭐重要 / 📌フォロー要 フラグも自動で立てる
 
+import { detectPnlImpact, detectStrategicCategory, type PnlImpact, type StrategicCategory } from "./pnl-impact";
+
 export type TopicDraft = {
   title: string;
   content: string;
@@ -18,6 +20,9 @@ export type TopicDraft = {
   // ChatGPT 出力からの自動判定フラグ
   suggestedImportant: boolean;     // ⭐ 重要(リスク・判断系)
   suggestedFollowUp: boolean;      // 📌 フォロー要(アクション・判断系)
+  // P&L 影響と戦略カテゴリ(学習用)
+  pnlImpact: PnlImpact;
+  strategicCategory: StrategicCategory;
 };
 
 const SENSITIVITY_PATTERNS: { pat: RegExp; sensitivity: "board" | "compensation" | "executive_only" }[] = [
@@ -96,5 +101,7 @@ function buildDraft(title: string, content: string): TopicDraft {
     sensitivity,
     suggestedImportant,
     suggestedFollowUp,
+    pnlImpact: detectPnlImpact(fullText),
+    strategicCategory: detectStrategicCategory(fullText),
   };
 }

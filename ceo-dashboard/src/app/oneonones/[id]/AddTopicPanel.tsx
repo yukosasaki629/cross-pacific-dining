@@ -24,6 +24,8 @@ export function AddTopicPanel({
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("info");
+  const [pnlImpact, setPnlImpact] = useState("");
+  const [strategicCategory, setStrategicCategory] = useState("");
   const [isImportant, setIsImportant] = useState(false);
   const [needsFollowUp, setNeedsFollowUp] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +34,8 @@ export function AddTopicPanel({
     setTitle("");
     setContent("");
     setCategory("info");
+    setPnlImpact("");
+    setStrategicCategory("");
     setIsImportant(false);
     setNeedsFollowUp(false);
     setError(null);
@@ -53,6 +57,8 @@ export function AddTopicPanel({
           category,
           isImportant,
           needsFollowUp,
+          pnlImpact: pnlImpact || null,
+          strategicCategory: strategicCategory || null,
         });
         reset();
         // フォームは閉じずに連続入力可能に
@@ -162,21 +168,54 @@ export function AddTopicPanel({
             />
           </div>
 
-          <div>
-            <label className="block text-[11px] font-semibold uppercase text-ink-500 mb-1">
-              カテゴリ
-            </label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="input"
-            >
-              <option value="info">情報</option>
-              <option value="action">アクション</option>
-              <option value="decision">判断</option>
-              <option value="risk">リスク</option>
-              <option value="other">その他</option>
-            </select>
+          <div className="grid grid-cols-3 gap-2">
+            <div>
+              <label className="block text-[11px] font-semibold uppercase text-ink-500 mb-1">
+                カテゴリ
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="input"
+              >
+                <option value="info">情報</option>
+                <option value="action">アクション</option>
+                <option value="decision">判断</option>
+                <option value="risk">リスク</option>
+                <option value="other">その他</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-[11px] font-semibold uppercase text-ink-500 mb-1">
+                P&L 影響
+              </label>
+              <select
+                value={pnlImpact}
+                onChange={(e) => setPnlImpact(e.target.value)}
+                className="input"
+              >
+                <option value="">— 未分類 —</option>
+                <option value="sales">📈 Sales</option>
+                <option value="food_cost">💰 FoodCost削減</option>
+                <option value="labor_cost">👥 LaborCost削減</option>
+                <option value="ga">🏢 G&A</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-[11px] font-semibold uppercase text-ink-500 mb-1">
+                戦略カテゴリ
+              </label>
+              <select
+                value={strategicCategory}
+                onChange={(e) => setStrategicCategory(e.target.value)}
+                className="input"
+              >
+                <option value="">— なし —</option>
+                <option value="aop">📊 AOP</option>
+                <option value="strategy">🎯 Strategy</option>
+                <option value="board">🏛 Board</option>
+              </select>
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-3">

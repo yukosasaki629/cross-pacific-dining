@@ -8,6 +8,7 @@ import {
   toggleTopicFlag,
 } from "@/app/topics/actions";
 import { fmtMd, isOverdue, toInputDate } from "@/lib/utils";
+import { PNL_IMPACT_LABEL, PNL_IMPACT_COLOR, STRATEGIC_LABEL, STRATEGIC_COLOR } from "@/lib/pnl-impact";
 
 type Topic = {
   id: string;
@@ -21,6 +22,8 @@ type Topic = {
   dueDate: Date | string | null;
   visibility: string;
   sensitivity: string;
+  pnlImpact?: string | null;
+  strategicCategory?: string | null;
   person?: { id: string; name: string; role: string | null } | null;
   meetingNote?: { id: string; date: Date | string } | null;
   project?: { id: string; name: string } | null;
@@ -100,6 +103,16 @@ export function TopicCard({
             <span className={`pill ${CATEGORY_COLOR[topic.category] ?? "bg-ink-100 text-ink-600"}`}>
               {CATEGORY_LABEL[topic.category] ?? topic.category}
             </span>
+            {topic.pnlImpact ? (
+              <span className={`pill ${PNL_IMPACT_COLOR[topic.pnlImpact] ?? "bg-ink-100 text-ink-600"}`}>
+                {PNL_IMPACT_LABEL[topic.pnlImpact] ?? topic.pnlImpact}
+              </span>
+            ) : null}
+            {topic.strategicCategory ? (
+              <span className={`pill ${STRATEGIC_COLOR[topic.strategicCategory] ?? "bg-ink-100 text-ink-600"}`}>
+                {STRATEGIC_LABEL[topic.strategicCategory] ?? topic.strategicCategory}
+              </span>
+            ) : null}
             {topic.person ? <span>{topic.person.name}</span> : null}
             {topic.meetingNote && showMeetingMeta ? (
               <Link href={`/oneonones/${topic.meetingNote.id}`} className="link">
@@ -204,12 +217,18 @@ function InlineEdit({ topic, onClose }: { topic: Topic; onClose: () => void }) {
     dueDate: toInputDate(topic.dueDate),
     visibility: topic.visibility,
     sensitivity: topic.sensitivity,
+    pnlImpact: topic.pnlImpact ?? "",
+    strategicCategory: topic.strategicCategory ?? "",
   });
   const [pending, start] = useTransition();
 
   function save() {
     start(async () => {
-      await updateTopic(topic.id, form);
+      await updateTopic(topic.id, {
+        ...form,
+        pnlImpact: form.pnlImpact || null,
+        strategicCategory: form.strategicCategory || null,
+      });
       onClose();
     });
   }
@@ -277,6 +296,35 @@ function InlineEdit({ topic, onClose }: { topic: Topic; onClose: () => void }) {
             <option value="board">board(共有不可)</option>
             <option value="compensation">compensation(共有不可)</option>
             <option value="executive_only">executive_only(共有不可)</option>
+          </select>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-[10px] font-semibold uppercase text-ink-500 mb-0.5">P&L 影響</label>
+          <select
+            value={form.pnlImpact}
+            onChange={(e) => setForm({ ...form, pnlImpact: e.target.value })}
+            className="input text-[13px] py-1.5"
+          >
+            <option value="">— 未分類 —</option>
+            <option value="sales">📈 Sales(売上)</option>
+            <option value="food_cost">💰 FoodCost削減</option>
+            <option value="labor_cost">👥 LaborCost削減</option>
+            <option value="ga">🏢 G&A</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-[10px] font-semibold uppercase text-ink-500 mb-0.5">戦略カテゴリ</label>
+          <select
+            value={form.strategicCategory}
+            onChange={(e) => setForm({ ...form, strategicCategory: e.target.value })}
+            className="input text-[13px] py-1.5"
+          >
+            <option value="">— なし —</option>
+            <option value="aop">📊 AOP</option>
+            <option value="strategy">🎯 Strategy</option>
+            <option value="board">🏛 Board</option>
           </select>
         </div>
       </div>

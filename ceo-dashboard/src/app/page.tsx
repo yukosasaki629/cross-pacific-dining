@@ -55,7 +55,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
         meetingNote: { select: { id: true, date: true } },
         project: { select: { id: true, name: true } },
       },
-    }),
+    }) /* topic fields incl pnlImpact/strategicCategory auto-included */ ,
     // 📌 フォロー要トピック(⭐ に出ているものは除外)
     prisma.topic.findMany({
       where: { ...baseTopicFilter, needsFollowUp: true, isImportant: false },
@@ -66,7 +66,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
         meetingNote: { select: { id: true, date: true } },
         project: { select: { id: true, name: true } },
       },
-    }),
+    }) /* topic fields incl pnlImpact/strategicCategory auto-included */ ,
     prisma.project.findMany({
       where: { status: { not: "完了" }, priority: { in: ["高", "中"] } },
       orderBy: [{ priority: "desc" }, { riskLevel: "desc" }, { updatedAt: "desc" }],

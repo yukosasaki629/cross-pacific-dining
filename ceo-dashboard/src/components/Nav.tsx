@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const ITEMS = [
   { href: "/", label: "ホーム", icon: HomeIcon },
   { href: "/oneonones", label: "1on1", icon: MicIcon },
-  { href: "/projects", label: "Pj", icon: GridIcon },
+  { href: "/pnl", label: "P&L", icon: ChartIcon },
   { href: "/search", label: "検索", icon: SearchIcon },
   { href: "/report", label: "レポート", icon: DocIcon },
 ];
@@ -75,6 +75,17 @@ export function TopNav() {
 }
 
 // --- inline icons ---
+
+function ChartIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <line x1="4" y1="20" x2="20" y2="20" />
+      <rect x="6" y="12" width="3" height="8" />
+      <rect x="11" y="6" width="3" height="14" />
+      <rect x="16" y="14" width="3" height="6" />
+    </svg>
+  );
+}
 
 function SearchIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
