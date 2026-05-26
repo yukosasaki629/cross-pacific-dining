@@ -10,6 +10,12 @@ import {
   shareRiskWhere,
   shareTopicWhere,
 } from "@/lib/share-filters";
+import {
+  PNL_IMPACT_LABEL,
+  PNL_IMPACT_COLOR,
+  STRATEGIC_LABEL,
+  STRATEGIC_COLOR,
+} from "@/lib/pnl-impact";
 
 const CATEGORY_LABEL: Record<string, string> = {
   action: "アクション",
@@ -44,6 +50,7 @@ export default async function SharePage() {
       take: 10,
       select: {
         id: true, title: true, content: true, category: true, dueDate: true, owner: true,
+        pnlImpact: true, strategicCategory: true,
         person: { select: { name: true, role: true } },
         meetingNote: { select: { date: true } },
         project: { select: { name: true } },
@@ -55,6 +62,7 @@ export default async function SharePage() {
       take: 10,
       select: {
         id: true, title: true, content: true, category: true, dueDate: true, owner: true,
+        pnlImpact: true, strategicCategory: true,
         person: { select: { name: true } },
         meetingNote: { select: { date: true } },
         project: { select: { name: true } },
@@ -110,12 +118,22 @@ export default async function SharePage() {
             <h2 className="h-section"><span>⭐ 重要トピック ({importantTopics.length})</span></h2>
             <div className="space-y-2">
               {importantTopics.map((t) => (
-                <div key={t.id} className="card card-pad">
+                <div key={t.id} className="card card-pad ring-1 ring-warn-600/30">
                   <div className="text-[15px] font-semibold text-ink-900">{t.title}</div>
                   <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-ink-500">
                     <span className={`pill ${CATEGORY_COLOR[t.category] ?? "bg-ink-100 text-ink-600"}`}>
                       {CATEGORY_LABEL[t.category] ?? t.category}
                     </span>
+                    {t.pnlImpact ? (
+                      <span className={`pill ${PNL_IMPACT_COLOR[t.pnlImpact] ?? "bg-ink-100 text-ink-600"}`}>
+                        {PNL_IMPACT_LABEL[t.pnlImpact] ?? t.pnlImpact}
+                      </span>
+                    ) : null}
+                    {t.strategicCategory ? (
+                      <span className={`pill ${STRATEGIC_COLOR[t.strategicCategory] ?? "bg-ink-100 text-ink-600"}`}>
+                        {STRATEGIC_LABEL[t.strategicCategory] ?? t.strategicCategory}
+                      </span>
+                    ) : null}
                     {t.person ? <span>{t.person.name}</span> : null}
                     {t.meetingNote ? <span>{fmtDate(t.meetingNote.date)}</span> : null}
                     {t.project ? <span>· {t.project.name}</span> : null}
@@ -127,7 +145,9 @@ export default async function SharePage() {
                     ) : null}
                   </div>
                   {t.content ? (
-                    <p className="mt-2 line-clamp-3 text-[13px] text-ink-700">{t.content}</p>
+                    <p className="mt-2 whitespace-pre-wrap text-[13px] leading-relaxed text-ink-700">
+                      {t.content}
+                    </p>
                   ) : null}
                 </div>
               ))}
@@ -143,10 +163,20 @@ export default async function SharePage() {
               {followUpTopics.map((t) => (
                 <div key={t.id} className="card card-pad">
                   <div className="text-[14px] font-medium text-ink-900">{t.title}</div>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-[11px] text-ink-500">
+                  <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-ink-500">
                     <span className={`pill ${CATEGORY_COLOR[t.category] ?? "bg-ink-100 text-ink-600"}`}>
                       {CATEGORY_LABEL[t.category] ?? t.category}
                     </span>
+                    {t.pnlImpact ? (
+                      <span className={`pill ${PNL_IMPACT_COLOR[t.pnlImpact] ?? "bg-ink-100 text-ink-600"}`}>
+                        {PNL_IMPACT_LABEL[t.pnlImpact] ?? t.pnlImpact}
+                      </span>
+                    ) : null}
+                    {t.strategicCategory ? (
+                      <span className={`pill ${STRATEGIC_COLOR[t.strategicCategory] ?? "bg-ink-100 text-ink-600"}`}>
+                        {STRATEGIC_LABEL[t.strategicCategory] ?? t.strategicCategory}
+                      </span>
+                    ) : null}
                     {t.person ? <span>{t.person.name}</span> : null}
                     {t.dueDate ? (
                       <span className={isOverdue(t.dueDate) ? "text-bad-700 font-medium" : ""}>
@@ -154,6 +184,11 @@ export default async function SharePage() {
                       </span>
                     ) : null}
                   </div>
+                  {t.content ? (
+                    <p className="mt-2 whitespace-pre-wrap text-[12.5px] leading-relaxed text-ink-700">
+                      {t.content}
+                    </p>
+                  ) : null}
                 </div>
               ))}
             </div>

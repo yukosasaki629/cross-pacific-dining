@@ -9,12 +9,14 @@ import { fmtMd, isOverdue, startOfWeek, toInputDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-type SearchParams = Promise<{ p?: string; range?: string }>;
+type SearchParams = Promise<{ p?: string; range?: string; cat?: string; strat?: string }>;
 
 export default async function Home({ searchParams }: { searchParams: SearchParams }) {
   const sp = await searchParams;
   const personFilter = sp?.p ?? "";
   const range = sp?.range ?? "all";
+  const catFilter = sp?.cat ?? "";
+  const stratFilter = sp?.strat ?? "";
 
   // 日付範囲フィルタ
   const now = new Date();
@@ -34,6 +36,12 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
   const baseTopicFilter: any = {
     status: { not: "done" },
     ...(personFilter ? { personId: personFilter } : {}),
+    ...(catFilter ? { category: catFilter } : {}),
+    ...(stratFilter
+      ? stratFilter === "any"
+        ? { strategicCategory: { not: null } }
+        : { strategicCategory: stratFilter }
+      : {}),
     ...dateFilter,
   };
 
@@ -124,6 +132,8 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
     const params = new URLSearchParams();
     if (personFilter) params.set("p", personFilter);
     if (range && range !== "all") params.set("range", range);
+    if (catFilter) params.set("cat", catFilter);
+    if (stratFilter) params.set("strat", stratFilter);
     for (const [k, v] of Object.entries(patch)) {
       if (v === null || v === "") params.delete(k);
       else params.set(k, v);
@@ -132,7 +142,20 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
     return s ? `?${s}` : "";
   }
 
-  const activeFilter = personFilter || (range !== "all");
+  const CAT_LABELS: { key: string; label: string }[] = [
+    { key: "action", label: "アクション" },
+    { key: "decision", label: "判断" },
+    { key: "risk", label: "リスク" },
+    { key: "info", label: "情報" },
+  ];
+  const STRAT_LABELS: { key: string; label: string }[] = [
+    { key: "any", label: "戦略系のみ" },
+    { key: "aop", label: "📊 AOP" },
+    { key: "strategy", label: "🎯 Strategy" },
+    { key: "board", label: "🏛 Board" },
+  ];
+
+  const activeFilter = personFilter || (range !== "all") || catFilter || stratFilter;
 
   return (
     <div>
@@ -183,6 +206,46 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
             </Link>
           ))}
         </div>
+        {/* 種別 + 戦略カテゴリのチップ */}
+        <div className="flex gap-1.5 overflow-x-auto px-3 pb-2">
+          <Link
+            href={`/${paramsWith({ cat: null })}`}
+            className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-medium ${
+              !catFilter
+                ? "bg-ink-700 text-white"
+                : "border border-ink-200 bg-white text-ink-600 active:bg-ink-100"
+            }`}
+          >
+            全タイプ
+          </Link>
+          {CAT_LABELS.map((c) => (
+            <Link
+              key={c.key}
+              href={`/${paramsWith({ cat: c.key })}`}
+              className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-medium ${
+                catFilter === c.key
+                  ? "bg-ink-700 text-white"
+                  : "border border-ink-200 bg-white text-ink-600 active:bg-ink-100"
+              }`}
+            >
+              {c.label}
+            </Link>
+          ))}
+          <span className="mx-1 text-ink-300">|</span>
+          {STRAT_LABELS.map((s) => (
+            <Link
+              key={s.key}
+              href={`/${paramsWith({ strat: s.key })}`}
+              className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-medium ${
+                stratFilter === s.key
+                  ? "bg-warn-600 text-white"
+                  : "border border-ink-200 bg-white text-ink-600 active:bg-ink-100"
+              }`}
+            >
+              {s.label}
+            </Link>
+          ))}
+        </div>
       </div>
 
       <div className="px-3 py-4 space-y-1">
@@ -191,6 +254,10 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
             フィルタ適用中:
             {personFilter ? ` 担当 = ${allPeople.find((p) => p.id === personFilter)?.name ?? "?"}` : ""}
             {range !== "all" ? ` ・ 期間 = ${RANGE_LABELS.find((r) => r.key === range)?.label}` : ""}
+            {catFilter ? ` ・ 種別 = ${CAT_LABELS.find((c) => c.key === catFilter)?.label ?? catFilter}` : ""}
+            {stratFilter ? ` ・ 戦略 = ${STRAT_LABELS.find((s) => s.key === stratFilter)?.label ?? stratFilter}` : ""}
+            {" "}
+            <Link href="/" className="link ml-1">クリア</Link>
           </div>
         ) : null}
 
