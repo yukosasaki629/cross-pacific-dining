@@ -3,7 +3,7 @@ import { endOfWeek, fmtDate, isOverdue, startOfWeek } from "@/lib/utils";
 import {
   SHARE_PROJECT_SELECT,
   shareProjectWhere,
-  shareTopicWhere,
+  reportTopicWhere,
   shareDecisionWhere,
   shareRiskWhere,
   shareFollowUpWhere,
@@ -42,7 +42,7 @@ export async function composeReport(): Promise<string> {
   ] = await Promise.all([
     // ⭐ 重要トピック(未完了)
     prisma.topic.findMany({
-      where: shareTopicWhere({
+      where: reportTopicWhere({
         isImportant: true,
         status: { not: "done" },
         createdAt: { gte: lookback },
@@ -59,7 +59,7 @@ export async function composeReport(): Promise<string> {
     }),
     // 📌 フォロー要トピック
     prisma.topic.findMany({
-      where: shareTopicWhere({
+      where: reportTopicWhere({
         needsFollowUp: true,
         status: { not: "done" },
         createdAt: { gte: lookback },
@@ -76,7 +76,7 @@ export async function composeReport(): Promise<string> {
     }),
     // 判断系トピック(category=decision, 未完了)
     prisma.topic.findMany({
-      where: shareTopicWhere({
+      where: reportTopicWhere({
         category: "decision",
         status: { not: "done" },
         createdAt: { gte: lookback },
@@ -91,7 +91,7 @@ export async function composeReport(): Promise<string> {
     }),
     // リスク系トピック
     prisma.topic.findMany({
-      where: shareTopicWhere({
+      where: reportTopicWhere({
         category: "risk",
         status: { not: "done" },
         createdAt: { gte: lookback },

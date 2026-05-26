@@ -129,6 +129,27 @@ export function shareTopicWhere(extra: Prisma.TopicWhereInput = {}): Prisma.Topi
   };
 }
 
+// ----- /report 用(レビュー前提のゆるい絞り込み) ---------------------------
+//
+// 機密区分(sensitivity)は厳格に守るが、visibility は問わない。
+// 理由:/report は優子が生成・編集してから手動で社長に送る流れなので、
+//      ⭐/📌 でマークしたものはレビュー対象として全部含めたい。
+//      機密(board/compensation/executive_only)は引き続き自動除外。
+export function reportTopicWhere(extra: Prisma.TopicWhereInput = {}): Prisma.TopicWhereInput {
+  return {
+    AND: [
+      { sensitivity: "general" },
+      {
+        OR: [
+          { projectId: null },
+          { project: { isSharedWithCEO: true } },
+        ],
+      },
+      extra,
+    ],
+  };
+}
+
 // ----- アクセス可否判定(プロジェクト詳細用) ---------------------------------
 //
 // /share/projects/[id] で「このIDは公開していいか?」を判断するときに使う。
