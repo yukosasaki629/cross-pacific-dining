@@ -2,9 +2,50 @@
 
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { splitIntoTopics } from "@/lib/split-topics";
 
 function s(v: FormDataEntryValue | null): string {
   return typeof v === "string" ? v : "";
+}
+
+// 1on1メモの ## 見出しごとに Topic を自動作成
+// ## が無ければ {created: 0} を返す(UI 側で警告表示)
+export async function generateTopicsFromMeeting(
+  meetingId: string,
+): Promise<{ created: number }> {
+  const m = await prisma.meetingNote.findUnique({
+    where: { id: meetingId },
+    select: { id: true, personId: true, rawNotes: true },
+  });
+  if (!m) throw new Error("1on1 が見つかりません");
+
+  const drafts = splitIntoTopics(m.rawNotes);
+  if (drafts.length === 0) return { created: 0 };
+
+  await prisma.$transaction(async (tx) => {
+    for (const d of drafts) {
+      await tx.topic.create({
+        data: {
+          meetingNoteId: m.id,
+          personId: m.personId,
+          title: d.title,
+          content: d.content,
+          category: d.suggestedCategory,
+          sensitivity: d.sensitivity,
+          // isImportant / needsFollowUp は false のまま → ユーザーが手で割り振る
+        },
+      });
+    }
+    await tx.meetingNote.update({
+      where: { id: meetingId },
+      data: { processedAt: new Date() },
+    });
+  });
+
+  revalidatePath(`/oneonones/${meetingId}`);
+  revalidatePath("/oneonones");
+  revalidatePath("/");
+  return { created: drafts.length };
 }
 
 // トピックのフラグ・フィールドを更新

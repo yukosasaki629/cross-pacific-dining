@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { deleteTopicsFromMeeting, createTopicFromObject } from "@/app/topics/actions";
+import {
+  deleteTopicsFromMeeting,
+  createTopicFromObject,
+  generateTopicsFromMeeting,
+} from "@/app/topics/actions";
 
 export function AddTopicPanel({
   meetingId,
@@ -15,6 +19,8 @@ export function AddTopicPanel({
   const [expanded, setExpanded] = useState(false);
   const [pending, start] = useTransition();
   const [clearing, startClear] = useTransition();
+  const [splitting, startSplit] = useTransition();
+  const [splitResult, setSplitResult] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("info");
@@ -68,6 +74,20 @@ export function AddTopicPanel({
     });
   }
 
+  function autoSplit() {
+    setSplitResult(null);
+    startSplit(async () => {
+      const r = await generateTopicsFromMeeting(meetingId);
+      if (r.created === 0) {
+        setSplitResult(
+          "## 見出しが見つかりませんでした。ChatGPT のプロンプトを使って ## 見出し付きでまとめ直すか、手動で「+ トピック追加」してください。",
+        );
+      } else {
+        setSplitResult(`${r.created} 個のトピックを自動作成しました。⭐ / 📌 で割り振ってください。`);
+      }
+    });
+  }
+
   return (
     <div className="card card-pad border-accent-200 bg-accent-50/30">
       <div className="flex items-center justify-between gap-3">
@@ -78,7 +98,7 @@ export function AddTopicPanel({
             ⭐重要 / 📌フォロー要 を割り振ると、ホームと社長共有ビューに反映されます。
           </p>
         </div>
-        <div className="flex shrink-0 gap-2">
+        <div className="flex shrink-0 flex-wrap justify-end gap-2">
           {topicCount > 0 ? (
             <button
               onClick={clearAll}
@@ -89,6 +109,14 @@ export function AddTopicPanel({
             </button>
           ) : null}
           <button
+            onClick={autoSplit}
+            disabled={splitting}
+            className="btn text-[12px]"
+            title="メモが ## 見出し付きで書かれている場合、見出しごとに自動でトピック化"
+          >
+            {splitting ? "分割中…" : "## で自動分割"}
+          </button>
+          <button
             onClick={() => setExpanded(!expanded)}
             className="btn-primary text-[12px]"
           >
@@ -96,6 +124,16 @@ export function AddTopicPanel({
           </button>
         </div>
       </div>
+
+      {splitResult ? (
+        <div className={`mt-3 rounded border p-2 text-[12px] ${
+          splitResult.includes("見つかりません")
+            ? "border-warn-600/40 bg-warn-50 text-warn-700"
+            : "border-ok-600/40 bg-ok-50 text-ok-700"
+        }`}>
+          {splitResult}
+        </div>
+      ) : null}
 
       {expanded ? (
         <div className="mt-4 space-y-3">
