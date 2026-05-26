@@ -12,6 +12,42 @@
 
 import { detectPnlImpact, detectStrategicCategory, type PnlImpact, type StrategicCategory } from "./pnl-impact";
 
+// ChatGPT が明示してくれた値を返す。
+// kind "explicit" = ChatGPT が明示した(none も含めて従う)
+// kind "implicit" = ラベル無し → キーワード検知にフォールバック
+type Detected<T> = { kind: "explicit"; value: T } | { kind: "implicit" };
+
+function detectExplicitPnl(content: string): Detected<PnlImpact> {
+  const m = content.match(/(?:^|\n)\s*(?:P&L|p&l|pnl)\s*[:::]\s*([a-zA-Z_&]+)/);
+  if (!m) return { kind: "implicit" };
+  const v = m[1].toLowerCase().replace(/[&]/g, "");
+  if (v === "sales") return { kind: "explicit", value: "sales" };
+  if (v === "food_cost" || v === "foodcost") return { kind: "explicit", value: "food_cost" };
+  if (v === "labor_cost" || v === "laborcost") return { kind: "explicit", value: "labor_cost" };
+  if (v === "ga" || v === "g_a") return { kind: "explicit", value: "ga" };
+  if (v === "none") return { kind: "explicit", value: null };
+  return { kind: "implicit" };
+}
+
+function detectExplicitStrategic(content: string): Detected<StrategicCategory> {
+  const m = content.match(/(?:^|\n)\s*(?:戦略|strategic|Strategic)\s*[:::]\s*([a-zA-Z_]+)/);
+  if (!m) return { kind: "implicit" };
+  const v = m[1].toLowerCase();
+  if (v === "aop") return { kind: "explicit", value: "aop" };
+  if (v === "strategy") return { kind: "explicit", value: "strategy" };
+  if (v === "board") return { kind: "explicit", value: "board" };
+  if (v === "none") return { kind: "explicit", value: null };
+  return { kind: "implicit" };
+}
+
+// 自動判定用に、ラベル行(P&L: ... / 戦略: ...)を除いた本文を作る
+function stripLabelLines(text: string): string {
+  return text
+    .split(/\r?\n/)
+    .filter((l) => !/^\s*(?:P&L|p&l|pnl|戦略|strategic|Strategic)\s*[:::]/i.test(l))
+    .join("\n");
+}
+
 export type TopicDraft = {
   title: string;
   content: string;
@@ -94,6 +130,11 @@ function buildDraft(title: string, content: string): TopicDraft {
     }
   }
 
+  // 明示ラベル優先、無ければキーワード検知(ラベル行は除外して検知)
+  const explicitPnl = detectExplicitPnl(content);
+  const explicitStrat = detectExplicitStrategic(content);
+  const cleanText = stripLabelLines(fullText);
+
   return {
     title,
     content,
@@ -101,7 +142,7 @@ function buildDraft(title: string, content: string): TopicDraft {
     sensitivity,
     suggestedImportant,
     suggestedFollowUp,
-    pnlImpact: detectPnlImpact(fullText),
-    strategicCategory: detectStrategicCategory(fullText),
+    pnlImpact: explicitPnl.kind === "explicit" ? explicitPnl.value : detectPnlImpact(cleanText),
+    strategicCategory: explicitStrat.kind === "explicit" ? explicitStrat.value : detectStrategicCategory(cleanText),
   };
 }
