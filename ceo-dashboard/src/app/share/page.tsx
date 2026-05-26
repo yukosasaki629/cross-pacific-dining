@@ -2,13 +2,29 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { AppHeader } from "@/components/AppHeader";
 import { Dot, Pill } from "@/components/Badges";
-import { fmtMd, isOverdue } from "@/lib/utils";
+import { fmtDate, fmtMd, isOverdue } from "@/lib/utils";
 import {
   SHARE_PROJECT_SELECT,
   shareProjectWhere,
   shareDecisionWhere,
   shareRiskWhere,
+  shareTopicWhere,
 } from "@/lib/share-filters";
+
+const CATEGORY_LABEL: Record<string, string> = {
+  action: "アクション",
+  decision: "判断",
+  risk: "リスク",
+  info: "情報",
+  other: "その他",
+};
+const CATEGORY_COLOR: Record<string, string> = {
+  action: "bg-accent-50 text-accent-700",
+  decision: "bg-warn-50 text-warn-700",
+  risk: "bg-bad-50 text-bad-700",
+  info: "bg-ink-100 text-ink-600",
+  other: "bg-ink-100 text-ink-600",
+};
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +37,29 @@ export const dynamic = "force-dynamic";
 //  - リスクは visibility=ceo_shared のみ
 //  - board / compensation / executive_only タグは自動除外
 export default async function SharePage() {
-  const [projects, decisions, risks] = await Promise.all([
+  const [importantTopics, followUpTopics, projects, decisions, risks] = await Promise.all([
+    prisma.topic.findMany({
+      where: shareTopicWhere({ isImportant: true, status: { not: "done" } }),
+      orderBy: [{ dueDate: "asc" }, { updatedAt: "desc" }],
+      take: 10,
+      select: {
+        id: true, title: true, content: true, category: true, dueDate: true, owner: true,
+        person: { select: { name: true, role: true } },
+        meetingNote: { select: { date: true } },
+        project: { select: { name: true } },
+      },
+    }),
+    prisma.topic.findMany({
+      where: shareTopicWhere({ needsFollowUp: true, isImportant: false, status: { not: "done" } }),
+      orderBy: [{ dueDate: "asc" }, { updatedAt: "desc" }],
+      take: 10,
+      select: {
+        id: true, title: true, content: true, category: true, dueDate: true, owner: true,
+        person: { select: { name: true } },
+        meetingNote: { select: { date: true } },
+        project: { select: { name: true } },
+      },
+    }),
     prisma.project.findMany({
       where: shareProjectWhere({ status: { not: "完了" } }),
       orderBy: [{ priority: "desc" }, { riskLevel: "desc" }, { updatedAt: "desc" }],
@@ -66,6 +104,62 @@ export default async function SharePage() {
       <AppHeader title="CEOダッシュボード" subtitle="重要事項のサマリー" shareMode />
 
       <div className="px-3 py-4 space-y-1">
+        {/* ⭐ 重要トピック(優先表示) */}
+        {importantTopics.length > 0 ? (
+          <>
+            <h2 className="h-section"><span>⭐ 重要トピック ({importantTopics.length})</span></h2>
+            <div className="space-y-2">
+              {importantTopics.map((t) => (
+                <div key={t.id} className="card card-pad">
+                  <div className="text-[15px] font-semibold text-ink-900">{t.title}</div>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-ink-500">
+                    <span className={`pill ${CATEGORY_COLOR[t.category] ?? "bg-ink-100 text-ink-600"}`}>
+                      {CATEGORY_LABEL[t.category] ?? t.category}
+                    </span>
+                    {t.person ? <span>{t.person.name}</span> : null}
+                    {t.meetingNote ? <span>{fmtDate(t.meetingNote.date)}</span> : null}
+                    {t.project ? <span>· {t.project.name}</span> : null}
+                    {t.owner ? <span>· 担当: {t.owner}</span> : null}
+                    {t.dueDate ? (
+                      <span className={isOverdue(t.dueDate) ? "text-bad-700 font-medium" : ""}>
+                        · 期限 {fmtMd(t.dueDate)}{isOverdue(t.dueDate) ? "(超過)" : ""}
+                      </span>
+                    ) : null}
+                  </div>
+                  {t.content ? (
+                    <p className="mt-2 line-clamp-3 text-[13px] text-ink-700">{t.content}</p>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </>
+        ) : null}
+
+        {/* 📌 フォロー要トピック */}
+        {followUpTopics.length > 0 ? (
+          <>
+            <h2 className="h-section"><span>📌 フォロー要 ({followUpTopics.length})</span></h2>
+            <div className="space-y-2">
+              {followUpTopics.map((t) => (
+                <div key={t.id} className="card card-pad">
+                  <div className="text-[14px] font-medium text-ink-900">{t.title}</div>
+                  <div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-[11px] text-ink-500">
+                    <span className={`pill ${CATEGORY_COLOR[t.category] ?? "bg-ink-100 text-ink-600"}`}>
+                      {CATEGORY_LABEL[t.category] ?? t.category}
+                    </span>
+                    {t.person ? <span>{t.person.name}</span> : null}
+                    {t.dueDate ? (
+                      <span className={isOverdue(t.dueDate) ? "text-bad-700 font-medium" : ""}>
+                        · 期限 {fmtMd(t.dueDate)}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : null}
+
         <h2 className="h-section"><span>重要プロジェクト ({projects.length})</span></h2>
         <div className="space-y-2">
           {projects.length === 0 ? (

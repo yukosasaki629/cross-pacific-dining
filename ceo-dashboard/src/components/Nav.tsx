@@ -8,7 +8,7 @@ const ITEMS = [
   { href: "/", label: "ホーム", icon: HomeIcon },
   { href: "/oneonones", label: "1on1", icon: MicIcon },
   { href: "/projects", label: "Pj", icon: GridIcon },
-  { href: "/decisions", label: "判断", icon: BellIcon },
+  { href: "/search", label: "検索", icon: SearchIcon },
   { href: "/report", label: "レポート", icon: DocIcon },
 ];
 
@@ -75,6 +75,15 @@ export function TopNav() {
 }
 
 // --- inline icons ---
+
+function SearchIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <circle cx="11" cy="11" r="7" />
+      <line x1="21" y1="21" x2="16.6" y2="16.6" />
+    </svg>
+  );
+}
 
 function MicIcon(props: React.SVGProps<SVGSVGElement>) {
   return (

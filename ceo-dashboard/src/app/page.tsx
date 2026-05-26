@@ -117,13 +117,12 @@ export default async function Home() {
           )}
         </div>
 
-        {/* 判断が必要な事項 */}
+        {/* 判断が必要な事項(レガシー:旧抽出由来。データがあるときだけ表示) */}
+        {decisions.length > 0 ? (
+        <>
         <SectionHeader title="判断が必要な事項" hrefAll="/decisions" count={decisions.length} />
         <div className="space-y-2">
-          {decisions.length === 0 ? (
-            <EmptyCard msg="判断待ちはありません。" />
-          ) : (
-            decisions.map((d) => (
+          {decisions.map((d) => (
               <div key={d.id} className="card card-pad">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -160,17 +159,17 @@ export default async function Home() {
                   </div>
                 ) : null}
               </div>
-            ))
-          )}
+            ))}
         </div>
+        </>
+        ) : null}
 
-        {/* リスクあり案件 */}
+        {/* リスクあり案件(レガシー) */}
+        {risks.length > 0 ? (
+        <>
         <SectionHeader title="リスクあり案件" hrefAll="/risks" count={risks.length} />
         <div className="space-y-2">
-          {risks.length === 0 ? (
-            <EmptyCard msg="高・中リスクはありません。" />
-          ) : (
-            risks.map((r) => (
+          {risks.map((r) => (
               <div key={r.id} className="card card-pad">
                 <div className="flex items-start gap-2.5">
                   <div className="mt-1.5"><Dot value={r.severity} /></div>
@@ -199,17 +198,17 @@ export default async function Home() {
                   </div>
                 </div>
               </div>
-            ))
-          )}
+            ))}
         </div>
+        </>
+        ) : null}
 
-        {/* 今週のフォローアップ */}
+        {/* 今週のフォローアップ(レガシー) */}
+        {followups.length > 0 ? (
+        <>
         <SectionHeader title="今週のフォローアップ" hrefAll="/followups" count={followups.length} />
         <div className="space-y-2">
-          {followups.length === 0 ? (
-            <EmptyCard msg="今週フォローすべき項目はありません。" />
-          ) : (
-            followups.map((f) => (
+          {followups.map((f) => (
               <div key={f.id} className="card card-pad">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -237,17 +236,17 @@ export default async function Home() {
                   </div>
                 </div>
               </div>
-            ))
-          )}
+            ))}
         </div>
+        </>
+        ) : null}
 
-        {/* 期限超過タスク */}
+        {/* 期限超過タスク(レガシー) */}
+        {overdueTasks.length > 0 ? (
+        <>
         <SectionHeader title="期限超過タスク" hrefAll="/projects" count={overdueTasks.length} />
         <div className="space-y-2">
-          {overdueTasks.length === 0 ? (
-            <EmptyCard msg="期限超過のタスクはありません。" />
-          ) : (
-            overdueTasks.map((t) => (
+          {overdueTasks.map((t) => (
               <div key={t.id} className="card card-pad">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -274,9 +273,10 @@ export default async function Home() {
                   </div>
                 </div>
               </div>
-            ))
-          )}
+            ))}
         </div>
+        </>
+        ) : null}
 
         <div className="pt-6 text-center text-[11px] text-ink-400">
           社長と共有するビューは
