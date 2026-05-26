@@ -4,6 +4,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { upsertPerson } from "../actions";
 import { fmtDate } from "@/lib/utils";
 import { DeletePersonButton } from "./DeletePersonButton";
+import { EditPersonInline } from "./EditPersonInline";
 
 export const dynamic = "force-dynamic";
 
@@ -91,6 +92,7 @@ export default async function PeoplePage() {
                       ) : (
                         <div className="text-[11px] text-ink-400">未実施</div>
                       )}
+                      <EditPersonInline id={p.id} name={p.name} role={p.role} />
                       <DeletePersonButton
                         id={p.id}
                         name={p.name}
