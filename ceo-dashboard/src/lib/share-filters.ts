@@ -129,25 +129,17 @@ export function shareTopicWhere(extra: Prisma.TopicWhereInput = {}): Prisma.Topi
   };
 }
 
-// ----- /report 用(レビュー前提のゆるい絞り込み) ---------------------------
+// ----- /report 用(社長に渡す前提:機密含めて全件) -------------------------
 //
-// 機密区分(sensitivity)は厳格に守るが、visibility は問わない。
-// 理由:/report は優子が生成・編集してから手動で社長に送る流れなので、
-//      ⭐/📌 でマークしたものはレビュー対象として全部含めたい。
-//      機密(board/compensation/executive_only)は引き続き自動除外。
+// 設計方針:
+//   ダッシュボード本体は優子の個人ツール(社長には見せない)。
+//   /report はそこから「社長に見せる週次サマリー」を生成する出口。
+//   社長は1on1当事者なので、機密(報酬/Board/CFO候補/Sharaz等)も
+//   そもそも知っている内容 → すべて含めて報告書化する。
+//
+//   privateMemo(プロジェクトの非公開メモ)だけは引き続き除外(用途が違うため)。
 export function reportTopicWhere(extra: Prisma.TopicWhereInput = {}): Prisma.TopicWhereInput {
-  return {
-    AND: [
-      { sensitivity: "general" },
-      {
-        OR: [
-          { projectId: null },
-          { project: { isSharedWithCEO: true } },
-        ],
-      },
-      extra,
-    ],
-  };
+  return extra;
 }
 
 // ----- アクセス可否判定(プロジェクト詳細用) ---------------------------------

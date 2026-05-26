@@ -459,10 +459,6 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
         </>
         ) : null}
 
-        <div className="pt-6 text-center text-[11px] text-ink-400">
-          社長と共有するビューは
-          <Link href="/share" className="link ml-1">こちら</Link>
-        </div>
       </div>
     </div>
   );
