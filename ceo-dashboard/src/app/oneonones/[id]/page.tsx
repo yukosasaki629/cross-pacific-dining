@@ -6,7 +6,7 @@ import { Pill } from "@/components/Badges";
 import { TopicCard } from "@/components/TopicCard";
 import { fmtDate, fmtMd, startOfWeek } from "@/lib/utils";
 import { ProcessPanel } from "./ProcessPanel";
-import { TopicSplitPanel } from "./TopicSplitPanel";
+import { AddTopicPanel } from "./AddTopicPanel";
 import { DeleteButton } from "./DeleteButton";
 
 export const dynamic = "force-dynamic";
@@ -79,8 +79,12 @@ export default async function OneOnOneDetail({
           </p>
         </div>
 
-        {/* トピック分割パネル(新方式) */}
-        <TopicSplitPanel meetingId={m.id} hasTopics={m.topics.length > 0} />
+        {/* トピック追加パネル(手動入力) */}
+        <AddTopicPanel
+          meetingId={m.id}
+          personId={m.personId}
+          topicCount={m.topics.length}
+        />
 
         {/* トピック一覧 */}
         {m.topics.length > 0 ? (

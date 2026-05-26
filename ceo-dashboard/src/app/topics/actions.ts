@@ -2,48 +2,9 @@
 
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { splitIntoTopics } from "@/lib/split-topics";
 
 function s(v: FormDataEntryValue | null): string {
   return typeof v === "string" ? v : "";
-}
-
-// 1on1メモを分割してTopic候補をDBに保存
-export async function generateTopicsFromMeeting(
-  meetingId: string,
-): Promise<{ created: number }> {
-  const m = await prisma.meetingNote.findUnique({
-    where: { id: meetingId },
-    select: { id: true, personId: true, rawNotes: true },
-  });
-  if (!m) throw new Error("1on1 が見つかりません");
-
-  const drafts = splitIntoTopics(m.rawNotes);
-
-  await prisma.$transaction(async (tx) => {
-    for (const d of drafts) {
-      await tx.topic.create({
-        data: {
-          meetingNoteId: m.id,
-          personId: m.personId,
-          title: d.title,
-          content: d.content,
-          category: d.suggestedCategory,
-          sensitivity: d.hints.sensitivity,
-          // 全て open / not important / not follow-up — ユーザーが手で割り振る
-        },
-      });
-    }
-    await tx.meetingNote.update({
-      where: { id: meetingId },
-      data: { processedAt: new Date() },
-    });
-  });
-
-  revalidatePath(`/oneonones/${meetingId}`);
-  revalidatePath("/oneonones");
-  revalidatePath("/");
-  return { created: drafts.length };
 }
 
 // トピックのフラグ・フィールドを更新
@@ -125,7 +86,7 @@ export async function deleteTopicsFromMeeting(meetingId: string): Promise<{ dele
   return { deleted: r.count };
 }
 
-// 新規Topic手動作成
+// 新規Topic手動作成(FormData 経由)
 export async function createTopic(formData: FormData) {
   const title = s(formData.get("title")).trim();
   if (!title) throw new Error("タイトルは必須です");
@@ -145,4 +106,36 @@ export async function createTopic(formData: FormData) {
   });
   revalidatePath("/");
   revalidatePath("/oneonones");
+}
+
+// クライアント側からのオブジェクト引数受け取り用
+export async function createTopicFromObject(data: {
+  meetingId?: string | null;
+  personId?: string | null;
+  title: string;
+  content?: string;
+  category?: string;
+  isImportant?: boolean;
+  needsFollowUp?: boolean;
+  owner?: string | null;
+  dueDate?: string | null;
+}) {
+  if (!data.title.trim()) throw new Error("タイトルは必須です");
+  await prisma.topic.create({
+    data: {
+      meetingNoteId: data.meetingId || null,
+      personId: data.personId || null,
+      title: data.title.trim(),
+      content: data.content?.trim() || null,
+      category: data.category || "info",
+      isImportant: data.isImportant === true,
+      needsFollowUp: data.needsFollowUp === true,
+      owner: data.owner || null,
+      dueDate: data.dueDate ? new Date(data.dueDate) : null,
+    },
+  });
+  revalidatePath("/");
+  revalidatePath("/oneonones");
+  revalidatePath("/oneonones/people");
+  revalidatePath(`/oneonones/${data.meetingId}`);
 }
