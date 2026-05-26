@@ -4,7 +4,6 @@ import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { extractFromMeetingNote, type Extraction } from "@/lib/extract";
-import { splitSectionsByPerson } from "@/lib/split-sections";
 
 function s(v: FormDataEntryValue | null): string {
   return typeof v === "string" ? v : "";
@@ -361,73 +360,6 @@ export async function markItemStatus(type: ItemType, id: string, newStatus: stri
   revalidatePath(`/oneonones/people`);
   revalidatePath("/");
   revalidatePath("/share");
-}
-
-// =============================================================================
-// 一括ペースト → セクション自動分割 → まとめて1on1作成
-// =============================================================================
-
-export type BulkPreview = {
-  sections: {
-    index: number;
-    heading: string;
-    body: string;
-    matchedPersonId: string | null;
-    matchReason: string;
-  }[];
-  people: { id: string; name: string; role: string | null }[];
-};
-
-export async function previewBulk(text: string): Promise<BulkPreview> {
-  const people = await prisma.person.findMany({
-    where: { active: true },
-    orderBy: { name: "asc" },
-    select: { id: true, name: true, role: true },
-  });
-  const sections = splitSectionsByPerson(text, people);
-  return { sections, people };
-}
-
-export async function createBulkMeetings(
-  sections: { personId: string; body: string }[],
-  date: string,
-): Promise<{ created: number }> {
-  const d = date ? new Date(date) : new Date();
-  let created = 0;
-  await prisma.$transaction(
-    async (tx) => {
-      for (const sec of sections) {
-        if (!sec.personId || !sec.body.trim()) continue;
-        await tx.meetingNote.create({
-          data: {
-            personId: sec.personId,
-            date: d,
-            rawNotes: sec.body,
-          },
-        });
-        created++;
-      }
-    },
-    { timeout: 30_000 },
-  );
-  revalidatePath("/oneonones");
-  revalidatePath("/oneonones/people");
-  revalidatePath("/");
-  return { created };
-}
-
-// 新しい相手を追加(バルクUI内から)
-export async function quickAddPerson(
-  name: string,
-  role: string | null,
-): Promise<{ id: string; name: string; role: string | null }> {
-  const trimmed = name.trim();
-  if (!trimmed) throw new Error("名前を入力してください");
-  const existing = await prisma.person.findFirst({ where: { name: trimmed } });
-  if (existing) return { id: existing.id, name: existing.name, role: existing.role };
-  const created = await prisma.person.create({ data: { name: trimmed, role: role?.trim() || null } });
-  revalidatePath("/oneonones/people");
-  return { id: created.id, name: created.name, role: created.role };
 }
 
 // 人を削除(関連する1on1メモ・派生レコードも全部削除)

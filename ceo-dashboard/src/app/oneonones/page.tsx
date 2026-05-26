@@ -20,11 +20,10 @@ type MeetingWithMeta = {
 export default async function OneOnOnesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ p?: string; bulk?: string }>;
+  searchParams: Promise<{ p?: string }>;
 }) {
   const sp = await searchParams;
   const personFilter = sp?.p ?? "";
-  const bulkCount = sp?.bulk ? Number(sp.bulk) : null;
 
   const [people, meetings] = await Promise.all([
     prisma.person.findMany({
@@ -70,14 +69,9 @@ export default async function OneOnOnesPage({
         title="1on1 受信箱"
         subtitle={`${meetings.length} 件 / ${people.length} 名`}
         rightSlot={
-          <div className="flex gap-1.5">
-            <Link href="/oneonones/bulk" className="btn text-[12px]">
-              一括取込
-            </Link>
-            <Link href="/oneonones/new" className="btn-primary text-[12px]">
-              + 新規
-            </Link>
-          </div>
+          <Link href="/oneonones/new" className="btn-primary text-[12px]">
+            + 新規
+          </Link>
         }
       />
 
@@ -119,11 +113,6 @@ export default async function OneOnOnesPage({
 
       <div className="px-3 py-4">
         <CleanupAllButton />
-        {bulkCount && bulkCount > 0 ? (
-          <div className="mb-3 rounded-lg border border-ok-600/40 bg-ok-50 px-3 py-2.5 text-[13px] text-ok-700">
-            ✓ {bulkCount}件の1on1メモを一括保存しました。それぞれの詳細画面で「処理する」を押すと抽出できます。
-          </div>
-        ) : null}
         {personFilter ? (
           (() => {
             const selectedPerson = people.find((p) => p.id === personFilter);
